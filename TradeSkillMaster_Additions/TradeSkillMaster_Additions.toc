@@ -1,0 +1,27 @@
+## Interface: 50400
+## Title: |cff00ff00TradeSkillMaster_Additions|r
+## Notes: Provides a handful of small quality of life features.
+## Author: Sapu94, Bart39
+## Version: v2.0.1
+## SavedVariables: TradeSkillMaster_AdditionsDB
+## Dependency: TradeSkillMaster
+## X-Curse-Packaged-Version: v2.0.1
+## X-Curse-Project-Name: TradeSkillMaster_Additions
+## X-Curse-Project-ID: tradeskillmaster_additions
+## X-Curse-Repository-ID: wow/tradeskillmaster_additions/mainline
+
+Locale\enUS.lua
+Locale\frFR.lua
+Locale\deDE.lua
+Locale\koKR.lua
+Locale\esMX.lua
+Locale\ruRU.lua
+Locale\zhCN.lua
+Locale\esES.lua
+Locale\zhTW.lua
+Locale\ptBR.lua
+
+TradeSkillMaster_Additions.lua
+Modules\Options.lua
+Modules\AuctionSales.lua
+Modules\VendorBuying.lua

@@ -1,0 +1,95 @@
+-- ------------------------------------------------------------------------------------- --
+-- 					TradeSkillMaster_AuctionDB - AddOn by Sapu94							 	  	  --
+--   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctiondb.aspx   --
+--																													  --
+--		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
+--				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
+-- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
+--		concerns regarding this license.																	  --
+-- ------------------------------------------------------------------------------------- --
+
+-- TradeSkillMaster_AuctionDB Locale - zhTW
+-- Please use the localization app on CurseForge to update this
+-- http://wow.curseforge.com/addons/TradeSkillMaster_AuctionDB/localization/
+
+local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster_AuctionDB", "zhTW")
+if not L then return end
+
+-- L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."] = ""
+-- L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, it may disconnect you from the game and has a 15 minute cooldown."] = ""
+L["Alchemy"] = "鍊金"
+L["Any items in the AuctionDB database that contain the search phrase in their names will be displayed."] = "任何在資料庫中符合搜尋條件的物品，皆會顯示出來"
+-- L["A profession scan will scan items required/made by a certain profession."] = ""
+L["Are you sure you want to clear your AuctionDB data?"] = "你確定要清除資料庫?"
+L["Ascending"] = "遞增"
+-- L["AuctionDB - Market Value"] = ""
+L["AuctionDB Market Value:"] = "拍賣行資料庫 市場價"
+L["AuctionDB Min Buyout:"] = "拍賣行資料庫 最低直購價"
+-- L["AuctionDB - Minimum Buyout"] = ""
+L["AuctionDB Seen Count:"] = "資料庫見過次數"
+L["Blacksmithing"] = "鍛造"
+L["|cffff0000WARNING:|r As of 4.0.1 there is a bug with GetAll scans only scanning a maximum of 42554 auctions from the AH which is less than your auction house currently contains. As a result, thousands of items may have been missed. Please use regular scans until blizzard fixes this bug."] = "|cffff0000警告：|r 4.0.1版後有一個關於全掃描只能掃到42554個物品的臭蟲。因此數以千計的物品可能會掃不到。在BZ修正前，請先使用一般掃描。"
+L["Cooking"] = "烹飪"
+L["Descending"] = "遞減"
+-- L["Done Scanning"] = ""
+L["Enable display of AuctionDB data in tooltip."] = "在游標提示中顯示拍賣行資料庫數據"
+L["Enchanting"] = "附魔"
+L["Engineering"] = "工程學"
+L["General Options"] = "一般選項"
+L["Hide poor quality items"] = "隱藏低品質物品"
+L["If checked, poor quality items won't be shown in the search results."] = "如果勾選，低品質物㗊將不會顯示在搜尋記錄。"
+L["Inscription"] = "銘文"
+L["Invalid value entered. You must enter a number between 5 and 500 inclusive."] = "不正確的值。你需輸入介於5到500間。"
+L["Item Link"] = "物品連結"
+L["Item MinLevel"] = "物品最低等級"
+L["Items per page"] = "一頁幾項物品"
+L["Items %s - %s (%s total)"] = "物品%s - %s (總共：%s)"
+L["Item SubType Filter"] = "物品次類別過濾器"
+L["Item Type Filter"] = "物品種類過濾器"
+-- L["It is strongly recommended that you reload your ui (type '/reload') after running a GetAll scan. Otherwise, any other scans (Post/Cancel/Search/etc) will be much slower than normal."] = ""
+L["Jewelcrafting"] = "珠寶"
+L["Last Scanned"] = "最後掃描"
+L["Leatherworking"] = "製皮"
+L["Market Value"] = "市場價值"
+L["Minimum Buyout"] = "最小直購價"
+-- L["Never scan the auction house again!"] = ""
+L["Next Page"] = "下一頁"
+L["No items found"] = "找不到物品"
+L["Not Ready"] = "還未就緒"
+-- L["Num(Yours)"] = ""
+L["Options"] = "選項"
+L["Previous Page"] = "前一頁"
+-- L["Professions:"] = ""
+L["Ready"] = "就緒"
+L["Ready in %s min and %s sec"] = "在%s分鐘%s秒內完成"
+L["Refresh"] = "重新整理"
+L["Refreshes the current search results."] = "重新整理目前的尋找結果"
+-- L["Removed %s from AuctionDB."] = ""
+L["Reset Data"] = "重置資料"
+L["Resets AuctionDB's scan data"] = "重置AuctionDB的掃描資料"
+-- L["Run Full Scan"] = ""
+L["Run GetAll Scan"] = "進行全拍賣行掃描"
+-- L["Run Profession Scan"] = ""
+L["Run Scan"] = "掃描"
+L["%s ago"] = "%s以前"
+-- L["Scan interrupted."] = ""
+-- L["Scanning..."] = ""
+-- L["Scan the auction house with AuctionDB to update its market value and min buyout data."] = ""
+L["Search"] = "尋找"
+L["Search Options"] = "尋找選項"
+L["Select how you would like the search results to be sorted. After changing this option, you may need to refresh your search results by hitting the \"Refresh\" button."] = "選擇你的尋找結果如何呈現。變更這個選項後，你可能要按下「重新整理」來顯示尋找結果。"
+-- L["Select professions to include in the profession scan."] = ""
+-- L["Shift-Right-Click to clear all data for this item from AuctionDB."] = ""
+L["Sort items by"] = "排序物品"
+L["Sort search results in ascending order."] = "以遞增方式排序尋找結果。"
+L["Sort search results in descending order."] = "以遞減方式排序尋找結果。"
+-- L["%s - Scanning page %s/%s of filter %s/%s"] = ""
+L["Tailoring"] = "裁縫"
+-- L["The author of TradeSkillMaster has created an application which uses blizzard's online auction house APIs to update your AuctionDB data automatically. Check it out at the link in TSM_AuctionDB's description on curse or at: %s"] = ""
+L["This determines how many items are shown per page in results area of the \"Search\" tab of the AuctionDB page in the main TSM window. You may enter a number between 5 and 500 inclusive. If the page lags, you may want to decrease this number."] = "這決定在拍賣資料庫中的TSM主要搜尋頁面，一頁要顯示多少資料，你可以輸入介於5到500的數字，如果lag，你可能需要減少這個值。"
+-- L["Use the search box and category filters above to search the AuctionDB data."] = ""
+-- L["Waiting for data..."] = ""
+L["You can filter the results by item subtype by using this dropdown. For example, if you want to search for all herbs, you would select \"Trade Goods\" in the item type dropdown and \"Herbs\" in this dropdown."] = "你可以用次要類別的下拉式選單來過濾結果，例如如果只要找藥草，你需要選擇交易貨品種類後，再選擇藥草這個次類別。"
+L["You can filter the results by item type by using this dropdown. For example, if you want to search for all herbs, you would select \"Trade Goods\" in this dropdown and \"Herbs\" as the subtype filter."] = "你可以用類別的下拉式選單來過濾結果，例如如果要找所有的藥草，你需要選擇交易貨品種類後，再選擇藥草這個次類別。"
+-- L["You can use this page to lookup an item or group of items in the AuctionDB database. Note that this does not perform a live search of the AH."] = ""
+ 

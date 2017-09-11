@@ -1,0 +1,105 @@
+v1.4.5
+*Crafting groups now reset properly
+*UPDATEBAGSTATE, and craftstate, are only printed when movedata = true
+
+v1.4.4.3
+*Elvui should work now
+
+v1.4.4.2
+*Crafting groups should now work properly across multiple chars
+
+v1.4.4.1
+*LUI compatible
+*removed annoying print statement
+
+v1.4.4
+*compatable with famBankFrame
+*Tukui!
+*ElvUI
+
+v1.4.3.1
+*fixed a typo that caused an error
+
+v1.4.3
+*fixed a bankui issue
+*fixed auctioning groups
+
+v1.4.2
+*fixed and an issue if auctioning or crafting are not installed.
+
+v1.4.1
+*removed Lisence.txt
+*fixed the .toc file
+
+
+v1.4
+*removed Lisence.txt
+
+v1.3.3
+*Changed the behavior for auctioning
+*Fixed the version number
+
+v1.3.2
+*removed print statement
+
+v1.3.1
+*fixed a bug with increment
+
+v1.3
+*Im experimenting with trying to speed up the gbank, and eliminates dc's 
+*more local varaibles Sapu rejoice!
+
+v1.2.5
+*fixed a bug
+
+v1.2.4
+*no longer am I quering the gbanktab
+
+v1.2.2
+*set limits to the timeouts
+
+v1.2.1
+*You can now close the bankui at will
+*You can now adjust the gbank time out
+
+v1.0.9.2
+*debug print statement
+
+v1.0.9.1
+*added timeouts to the movement code
+
+v1.0.9
+*Fixed a bug in canGoInBag
+
+v1.0.8
+*Fixed some bugs
+
+v1.0.7
+*Warehousing now works with many different bank addons
+
+v1.0.6
+*Warehousing now works with ArkInventory
+*Slowed the gbank down further 
+
+
+v1.0.5
+*So it will show up on curse
+*I also fixed a bug last night, but dont remember what it was
+
+v1.0.4
+*I fixed it better
+
+v1.0.3
+*Attempt to stop the move process if the users bags are closed
+
+v1.0.2
+*I hate localizing
+
+v1.0.1
+*updated for 4.3....wait what??
+*changed inventory_manger to warehousing
+
+v1.0
+*it has been released!!
+
+

@@ -1,0 +1,44 @@
+﻿## Interface: 50000
+## Title: |cff00ff00TradeSkillMaster_Crafting|r
+## Notes: Computes the profits of making various tradeskill crafts.
+## Author: Sapu94
+## Version: v1.1.5
+## SavedVariables: TradeSkillMaster_CraftingDB
+## Dependency: TradeSkillMaster
+## X-Curse-Packaged-Version: v1.1.5
+## X-Curse-Project-Name: TradeSkillMaster_Crafting
+## X-Curse-Project-ID: tradeskillmaster_crafting
+## X-Curse-Repository-ID: wow/tradeskillmaster_crafting/mainline
+
+Locale\enUS.lua
+Locale\deDE.lua
+Locale\esES.lua
+Locale\esMX.lua
+Locale\frFR.lua
+Locale\koKR.lua
+Locale\ruRU.lua
+Locale\zhCN.lua
+Locale\zhTW.lua
+Locale\ptBR.lua
+
+TradeSkillMaster_Crafting.lua
+Modules\Data.lua
+Modules\Scan.lua
+Modules\ProfessionConfig.lua
+Modules\Options.lua
+Modules\Crafting.lua
+Modules\CraftingUtil.lua
+Modules\Queue.lua
+Modules\Vendor.lua
+Modules\CraftingAPI.lua
+Modules\Comm.lua
+
+Tradeskills\enchanting.lua
+Tradeskills\inscription.lua
+Tradeskills\jewelcrafting.lua
+Tradeskills\alchemy.lua
+Tradeskills\blacksmithing.lua
+Tradeskills\leatherworking.lua
+Tradeskills\tailoring.lua
+Tradeskills\engineering.lua
+Tradeskills\cooking.lua

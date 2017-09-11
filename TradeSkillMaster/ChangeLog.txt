@@ -1,0 +1,109 @@
+v1.4
+*Redesigned the look and feel of the main TSM window and the auction house tab.
+*Added a bunch of new options for customizing the new look.
+*Added the ability to import / export appearance settings.
+*Added a list of importable preset themes for TSM.
+*There is now a hidden gem somewhere in TSM. Find it and something cool will happen :).
+*Removed a few things which will cause errors in patch 5.0.4.
+*Added support for the general stats which are now also included in the TUJ realm edition.
+*TSM will now be packaged with a new version of LibAuctionScan which has significant scan speed improvements.
+*Many other minor bug fixes and improvements.
+
+v1.3
+*Added further warnings for users who may still have TSM_Gathering installed.
+*Fixed error caused by having Auctioneer enabled by not the Appraiser module.
+*Performed a major reorganization of TSM's code to make it easier to find specific functions.
+*Added tooltip support for selection lists.
+*Fixed a bug with SelectionLists not adding/removing items that were selected by not visible.
+*Updated all the disenchanting tables to fix a handful of inaccuracies.
+*Fixed an error caused by changing the Auction House scale before opening it for the first time.
+*SelectionList filters will now be parsed to avoid string pattern errors.
+*Many other minor bug fixes and improvements.
+
+v1.2
+*Added destroying data for essences / shards / crystals for the Destroying feature in the Shopping module.
+*Fixed various bugs with the TSM auction house tab / detached frame not displaying correctly.
+*Added option for opening all your bags when the AH is shown.
+*Added option for detaching the TSM auction house tab by default.
+*The TSM auction house tab will now remember its detached possition throughout a single session.
+*Removed localized strings from error handler and added client locale info.
+*Many other minor bug fixes and improvements.
+
+v1.1
+*Improved TSM's error catcher.
+*TSM's AH tab is now it's own window which can be detached from the main AH frame.
+*When TSM's tab is attached, it'll hide behind the main AH frame when you switch tabs, allowing your TSM scan to continue "in the background".
+*Added options for making the main AH frame movable and for changing the scale of the AH frame.
+*Added an option for removing the bids from auction results to make the buyouts easier to read (bids are now hidden by default).
+*Updated the LDBIcon to use a different texture than the minimap icon.
+*Many other minor bug fixes and improvements.
+
+v1.0
+*First Release Version!
+\\
+
+**Beta Versions:**
+
+v0.2.4
+*Updated some APIs for a new feature that's in the works.
+*Updated the TOC for patch 4.2.
+
+v0.2.3
+*Added support for spell tooltips.
+*Removed the extra "v" that would show up infront of version numbers.
+*Took out the Destroying button code (was moved to the Destroying module's code).
+*Added some new info messages that'll appear in popups when the user logs in.
+*Many other minor changes.
+
+v0.2.2
+*Added AceHook and lib-st libraries.
+*Fixed a typo in one of the tips.
+*Many other minor changes.
+
+v0.2.1
+*Finally fixed the bug where selectionlists (such as the one used for adding or removing items to Auctioning groups / categories) were only displaying the first 4 items under some circumstances.
+*Updated the TOC for patch 4.1
+
+v0.2
+*Added TSM tips to the status bar of the main TSM window. The tip will change everytime the TSM window is open.
+*Added a ton of support code for the AuctionDB and Destroying modules.
+*Cleaned up the unused slash command code as well as a bunch of other parts of the code.
+*Updated the credits.
+*Many other changes that aren't evident to the user but better the addon's code as a whole.
+
+v0.1.7
+*Removed the slash command line from the minimap button tooltip as it was causing some errors.
+*Tooltip functions can now access stack size info.
+*Cleaned up the TSMMacroButton code and fixed some bugs.
+
+v0.1.6
+*SelectionLists should now clear the selected row on release.
+*Added VersionKey APIs.
+*Removed a few extra libraries from the TOC file / addon folder.
+*Turned on no-lib creation.
+*Updated the credits.
+*Cleaned up some of the code.
+
+v0.1.5
+*Fixed a bug with the main TSM window on non-english clients.
+*Minor improvements to the GUI functions.
+*Added an option to the "Status" page for hiding the minimap icon.
+
+v0.1.4
+*Fixed some minor bugs with two of the TSMAPI functions.
+*This update is required for using the latest version of Crafting
+
+v0.1.3
+*Adjusted the sidebar so it should resize more in order to not be blocked by right action bars.
+*Fixed a bug with the selectionlists in auctioning sometimes only showing 4 items.
+*Updated the included TSM Guidebook pdf.
+
+v0.1.2
+*The sidebar frame should no longer go off the screen.
+*Added another popup to help new users.
+
+v0.1.1
+*Should be way more obvious when no modules are installed.
+
+v0.1
+*First Beta Release!

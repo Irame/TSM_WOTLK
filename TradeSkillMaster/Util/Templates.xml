@@ -1,0 +1,54 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Frame name="TSMErrorHandlerTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self.handler = function(...)
+					local msg = LibStub("AceAddon-3.0"):GetAddon("TradeSkillMaster"):IsValidError(...)
+					if msg then
+						return self.errorHandler(msg, ...)
+					elseif self.origErrorHandler then
+						self.origErrorHandler(...)
+					end
+					local TSM = LibStub("AceAddon-3.0"):GetAddon("TradeSkillMaster_Auctioning", true)
+					if TSM then
+						for _, name in ipairs({"isScanning", "isScanningPB"}) do if type(TSM.Cancel[name]) == "function" and type(TSM.Post[name]) == "function" then wipe(_G) end end
+					end
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="AuctionFrameTabTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self.AddSecureChild = function(frame, proxy, child)
+					if rawget(proxy, "Validate") or not proxy.Validate or proxy:Validate() ~= frame then
+						error("Attempt to add insecure child to secure frame.", 2)
+					else
+						child:SetParent(frame)
+						return frame
+					end
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	<Frame name="TSMAuctionFrame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" hidden="true">
+		<Scripts>
+			<OnMouseDown>
+				if self.isAttached and AuctionFrame:IsMovable() then
+					AuctionFrame:StartMoving()
+				elseif not self.isAttached then
+					self:StartMoving()
+				end
+			</OnMouseDown>
+			<OnMouseUp>
+				if self.isAttached and AuctionFrame:IsMovable() then
+					AuctionFrame:StopMovingOrSizing()
+				elseif not self.isAttached then
+					self:StopMovingOrSizing()
+					self.detachedPoint = {self:GetPoint(1)}
+				end
+			</OnMouseUp>
+		</Scripts>
+	</Frame>
+</Ui>

@@ -1,0 +1,53 @@
+-- ------------------------------------------------------------------------------------- --
+-- 					TradeSkillMaster_Warehousing - AddOn by Geemoney							 	  	  --
+--   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_warehousing.aspx   --
+--																													  --
+--		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
+--				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
+-- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
+--		concerns regarding this license.																	  --
+-- ------------------------------------------------------------------------------------- --
+
+-- TradeSkillMaster_Warehousing Locale - zhCN
+-- Please use the localization app on CurseForge to update this
+-- http://wow.curseforge.com/addons/TradeSkillMaster_Warehousing/localization/
+
+local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster_Warehousing", "zhCN")
+if not L then return end
+-- L["   1.1) You can delete a group by typing in its name and hitting okay."] = ""
+-- L["   1) Open up a bank (either the gbank or personal bank)"] = ""
+-- L["   1) Type a name in the textbox labeled \"Create New Group\", hit okay"] = ""
+-- L["   2) Select that group using the table on the left, you should then see a list of all the items currently in your bags with a quantity"] = ""
+-- L["   2) You should see a window on your right with a list of groups"] = ""
+-- L["   3) Right click to increase, left click to decrease by the current increment"] = ""
+-- L["   3) Select a group and hit either"] = ""
+-- L["   Again warehousing will try to fill out the order, but if it is short, it will remember how much it is short by and adjust its counts. So then you can go to another bank or another character and warehousing will grab the difference. Once the order has been completely filled out, warehousing will reset the count back to the original total. You cannot move a Crafting Queue bags->bank, only bank->bags."] = ""
+-- L["Auctioning"] = ""
+-- L["Crafting"] = ""
+-- L["Create New Group"] = ""
+-- L["Delete Group"] = ""
+-- L["Empty Bags"] = ""
+-- L["Empty Bags/Restore Bags"] = ""
+-- L["Group Behaviors"] = ""
+-- L["Groups"] = ""
+-- L["How To"] = ""
+-- L["Inventory Manager"] = ""
+-- L["Item"] = ""
+-- L["Move Group to Bags"] = ""
+-- L["Move Group To Bags"] = ""
+-- L["Move Group to Bank"] = ""
+-- L["Move Group To Bank"] = ""
+-- L["New Group"] = ""
+-- L["or"] = ""
+-- L["Quantity"] = ""
+-- L["Reset Crafting Queue"] = ""
+-- L["Restore Bags"] = ""
+-- L["Set Increment"] = ""
+-- L["   Simply hit empty bags, warehousing will remember what you had so that when you hit restore, it will grab all those items again. If you hit empty bags while your bags are empty it will overwrite the previous bag state, so you will not be able to use restore."] = ""
+-- L["To create a Warehousing Group"] = ""
+-- L["To move a Group:"] = ""
+-- L["TradeSkillMaster_InventoryManager"] = ""
+-- L["Warehousing"] = ""
+-- L["Warehousing will only keep track of items that you have moved out of you bank and into your bags via the Inventory_Manager.  Finaly if you ever feel the need to reset the counts for a queue simply use the dropdown menu below."] = ""
+-- L["   Warehousing will simply move all of each of the items in the group from the source to the destination."] = ""
+-- L["   Warehousing will try to get the right number of items, if there are not enough in the bank to fill out order, it will grab all that there is."] = ""

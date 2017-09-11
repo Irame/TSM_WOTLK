@@ -1,0 +1,32 @@
+## Interface: 50000
+## Title: |cff00ff00TradeSkillMaster_Shopping|r
+## Notes: Development addon for Sapu to do whatever he wants!
+## Author: Sapu94
+## Dependencies: TradeSkillMaster
+## Version: v1.3.2
+## SavedVariables: TradeSkillMaster_ShoppingDB
+## X-Curse-Packaged-Version: v1.3.2
+## X-Curse-Project-Name: TradeSkillMaster_Shopping
+## X-Curse-Project-ID: tradeskillmaster_shopping
+## X-Curse-Repository-ID: wow/tradeskillmaster_shopping/mainline
+
+Locale\enUS.lua
+Locale\deDE.lua
+Locale\esES.lua
+Locale\esMX.lua
+Locale\frFR.lua
+Locale\koKR.lua
+Locale\ruRU.lua
+Locale\zhCN.lua
+Locale\zhTW.lua
+Locale\ptBR.lua
+
+TradeSkillMaster_Shopping.lua
+modules\SearchGUI.lua
+modules\Search.lua
+modules\Destroying.lua
+modules\DestroyingUtil.lua
+modules\Automatic.lua
+modules\Config.lua
+modules\ImportExport.lua
+modules\AuctionControl.lua

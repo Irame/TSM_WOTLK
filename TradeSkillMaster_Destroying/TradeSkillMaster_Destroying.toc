@@ -1,0 +1,43 @@
+## Interface: 50000
+## Title: |cff00ff00TradeSkillMaster_Destroying|r
+## Notes: Helps mill herbs and prospect ore at super speed! YAY!!
+## Author: Geemoney
+## Version: v1.2.4
+## SavedVariables: TradeSkillMaster_DestroyingDB
+## Dependency: TradeSkillMaster
+## X-Curse-Packaged-Version: v0.1.3Beta
+## X-Curse-Project-Name: TradeSkillMaster_Destroying
+## X-Curse-Project-ID: tradeskillmaster_destroying
+## X-Curse-Repository-ID: wow/tradeskillmaster_destroying/mainline
+## X-Curse-Packaged-Version: v0.1.6.8Beta
+## X-Curse-Project-Name: TradeSkillMaster_Destroying
+## X-Curse-Project-ID: tradeskillmaster_destroying
+## X-Curse-Repository-ID: wow/tradeskillmaster_destroying/mainline
+## X-Curse-Packaged-Version: v0.2.0.1Beta
+## X-Curse-Project-Name: TradeSkillMaster_Destroying
+## X-Curse-Project-ID: tradeskillmaster_destroying
+## X-Curse-Repository-ID: wow/tradeskillmaster_destroying/mainline
+## X-Curse-Packaged-Version: v1.2.4
+## X-Curse-Project-Name: TradeSkillMaster_Destroying
+## X-Curse-Project-ID: tradeskillmaster_destroying
+## X-Curse-Repository-ID: wow/tradeskillmaster_destroying/mainline
+
+Locale\enUS.lua
+Locale\deDE.lua
+Locale\esES.lua
+Locale\esMX.lua
+Locale\frFR.lua
+Locale\koKR.lua
+Locale\ruRU.lua
+Locale\zhCN.lua
+Locale\zhTW.lua
+Locale\ptBR.lua
+
+TradeSkillMaster_Destroying.lua
+Modules\gui.lua
+Modules\util.lua
+Modules\destroybtn.lua
+Modules\loot.lua
+Modules\de.lua
+Modules\stDestroying.lua
+Modules\stDE.lua

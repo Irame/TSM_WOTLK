@@ -1,0 +1,9 @@
+v1.1
+*Added support for multiple accounts.
+*Added inventory viewer tab to the ItemTracker part of the TSM window.
+*Removed unnecessary processing code which was slowing things down.
+*Fixed bug with tooltip lines being duplicated after changing tooltip setting.
+
+
+v1.0
+*First Release Version!
