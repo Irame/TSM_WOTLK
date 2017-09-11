@@ -205,6 +205,17 @@ local methods = {
 	["IterateItems"] = function(self)
 		return ipairs(self.items)
 	end,
+	
+	["GetMaxWidth"] = function(self)
+		maxWidth = 0
+		for i, widget in self:IterateItems() do
+			itemTextWidth = widget:GetWidth()
+			if (itemTextWidth > maxWidth) then
+				maxWidth = itemTextWidth
+			end
+		end
+		return maxWidth + 8
+	end,
 
 	["SetHideOnLeave"] = function(self, val)
 		self.hideOnLeave = val
