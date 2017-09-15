@@ -37,7 +37,7 @@ local function GetItemString(itemLink)
 	local itemInfo = {strfind(itemLink, "|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%-?%d*):?(%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")}
 	if not itemInfo[11] then return end
 	
-	return table.concat(itemInfo, ":", 4, 11)
+	return table.concat(itemInfo, ":", 4, 11), itemInfo[5]
 end
 
 local delays = {}
@@ -102,7 +102,7 @@ local function AuctionDataIsBad(temp, resolveSeller)
 	for i=1, shown do
 		-- checks to make sure all the data has been sent to the client
 		-- if not, the data is bad and we'll wait / try again
-		local count, _, _, _, _, _, _, buyout, _, _, seller = select(3, GetAuctionItemInfo("list", i))
+		local count, _, _, _, _, _, buyout, _, _, seller = select(3, GetAuctionItemInfo("list", i))
 		local itemString = GetItemString(GetAuctionItemLink("list", i))
 		temp[i] = {itemString=itemString, index=i}
 		if not (itemString and buyout and count and (seller or not resolveSeller)) then
@@ -224,7 +224,7 @@ do
 		
 		local numLinks, prevLink = 0, nil
 		for i=1, GetNumAuctionItems("list") do
-			local _, _, count, _, _, _, _, minBid, minInc, buyout, bid, _, seller = GetAuctionItemInfo("list", i)
+			local _, _, count, _, _, _, minBid, minInc, buyout, bid, _, seller = GetAuctionItemInfo("list", i)
 			local link = GetAuctionItemLink("list", i)
 			local temp = private.pageTemp[i]
 			
@@ -254,7 +254,7 @@ do
 		for i=1, shown do
 			-- checks to make sure all the data has been sent to the client
 			-- if not, the data is bad and we'll wait / try again
-			local _, _, count, _, _, _, _, minBid, minInc, buyout, bid, _, seller = GetAuctionItemInfo("list", i)
+			local _, _, count, _, _, _, minBid, minInc, buyout, bid, _, seller = GetAuctionItemInfo("list", i)
 			local link = GetAuctionItemLink("list", i)
 			
 			private.pageTemp[i] = {count=count, minBid=minBid, minInc=minInc, buyout=buyout, bid=bid, seller=seller, link=link}
@@ -510,10 +510,10 @@ do
 
 	-- Add a new record to the status.data table
 	function private:AddAuctionRecord(index)
-		local name, _, count, _, _, _, _, minBid, minIncrement, buyout, bid, highBidder, seller, _, itemID = GetAuctionItemInfo("list", index)
+		local name, _, count, _, _, _, minBid, minIncrement, buyout, bid, highBidder, seller = GetAuctionItemInfo("list", index)
 		local timeLeft = GetAuctionItemTimeLeft("list", index)
 		local link = GetAuctionItemLink("list", index)
-		local itemString = GetItemString(link)
+		local itemString, itemID = GetItemString(link)
 		local newItem
 		
 		if not itemString then return end
@@ -560,7 +560,7 @@ do
 		if exactOnly and not status.filter.isCombinedFilter and not newItem and not status.options.ShouldStop then
 			return nil, strlower(name) > strlower(status.filter.name)
 		end
-		return newItem, status.ShouldStop(link, count, buyout)
+		return itemString, status.ShouldStop(link, count, buyout)
 	end
 
 	-- stops the scan when we are finished scanning, it was interrupted, or somebody stopped it
@@ -609,7 +609,7 @@ do
 			-- get data for at most 200 auctions per update to avoid excessive lag
 			for i=1, 200 do
 				local link = GetAuctionItemLink("list", self.num)
-				local _, _, quantity, _, _, _, _, _, _, buyout = GetAuctionItemInfo("list", self.num)
+				local _, _, quantity, _, _, _, _, _, buyout = GetAuctionItemInfo("list", self.num)
 				if self.tries == 0 or (link and quantity and buyout) then
 					self.num = self.num + 1
 					self.tries = 3
@@ -804,9 +804,8 @@ do
 	end
 	
 	local function IsTargetAuction(index)
-		local itemID = Get
-		local itemString = GetItemString(GetAuctionItemLink("list", index))
-		local _, _, count, _, _, _, _, minBid, bidIncrement, buyout, bidAmount, _, seller, _, itemID = GetAuctionItemInfo("list", index)
+		local itemString, itemID = GetItemString(GetAuctionItemLink("list", index))
+		local _, _, count, _, _, _, minBid, bidIncrement, buyout, bidAmount, _, seller = GetAuctionItemInfo("list", index)
 		local bid = bidAmount == 0 and minBid or bidAmount
 		local info = status.targetInfo
 		if type(info.itemString) == "number" then

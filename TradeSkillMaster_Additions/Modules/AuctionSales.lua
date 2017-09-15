@@ -30,7 +30,7 @@ function AuctionSales:AUCTION_OWNED_LIST_UPDATE()
 	for i=1, GetNumAuctionItems("owner") do
 		local link = GetAuctionItemLink("owner", i)
 		local itemString = TSMAPI:GetItemString(link)
-		local name, _, quantity, _, _, _, _, _, _, buyout, _, _, _, wasSold, _, wasSold_54 = GetAuctionItemInfo("owner", i)
+		local name, _, quantity, _, _, _, _, _, buyout, _, _, _, wasSold, _, wasSold_54 = GetAuctionItemInfo("owner", i)
 	if select(4, GetBuildInfo()) == 50400 then wasSold = wasSold_54 end
 		if wasSold == 0 and itemString then
 			if buyout and buyout > 0 then

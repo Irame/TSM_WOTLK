@@ -210,7 +210,7 @@ function Data:ScanPlayerAuctions()
 	
 	for i=1, GetNumAuctionItems("owner") do
 		local itemID = TSMAPI:GetItemID(GetAuctionItemLink("owner", i))
-		local _, _, quantity, _, _, _, _, _, _, _, _, _, _, wasSold = GetAuctionItemInfo("owner", i)
+		local _, _, quantity, _, _, _, _, _, _, _, _, _, wasSold = GetAuctionItemInfo("owner", i)
 		if wasSold == 0 and itemID then
 			TSM.characters[CURRENT_PLAYER].auctions[itemID] = (TSM.characters[CURRENT_PLAYER].auctions[itemID] or 0) + quantity
 		end

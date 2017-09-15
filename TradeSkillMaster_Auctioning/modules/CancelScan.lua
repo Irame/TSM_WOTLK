@@ -33,7 +33,7 @@ function Cancel:GetScanListAndSetup(GUIRef, options)
 	
 	if options.cancelAll then
 		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(14, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(11, GetAuctionItemInfo("owner", i)) == 0) then
+			if select(13, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(10, GetAuctionItemInfo("owner", i)) == 0) then
 				local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
 				itemsToCancel[itemString] = true
 				tempList[itemString] = true
@@ -41,7 +41,7 @@ function Cancel:GetScanListAndSetup(GUIRef, options)
 		end
 	elseif options.cancelDuration then
 		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(14, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(11, GetAuctionItemInfo("owner", i)) == 0) then
+			if select(13, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(10, GetAuctionItemInfo("owner", i)) == 0) then
 				local timeLeft = GetAuctionItemTimeLeft("owner", i)
 				if timeLeft <= TSM.db.global.lowDuration then
 					local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
@@ -53,7 +53,7 @@ function Cancel:GetScanListAndSetup(GUIRef, options)
 		isCancelAll = TSM.db.global.lowDuration
 	elseif options.cancelFilter then
 		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(14, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(11, GetAuctionItemInfo("owner", i)) == 0) then
+			if select(13, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(10, GetAuctionItemInfo("owner", i)) == 0) then
 				local itemName = GetAuctionItemInfo("owner", i)
 				if strfind(strlower(itemName), strlower(options.cancelFilter)) then
 					local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
@@ -65,7 +65,7 @@ function Cancel:GetScanListAndSetup(GUIRef, options)
 	else
 		-- Add a scan based on items in the AH that match
 		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(14, GetAuctionItemInfo("owner", i)) == 0 then
+			if select(13, GetAuctionItemInfo("owner", i)) == 0 then
 				local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
 				local itemID = TSMAPI:GetItemID(itemString)
 				if TSM.itemReverseLookup[itemID] then
@@ -130,7 +130,7 @@ function Cancel:ProcessItem(itemString, noLog)
 end
 
 function Cancel:ShouldCancel(index)
-	local _, _, quantity, _, _, _, _, bid, _, buyout, activeBid, _, _, wasSold = GetAuctionItemInfo("owner", index)     
+	local _, _, quantity, _, _, _, bid, _, buyout, activeBid, _, _, wasSold = GetAuctionItemInfo("owner", index)     
 	local buyoutPerItem = floor(buyout / quantity)
 	local bidPerItem = floor(bid / quantity)
 	
@@ -286,7 +286,7 @@ function Cancel:DoAction()
 	
 	-- figure out which index the item goes to
 	for i=GetNumAuctionItems("owner"), 1, -1 do
-		local _, _, quantity, _, _, _, _, bid, _, buyout, activeBid = GetAuctionItemInfo("owner", i)
+		local _, _, quantity, _, _, _, bid, _, buyout, activeBid = GetAuctionItemInfo("owner", i)
 		local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
 		if type(currentItem.itemString) == "number" then
 			itemString = TSMAPI:GetItemID(itemString)
