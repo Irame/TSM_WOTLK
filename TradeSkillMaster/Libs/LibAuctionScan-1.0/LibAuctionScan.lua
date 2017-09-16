@@ -819,7 +819,7 @@ do
 	function lib:FindAuction(callback, targetInfo)
 		if status.isScanning then lib:StopFindScan() end
 		
-		local name, _, rarity, _, minLevel, class, subClass, _, equipLoc = GetItemInfo(targetInfo.itemString)
+		local name, _, rarity, _, minLevel, class, subClass, _, equipLoc = GetItemInfo(targetInfo.itemString:match("item:%d+:%d+:%d+:%d+:%d+"))
 		status.query = {name=name, minLevel=minLevel, maxLevel=minLevel, invSlot=(equipLocLookup[equipLoc] or 0), class=class, subClass=subClass, rarity=rarity}
 		status.targetInfo = targetInfo
 		status.callback = callback
