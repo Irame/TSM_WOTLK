@@ -122,7 +122,7 @@ local function GetSearchFilterOptions(searchTerm)
 		minILevel = oldMaxILevel
 	end
 	
-	return true, queryString or "", class or 0, subClass or 0, minLevel or 0, maxLevel or 0, minILevel or 0, maxILevel or 0, rarity or 0, usableOnly or 0, exactOnly or 0
+	return true, queryString or "", class, subClass, minLevel, maxLevel, minILevel, maxILevel, rarity, usableOnly, exactOnly
 end
 
 -- gets all the filters for a given search term (possibly semicolon-deliminated list of search terms)
