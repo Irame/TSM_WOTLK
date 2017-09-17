@@ -106,25 +106,28 @@ local function SortAuctionSTData(st)
 		i = i + 1;
 	end
 	
-	-- if we found a column, do the sorting
-	if sortby then
-		local sortDirection = st.cols[sortby].sort or st.cols[sortby].defaultsort or "desc"
-		local temp, topRows = {}, {}
+	local temp, topRows = {}, {}
+	
+	-- organize all the rows by itemString into the temp table
+	for i, row in ipairs(st.data) do
+		local itemString = row.itemString
+		temp[itemString] = temp[itemString] or {}
 		
-		-- organize all the rows by itemString into the temp table
-		for i, row in ipairs(st.data) do
-			local itemString = row.itemString
-			temp[itemString] = temp[itemString] or {}
-			
-			local value
+		local value = nil
+		if sortby then
 			if row.cols[sortby].args then
 				value = row.cols[sortby].args[1] or math.huge
 			else
 				value = row.cols[sortby].value
 			end
-			
-			tinsert(temp[itemString], {rowNum=i, value=value})
 		end
+		
+		tinsert(temp[itemString], {rowNum=i, value=value})
+	end
+		
+	-- if we found a column, do the sorting
+	if sortby then
+		local sortDirection = st.cols[sortby].sort or st.cols[sortby].defaultsort or "desc"
 		
 		-- Sort all the auctions for each item independently of each other.
 		-- After this, the auctions for each item will be sorted, but the
@@ -144,15 +147,20 @@ local function SortAuctionSTData(st)
 		else
 			sort(topRows, function(a, b) return a.value > b.value end)
 		end
-		
-		-- bring everything together into the sortedData table
-		for _, topRow in ipairs(topRows) do
-			for i, row in ipairs(temp[topRow.itemString]) do
-				st.data[row.rowNum].isTopRow = (i==1)
-				tinsert(sortedData, row.rowNum)
-			end
+	else
+		for itemString, rows in pairs(temp) do
+			tinsert(topRows, {itemString=itemString, value=rows[1].value})
 		end
 	end
+		
+	-- bring everything together into the sortedData table
+	for _, topRow in ipairs(topRows) do
+		for i, row in ipairs(temp[topRow.itemString]) do
+			st.data[row.rowNum].isTopRow = (i==1)
+			tinsert(sortedData, row.rowNum)
+		end
+	end
+	
 	st.filtered = sortedData
 	st:Refresh()
 end
