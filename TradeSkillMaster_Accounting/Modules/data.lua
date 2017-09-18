@@ -36,11 +36,13 @@ end
 
 -- scans the mail that the player just attempted to collected (Pre-Hook)
 function Data:ScanCollectedMail(oFunc, attempt, index, subIndex)
-	local invoiceType, itemName, buyer, bid, _, _, ahcut, _, _, _, quantity = GetInboxInvoiceInfo(index)
+	local invoiceType, itemName, buyer, bid, _, _, ahcut = GetInboxInvoiceInfo(index)
+	local _, _, quantity = GetInboxItem(index)
 	local success = true
 	if invoiceType == "seller" and buyer and buyer ~= "" then
 		local itemString = TSM.db.global.itemStrings[itemName] or TSM:GetItemString(itemName)
 		if itemString then
+			quantity = quantity > 0 and quantity or 1;	-- HACK: in wotlk you cant get the quantitiy of the items sold so we use 1
 			local sellPrice = floor(TSMAPI:SafeDivide(bid - ahcut, quantity) + 0.5)
 			local daysLeft = select(7, GetInboxHeaderInfo(index))
 			local saleTime = (time() + (daysLeft-30)*SECONDS_PER_DAY)
