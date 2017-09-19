@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIContainer-ScrollFrame.lua
 -- This ScrollFrame container is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -128,6 +136,9 @@ local methods = {
 	["LayoutFinished"] = function(self, width, height)
 		self.content:SetHeight(height or 0 + 20)
 		self.scrollframe:SetScript("OnUpdate", FixScrollOnUpdate)
+		
+		-- no idea why, but this MUST be here to avoid glitches with the scrollbar not showing up when it should
+		self.content:GetHeight()
 	end,
 
 	["SetStatusTable"] = function(self, status)
@@ -204,7 +215,7 @@ local function Constructor()
 		widget[method] = func
 	end
 	scrollframe.obj, scrollbar.obj = widget, widget
-	widget.Add = TSMAPI.AddGUIElement
+	widget.Add = TSM.AddGUIElement
 
 	return AceGUI:RegisterAsContainer(widget)
 end

@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua
 -- This TreeGroup container is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -29,7 +37,7 @@ do
 	function del(t)
 		for k in pairs(t) do
 			t[k] = nil
-		end	
+		end
 		pool[t] = true
 	end
 end
@@ -63,7 +71,7 @@ local function UpdateButton(button, treeline, selected, canExpand, isExpanded)
 	local value = treeline.value
 	local uniquevalue = treeline.uniquevalue
 	local disabled = treeline.disabled
-	
+
 	button.treeline = treeline
 	button.value = value
 	button.uniquevalue = uniquevalue
@@ -86,7 +94,7 @@ local function UpdateButton(button, treeline, selected, canExpand, isExpanded)
 		TSMAPI.Design:SetWidgetLabelColor(button.text)
 		button.text:SetPoint("LEFT", (icon and 16 or 0) + 8 * level, 2)
 	end
-	
+
 	if disabled then
 		button:EnableMouse(false)
 		button.text:SetText("|cff808080"..text..FONT_COLOR_CODE_CLOSE)
@@ -94,20 +102,20 @@ local function UpdateButton(button, treeline, selected, canExpand, isExpanded)
 		button.text:SetText(text)
 		button:EnableMouse(true)
 	end
-	
+
 	if icon then
 		button.icon:SetTexture(icon)
 		button.icon:SetPoint("LEFT", 8 * level, (level == 1) and 0 or 1)
 	else
 		button.icon:SetTexture(nil)
 	end
-	
+
 	if iconCoords then
 		button.icon:SetTexCoord(unpack(iconCoords))
 	else
 		button.icon:SetTexCoord(0, 1, 0, 1)
 	end
-	
+
 	if canExpand then
 		if not isExpanded then
 			toggle.text:SetFont(TSMAPI.Design:GetBoldFont(), 24)
@@ -234,7 +242,7 @@ local function OnScrollValueChanged(frame, value)
 	if frame.obj.noupdate then return end
 	local self = frame.obj
 	local status = self.status or self.localstatus
-	status.scrollvalue = value
+	status.scrollvalue = floor(value + 0.5)
 	self:RefreshTree()
 	AceGUI:ClearFocus()
 end
@@ -279,10 +287,10 @@ local function Dragger_OnMouseUp(frame)
 	treeframe:SetHeight(0)
 	treeframe:SetPoint("TOPLEFT", frame, "TOPLEFT",0,0)
 	treeframe:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT",0,0)
-	
+
 	local status = self.status or self.localstatus
 	status.treewidth = treeframe:GetWidth()
-	
+
 	treeframe.obj:Fire("OnTreeResize",treeframe:GetWidth())
 	-- recalculate the content width
 	treeframe.obj:OnWidthSet(status.fullwidth)
@@ -333,19 +341,22 @@ local methods = {
 
 		button.text:SetShadowColor(0, 0, 0, 0)
 		button.text:SetPoint("CENTER")
+		button.text:SetHeight(14) -- Prevents text wrapping
 
 		button:SetScript("OnClick",Button_OnClick)
 		button:SetScript("OnDoubleClick", Button_OnDoubleClick)
 		button:SetScript("OnEnter",Button_OnEnter)
 		button:SetScript("OnLeave",Button_OnLeave)
-		
+
 		HIGHLIGHT_COLOR[4] = .5
 		button.highlight:SetVertexColor(unpack(HIGHLIGHT_COLOR))
 
 		button.toggle.button = button
 		button.toggle:SetScript("OnClick", Expand_OnClick)
-		button.toggle:SetNormalTexture(0, 0, 0, 0)
-		button.toggle:SetPushedTexture(0, 0, 0, 0)
+		local tex = button.toggle:CreateTexture()
+		tex:SetColorTexture(0, 0, 0, 0)
+		button.toggle:SetNormalTexture(tex)
+		button.toggle:SetPushedTexture(tex)
 		HIGHLIGHT_COLOR[4] = 1
 		button.toggle:GetHighlightTexture():SetVertexColor(unpack(HIGHLIGHT_COLOR))
 		button.toggle:GetHighlightTexture():SetBlendMode("ADD")
@@ -379,8 +390,8 @@ local methods = {
 	--sets the tree to be displayed
 	["SetTree"] = function(self, tree, filter)
 		self.filter = filter
-		if tree then 
-			assert(type(tree) == "table") 
+		if tree then
+			assert(type(tree) == "table")
 		end
 		self.tree = tree
 		self:RefreshTree()
@@ -389,7 +400,7 @@ local methods = {
 	["BuildLevel"] = function(self, tree, level, parent)
 		local groups = (self.status or self.localstatus).groups
 		local hasChildren = self.hasChildren
-		
+
 		for i, v in ipairs(tree) do
 			if v.children then
 				if not self.filter or ShouldDisplayLevel(v.children) then
@@ -405,7 +416,7 @@ local methods = {
 	end,
 
 	["RefreshTree"] = function(self,scrollToSelection)
-		local buttons = self.buttons 
+		local buttons = self.buttons
 		local lines = self.lines
 
 		for i, v in ipairs(buttons) do
@@ -426,7 +437,7 @@ local methods = {
 		local tree = self.tree
 
 		local treeframe = self.treeframe
-		
+
 		status.scrollToSelection = status.scrollToSelection or scrollToSelection	-- needs to be cached in case the control hasn't been drawn yet (code bails out below)
 
 		self:BuildLevel(tree, 1)
@@ -437,7 +448,7 @@ local methods = {
 		if maxlines <= 0 then return end
 
 		local first, last
-		
+
 		scrollToSelection = status.scrollToSelection
 		status.scrollToSelection = nil
 
@@ -485,7 +496,7 @@ local methods = {
 		end
 
 		local buttonnum = 1
-		for i = first, last do
+		for i = first, min(last, #lines) do
 			local line = lines[i]
 			local button = buttons[buttonnum]
 			if not button then
@@ -513,9 +524,9 @@ local methods = {
 			button:Show()
 			buttonnum = buttonnum + 1
 		end
-		
+
 	end,
-	
+
 	["SetSelected"] = function(self, value)
 		local status = self.status or self.localstatus
 		if status.selected ~= value then
@@ -545,6 +556,13 @@ local methods = {
 		self:Select(uniquevalue, ("\001"):split(uniquevalue))
 	end,
 
+	["Reload"] = function(self)
+		local status = self.status or self.localstatus
+		if status and status.selected then
+			self:Fire("OnGroupSelected", status.selected)
+		end
+	end,
+
 	["ShowScroll"] = function(self, show)
 		self.showscroll = show
 		if show then
@@ -565,16 +583,16 @@ local methods = {
 		local treeframe = self.treeframe
 		local status = self.status or self.localstatus
 		status.fullwidth = width
-		
+
 		local contentwidth = width - status.treewidth - 20
 		if contentwidth < 0 then
 			contentwidth = 0
 		end
 		content:SetWidth(contentwidth)
 		content.width = contentwidth
-		
+
 		local maxtreewidth = math_min(400, width - 50)
-		
+
 		if maxtreewidth > 100 and status.treewidth > maxtreewidth then
 			self:SetTreeWidth(maxtreewidth, status.treesizable)
 		end
@@ -600,16 +618,16 @@ local methods = {
 				treewidth = DEFAULT_TREE_WIDTH
 			else
 				resizable = false
-				treewidth = DEFAULT_TREE_WIDTH 
+				treewidth = DEFAULT_TREE_WIDTH
 			end
 		end
 		self.treeframe:SetWidth(treewidth)
 		self.dragger:EnableMouse(resizable)
-		
+
 		local status = self.status or self.localstatus
 		status.treewidth = treewidth
 		status.treesizable = resizable
-		
+
 		-- recalculate the content width
 		if status.fullwidth then
 			self:OnWidthSet(status.fullwidth)
@@ -675,7 +693,7 @@ local function Constructor()
 	scrollbar:SetValue(0)
 	scrollbar:SetWidth(12)
 	scrollbar:SetScript("OnValueChanged", OnScrollValueChanged)
-	
+
 	local thumbTex = scrollbar:GetThumbTexture()
 	thumbTex:SetPoint("CENTER")
 	TSMAPI.Design:SetContentColor(thumbTex)
@@ -685,7 +703,7 @@ local function Constructor()
 	local scrollbg = scrollbar:CreateTexture(nil, "BACKGROUND")
 	scrollbg:SetAllPoints(scrollbar)
 	TSMAPI.Design:SetFrameColor(scrollbg)
-	
+
 	_G[scrollbar:GetName().."ScrollUpButton"]:Hide()
 	_G[scrollbar:GetName().."ScrollDownButton"]:Hide()
 
@@ -718,7 +736,8 @@ local function Constructor()
 		widget[method] = func
 	end
 	treeframe.obj, dragger.obj, scrollbar.obj = widget, widget, widget
-	
+	widget.Add = TSM.AddGUIElement
+
 	return AceGUI:RegisterAsContainer(widget)
 end
 

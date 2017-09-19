@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-ColorPicker.lua
 -- This ColorPicker widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -92,7 +100,7 @@ local methods = {
 		self:SetDisabled(nil)
 		self:SetLabel(nil)
 	end,
-	
+
 	["SetLabel"] = function(self, text)
 		self.text:SetText(text)
 	end,
@@ -141,7 +149,7 @@ local function Constructor()
 	local texture = frame:CreateTexture(nil, "BACKGROUND")
 	texture:SetWidth(16)
 	texture:SetHeight(16)
-	texture:SetTexture(1, 1, 1)
+	texture:SetColorTexture(1, 1, 1)
 	texture:SetPoint("CENTER", colorSwatch)
 	texture:Show()
 

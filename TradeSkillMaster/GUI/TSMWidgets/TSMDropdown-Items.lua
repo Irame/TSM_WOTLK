@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-Dropdown-Items.lua
 -- This Dropdown-Items widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -7,7 +15,7 @@ local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 local select, assert = select, assert
 
 -- WoW APIs
-local PlaySound = PlaySound
+local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
 local CreateFrame = CreateFrame
 
 
@@ -92,10 +100,6 @@ do
 
 		["GetText"] = function(self)
 			return self.text:GetText()
-		end,
-		
-		["GetWidth"] = function(self)
-			return self.text:GetStringWidth() + 18 + 8
 		end,
 
 		["SetPoint"] = function(self, ...)
@@ -214,9 +218,9 @@ do
 		if self.disabled then return end
 		self.value = not self.value
 		if self.value then
-			PlaySound("igMainMenuOptionCheckBoxOn")
+			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"])
 		else
-			PlaySound("igMainMenuOptionCheckBoxOff")
+			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_OFF"])
 		end
 		self:UpdateToggle()
 		self:Fire("OnValueChanged", self.value)
@@ -230,11 +234,6 @@ do
 				self.check:Hide()
 			end
 		end,
-		
-		-- ["OnRelease"] = function(self)
-			-- self.origMethods.OnRelease(self)
-			-- self:SetValue()
-		-- end,
 		
 		["SetValue"] = function(self, value)
 			self.value = value

@@ -2,8 +2,8 @@
 ## Title: LibParse
 ## Notes: Encodes and Decodes between Lua tables and JSON/CSV.
 ## Author: Sapu94
-## Version: r5
-## X-Curse-Packaged-Version: r5
+## Version: r20140815031026
+## X-Curse-Packaged-Version: r20140815031026
 ## X-Curse-Project-Name: LibParse
 ## X-Curse-Project-ID: libparse
 ## X-Curse-Repository-ID: wow/libparse/mainline

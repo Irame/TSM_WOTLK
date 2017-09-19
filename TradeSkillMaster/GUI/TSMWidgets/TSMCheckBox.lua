@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua
 -- This CheckBox widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -9,7 +17,7 @@ if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 local select, pairs = select, pairs
 
 -- WoW APIs
-local PlaySound = PlaySound
+local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
 local CreateFrame, UIParent = CreateFrame, UIParent
 
 --[[-----------------------------------------------------------------------------
@@ -23,13 +31,6 @@ local function Control_OnLeave(frame)
 	frame.obj:Fire("OnLeave")
 end
 
-local function Control_OnClick(frame, button)
-	local self = frame.obj
-	if button == "RightButton" and self.rightClickCallback then
-		self:rightClickCallback(false)
-	end
-end
-
 local function CheckBox_OnMouseDown(frame)
 	local self = frame.obj
 	if not self.disabled then
@@ -40,16 +41,14 @@ end
 
 local function CheckBox_OnMouseUp(frame, button)
 	local self = frame.obj
-	if button == "RightButton" and self.rightClickCallback then
-		self:rightClickCallback(false)
-	elseif not self.disabled then
+	if not self.disabled then
 		self.text:SetPoint("LEFT", self.btn, "RIGHT", 0, 0)
 		self:ToggleChecked()
-
+		
 		if self.checked then
-			PlaySound("igMainMenuOptionCheckBoxOn")
+			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"])
 		else
-			PlaySound("igMainMenuOptionCheckBoxOff")
+			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_OFF"])
 		end
 
 		self:Fire("OnValueChanged", self.checked)
@@ -81,12 +80,6 @@ local methods = {
 			local r, g, b = self.btn:GetBackdropColor()
 			self.btn:SetBackdropColor(r, g, b, 1)
 			SetDesaturation(self.check, false)
-		end
-		
-		if self.rightClickCallback and disabled then
-			self.disabledFrame:Show()
-		else
-			self.disabledFrame:Hide()
 		end
 	end,
 
@@ -129,17 +122,6 @@ local methods = {
 	["SetLabel"] = function(self, label)
 		self.text:SetText(label)
 	end,
-	
-	["SetRightClickCallback"] = function(self, callback, tooltip)
-		if callback then
-			self.rightClickCallback = callback
-			self.disabledTooltip = tooltip
-		else
-			self.rightClickCallback = nil
-			self.disabledTooltip = nil
-			self.disabledFrame:Hide()
-		end
-	end,
 }
 
 
@@ -153,7 +135,6 @@ local function Constructor()
 	frame:EnableMouse(true)
 	frame:SetScript("OnEnter", Control_OnEnter)
 	frame:SetScript("OnLeave", Control_OnLeave)
-	frame:SetScript("OnMouseUp", Control_OnClick)
 	frame:SetScript("OnMouseDown", CheckBox_OnMouseDown)
 	frame:SetScript("OnMouseUp", CheckBox_OnMouseUp)
 
@@ -165,7 +146,7 @@ local function Constructor()
 	TSMAPI.Design:SetContentColor(btn)
 	local highlight = btn:CreateTexture(nil, "HIGHLIGHT")
 	highlight:SetAllPoints()
-	highlight:SetTexture(1, 1, 1, .2)
+	highlight:SetColorTexture(1, 1, 1, .2)
 	highlight:SetBlendMode("BLEND")
 
 	local check = btn:CreateTexture(nil, "OVERLAY")
@@ -180,8 +161,6 @@ local function Constructor()
 	text:SetPoint("LEFT", btn, "RIGHT")
 	text:SetPoint("RIGHT")
 	text:SetFont(TSMAPI.Design:GetContentFont("normal"))
-	
-	local disabledFrame = TSM:CreateWidgetDisabledFrame(frame)
 
 	local widget = {
 		btn		 = btn,
@@ -189,13 +168,12 @@ local function Constructor()
 		text      = text,
 		highlight = highlight,
 		frame     = frame,
-		disabledFrame = disabledFrame,
 		type      = Type
 	}
 	for method, func in pairs(methods) do
 		widget[method] = func
 	end
-	disabledFrame.obj, frame.obj = widget, widget
+	frame.obj = widget
 
 	return AceGUI:RegisterAsWidget(widget)
 end

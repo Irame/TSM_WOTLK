@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-Window.lua
 -- This Window container is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -9,7 +17,7 @@ if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 local pairs, assert, type = pairs, assert, type
 
 -- WoW APIs
-local PlaySound = PlaySound
+local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
 local CreateFrame, UIParent = CreateFrame, UIParent
 
 
@@ -22,7 +30,7 @@ local function frameOnClose(this)
 end
 
 local function closeOnClick(this)
-	PlaySound("gsTitleOptionExit")
+	PlaySound(SOUNDKIT["GS_TITLE_OPTION_EXIT"])
 	this.obj:Hide()
 end
 
@@ -144,7 +152,6 @@ local function Constructor()
 		type = Type,
 		localstatus = {},
 		content = content,
-		title = title,
 		titletext = titletext,
 		closebutton = close,
 	}
@@ -153,7 +160,7 @@ local function Constructor()
 	end
 	frame.obj, content.obj, close.obj = widget, widget, widget
 	
-	widget.Add = TSMAPI.AddGUIElement
+	widget.Add = TSM.AddGUIElement
 	
 	return AceGUI:RegisterAsContainer(widget)
 end

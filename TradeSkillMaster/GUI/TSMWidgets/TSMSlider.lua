@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-Slider.lua
 -- This Slider widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -10,7 +18,7 @@ local min, max, floor = math.min, math.max, math.floor
 local tonumber, pairs = tonumber, pairs
 
 -- WoW APIs
-local PlaySound = PlaySound
+local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
 local CreateFrame, UIParent = CreateFrame, UIParent
 
 
@@ -25,6 +33,7 @@ local function UpdateText(self)
 	else
 		self.editbox:SetText(floor(value * 100 + 0.5) / 100)
 	end
+	self.lasttext = self.editbox:GetText()
 end
 
 local function UpdateLabels(self)
@@ -51,13 +60,6 @@ local function Control_OnLeave(frame)
 	frame.obj:Fire("OnLeave")
 end
 
-local function Control_OnClick(frame, button)
-	local self = frame.obj
-	if button == "RightButton" and self.rightClickCallback then
-		self:rightClickCallback(false)
-	end
-end
-
 local function Frame_OnMouseDown(frame)
 	frame.obj.slider:EnableMouseWheel(true)
 	AceGUI:ClearFocus()
@@ -67,6 +69,11 @@ local function Slider_OnValueChanged(frame)
 	local self = frame.obj
 	if not frame.setup then
 		local newvalue = frame:GetValue()
+		-- workaround for 5.4 issues
+		if self.step and self.step > 0 then
+			local min_value = self.min or 0
+			newvalue = floor((newvalue - min_value) / self.step + 0.5) * self.step + min_value
+		end
 		if newvalue ~= self.value and not self.disabled then
 			self.value = newvalue
 			self:Fire("OnValueChanged", newvalue)
@@ -79,13 +86,8 @@ end
 
 local function Slider_OnMouseUp(frame, button)
 	local self = frame.obj
-	
-	if button == "RightButton" and self.rightClickCallback then
-		self:rightClickCallback(false)
-	else
-		self.slider:EnableMouseWheel(true)
-		self:Fire("OnMouseUp", self.value)
-	end
+	self.slider:EnableMouseWheel(true)
+	self:Fire("OnMouseUp", self.value)
 end
 
 local function Slider_OnMouseWheel(frame, v)
@@ -103,15 +105,20 @@ end
 
 local function EditBox_OnMouseUp(frame)
 	local self = frame.obj
-	
-	if button == "RightButton" and self.rightClickCallback then
-		self:rightClickCallback(false)
-		self:ClearFocus()
-	end
 end
 
 local function EditBox_OnEscapePressed(frame)
 	frame:ClearFocus()
+end
+
+local function EditBox_OnTextChanged(frame)
+	local self = frame.obj
+	if self.disabled then return end
+	local value = frame:GetText()
+	if tostring(value) ~= tostring(self.lasttext) then
+		self.lasttext = value
+		self.button:Show()
+	end
 end
 
 local function EditBox_OnEnterPressed(frame)
@@ -125,11 +132,19 @@ local function EditBox_OnEnterPressed(frame)
 	end
 	
 	if value then
-		PlaySound("igMainMenuOptionCheckBoxOn")
+		PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"])
 		self.slider:SetValue(value)
 		self:Fire("OnMouseUp", value)
 		frame:ClearFocus()
+		UpdateText(self)
+		self.button:Hide()
 	end
+end
+
+local function Button_OnClick(frame)
+	local editbox = frame.obj.editbox
+	editbox:ClearFocus()
+	EditBox_OnEnterPressed(editbox)
 end
 
 
@@ -159,12 +174,6 @@ local methods = {
 		if disabled then
 			self.editbox:ClearFocus()
 		end
-		
-		if self.rightClickCallback and disabled then
-			self.disabledFrame:Show()
-		else
-			self.disabledFrame:Hide()
-		end
 	end,
 
 	["SetValue"] = function(self, value)
@@ -173,6 +182,7 @@ local methods = {
 		self.value = value
 		UpdateText(self)
 		self.slider.setup = nil
+		self.button:Hide()
 	end,
 
 	["GetValue"] = function(self)
@@ -183,36 +193,25 @@ local methods = {
 		self.label:SetText(text)
 	end,
 
-	["SetSliderValues"] = function(self, min, max, step)
-		local frame = self.slider
-		frame.setup = true
-		self.min = min
-		self.max = max
+	["SetSliderValues"] = function(self, minValue, maxValue, step)
+		self.slider.setup = true
+		self.min = minValue
+		self.max = maxValue
 		self.step = step
-		frame:SetMinMaxValues(min or 0,max or 100)
+		self.slider:SetMinMaxValues(minValue or 0, maxValue or 100)
 		UpdateLabels(self)
-		frame:SetValueStep(step or 1)
+		self.slider:SetValueStep(step or 1)
 		if self.value then
-			frame:SetValue(self.value)
+			self.slider:SetValue(self.value)
 		end
-		frame.setup = nil
+		self.slider.setup = nil
 	end,
 
 	["SetIsPercent"] = function(self, value)
 		self.ispercent = value
 		UpdateLabels(self)
 		UpdateText(self)
-	end,
-	
-	["SetRightClickCallback"] = function(self, callback, tooltip)
-		if callback then
-			self.rightClickCallback = callback
-			self.disabledTooltip = tooltip
-		else
-			self.rightClickCallback = nil
-			self.disabledTooltip = nil
-			self.disabledFrame:Hide()
-		end
+		self.button:Hide()
 	end,
 }
 
@@ -225,12 +224,13 @@ local function Constructor()
 	local frame = CreateFrame("Frame", nil, UIParent)
 
 	frame:EnableMouse(true)
-	frame:SetScript("OnMouseUp", Control_OnClick)
 	frame:SetScript("OnMouseDown", Frame_OnMouseDown)
+	frame:SetScript("OnEnter", Control_OnEnter)
+	frame:SetScript("OnLeave", Control_OnLeave)
 
 	local label = frame:CreateFontString(nil, "OVERLAY")
-	label:SetPoint("TOPLEFT")
-	label:SetPoint("TOPRIGHT")
+	label:SetPoint("TOPLEFT", 0, -2)
+	label:SetPoint("TOPRIGHT", 0, -2)
 	label:SetJustifyH("CENTER")
 	label:SetHeight(15)
 	label:SetFont(TSMAPI.Design:GetContentFont("normal"))
@@ -240,7 +240,7 @@ local function Constructor()
 	slider:SetHeight(6)
 	slider:SetHitRectInsets(0, 0, -10, 0)
 	slider:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 3, -4)
-	slider:SetPoint("TOPRIGHT", label, "BOTTOMRIGHT", -20, -4)
+	slider:SetPoint("TOPRIGHT", label, "BOTTOMRIGHT", -6, -4)
 	slider:SetValue(0)
 	slider:SetScript("OnValueChanged",Slider_OnValueChanged)
 	slider:SetScript("OnEnter", Control_OnEnter)
@@ -273,10 +273,19 @@ local function Constructor()
 	TSMAPI.Design:SetContentColor(editbox)
 	editbox:SetScript("OnEnterPressed", EditBox_OnEnterPressed)
 	editbox:SetScript("OnEscapePressed", EditBox_OnEscapePressed)
+	editbox:SetScript("OnTextChanged", EditBox_OnTextChanged)
+	editbox:SetScript("OnEnter", Control_OnEnter)
+	editbox:SetScript("OnLeave", Control_OnLeave)
 	editbox:SetFont(TSMAPI.Design:GetContentFont("normal"))
 	editbox:SetShadowColor(0, 0, 0, 0)
-	
-	local disabledFrame = TSM:CreateWidgetDisabledFrame(frame)
+
+	local button = CreateFrame("Button", nil, editbox, "UIPanelButtonTemplate")
+	button:SetWidth(40)
+	button:SetHeight(20)
+	button:SetPoint("LEFT", editbox, "RIGHT", 2, 0)
+	button:SetText(OKAY)
+	button:SetScript("OnClick", Button_OnClick)
+	button:Hide()
 
 	local widget = {
 		label       = label,
@@ -284,7 +293,7 @@ local function Constructor()
 		lowtext     = lowtext,
 		hightext    = hightext,
 		editbox     = editbox,
-		disabledFrame = disabledFrame,
+		button		= button,
 		alignoffset = 25,
 		frame       = frame,
 		type        = Type
@@ -292,7 +301,7 @@ local function Constructor()
 	for method, func in pairs(methods) do
 		widget[method] = func
 	end
-	slider.obj, editbox.obj, frame.obj, disabledFrame.obj = widget, widget, widget, widget
+	slider.obj, editbox.obj, button.obj, frame.obj = widget, widget, widget, widget
 
 	return AceGUI:RegisterAsWidget(widget)
 end

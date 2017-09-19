@@ -1,9 +1,18 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIContainer-TabGroup.lua
 -- This TabGroup container is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
 local Type, Version = "TSMTabGroup", 2
 local AceGUI = LibStub("AceGUI-3.0")
 if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
+local SOUNDKIT = SOUNDKIT
 
 
 --[[-----------------------------------------------------------------------------
@@ -12,7 +21,7 @@ Support functions
 
 local function TabResize(tab, padding, width)
 	local tabName = tab:GetName()
-	
+
 	local sideWidths = 8
 	tab:SetWidth(width + padding + sideWidths)
 end
@@ -29,7 +38,7 @@ local function UpdateTabLook(frame)
 		TSMAPI.Design:SetFrameColor(frame.image)
 		frame.bottom:Show()
 		frame:SetHeight(29)
-		
+
 		if GameTooltip:IsOwned(frame) then
 			GameTooltip:Hide()
 		end
@@ -71,7 +80,7 @@ Scripts
 
 local function Tab_OnClick(frame)
 	if not (frame.selected or frame.disabled) then
-		PlaySound("igCharacterInfoTab")
+		PlaySound(SOUNDKIT["IG_CHARACTER_INFO_TAB"])
 		frame.obj:SelectTab(frame.value)
 	end
 end
@@ -125,7 +134,7 @@ local methods = {
 		tab.bottom = bottom
 		local highlight = tab:CreateTexture(nil, "HIGHLIGHT")
 		highlight:SetAllPoints()
-		highlight:SetTexture(1, 1, 1, .2)
+		highlight:SetColorTexture(1, 1, 1, .2)
 		highlight:SetBlendMode("BLEND")
 		tab.highlight = highlight
 
@@ -167,7 +176,7 @@ local methods = {
 		end
 		status.selected = value
 		if found then
-			self:Fire("OnGroupSelected",value)
+			self:Fire("OnGroupSelected", value)
 		end
 	end,
 
@@ -175,18 +184,24 @@ local methods = {
 		self.tablist = tabs
 		self:BuildTabs()
 	end,
-	
+
+	["Reload"] = function(self)
+		local status = self.status or self.localstatus
+		if status and status.selected then
+			self:Fire("OnGroupSelected", status.selected)
+		end
+	end,
 
 	["BuildTabs"] = function(self)
 		local status = self.status or self.localstatus
 		local tablist = self.tablist
 		local tabs = self.tabs
-		
+
 		if not tablist then return end
-		
+
 		local numTabs = #tablist
 		local width = self.frame.width or self.frame:GetWidth() or 0
-		
+
 		-- Show tabs and set text.
 		for i, v in ipairs(tablist) do
 			local tab = tabs[i]
@@ -194,13 +209,13 @@ local methods = {
 				tab = self:CreateTab(i)
 				tabs[i] = tab
 			end
-			
+
 			tab:Show()
 			tab:SetText(v.text)
 			tab:SetDisabled(v.disabled)
 			tab.value = v.value
 		end
-		
+
 		-- hide tabs which aren't in use
 		for i=numTabs+1, #tabs do
 			tabs[i]:Hide()
@@ -216,7 +231,7 @@ local methods = {
 				tab:SetPoint("BOTTOMLEFT", tabs[i-1], "BOTTOMRIGHT", 4, 0)
 			end
 		end
-		
+
 		for i=1, numTabs do
 			TabResize(tabs[i], 4, tabs[i]:GetFontString():GetStringWidth())
 		end
@@ -243,7 +258,7 @@ local methods = {
 		content:SetHeight(contentheight)
 		content.height = contentheight
 	end,
-	
+
 	["LayoutFinished"] = function(self, width, height)
 		if self.noAutoHeight then return end
 		self:SetHeight((height or 0) + 30)
@@ -290,8 +305,8 @@ local function Constructor()
 	for method, func in pairs(methods) do
 		widget[method] = func
 	end
-	
-	widget.Add = TSMAPI.AddGUIElement
+
+	widget.Add = TSM.AddGUIElement
 	return AceGUI:RegisterAsContainer(widget)
 end
 

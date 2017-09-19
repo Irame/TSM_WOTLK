@@ -1,3 +1,932 @@
+v3.6.37
+*Add destroying ratios for astral glory.
+
+v3.6.36
+*Added new prospecting gems.
+
+v3.6.35
+*Added new bonus ids for 7.3.
+*Fixed another sound bug.
+
+v3.6.34
+*Fixed typo
+
+v3.6.33
+*Updated TOC version for patch 7.3.
+*Fixed bugs relating to changes on how sounds are played.
+
+v3.6.32
+*Fixed problematic bonus id.
+
+v3.6.31
+*Updated bonus ids.
+
+v3.6.30
+*Fixed issue related to changes in bonus ids.
+
+v3.6.29
+*Fixed a few bugs caused by 7.2.5.
+
+v3.6.28
+*Fixed issue with missing bonusIds.
+
+v3.6.27
+*Fixed issue with version number not being displayed correctly.
+
+v3.6.26
+*Fixed bug related to new keystone item type in patch 7.2.
+*Fixed bug with vendor buy prices not being properly updated when visiting a vendor.
+*Fixed lua error from item info corruption.
+
+v3.6.25
+*Added missing bonusId.
+
+v3.6.24
+*Fixed issue related to bonusIds.
+
+v3.6.23
+*Fixed issue with missing bonusIds.
+
+v3.6.22
+*Fixed issue with missing bonusIds.
+*Fixed issue with old item information in patch 7.1.5.
+*Made some changes required by new Crafting code for Gathering.
+
+v3.6.21
+*Added missing bonus ids
+
+v3.6.20
+*Fixed bug with using chest inventory type Shopping search filters.
+
+v3.6.19
+*Fixed bug with auction buy/sell/cancel features and twitter integration when using ElvUI chat module.
+
+v3.6.18
+*Revert previous incorrect fixes.
+
+v3.6.17
+*Fixed bug with account sync and invalid players.
+
+v3.6.16
+*Fixed bug with auction buy/sell/cancel features and twitter integration
+
+v3.6.15
+*Updated destroy ratios for Legion ore / herbs
+
+v3.6.14
+*Fixed issue with item name changes not being detected after a patch update.
+
+v3.6.13
+*Fixed bug with scans not returning all results.
+
+v3.6.12
+*Updated TOC version for patch 7.1.
+*Fixed bug on non-connected realms caused by 7.1 changes.
+
+v3.6.11
+*Fixed bug causing AuctionDB to not properly load some region statistics.
+
+v3.6.10
+*Fixed a bug with parsing app data
+
+v3.6.9
+*Set twitter integration disabled by default.
+
+v3.6.8
+*Fixed bug causing interface lag in certain situations.
+
+v3.6.7
+*Fixed an issue with vendor buy price if items was sold in stacks (like crystal vials).
+*Fixed a bug with caching soulbound items that prevented bags from being sold if you had the same bag equipped.
+
+v3.6.6
+*Fixed potential bug with detecting soulbound items.
+
+v3.6.5
+*Improve caching of soulbound items.
+
+v3.6.4
+*Added caching of bag inventory.
+*Fixed issues with detecting soulbound BOA items.
+
+v3.6.3
+*Fixed issue with scan results getting cleared.
+
+v3.6.2
+*Fixed importing of large groups causing interface lag and errors.
+*Fixed bug with importing of BoA items.
+*Fixed potential duplicate scan results from some queries.
+
+v3.6.1
+*Fixed a bug with scan speed optimization for some items.
+
+v3.6
+*Added brand new optimization to dramatically increase scan speed, primarily for high-volume items.
+*Fixed bug which potentially affected buying of auctions (with TSM_Shopping).
+
+v3.5.18
+*Validate when scanning last page to prevent issues with unknown items (affecting Sniper).
+
+v3.5.17
+*No change.
+
+v3.5.16
+*Added some analytic events.
+
+v3.5.15
+*Fixed some issues relating to legion items and required levels.
+
+v3.5.14
+*Added a few more missing BoP Engineering materials and their vendor prices.
+
+v3.5.13
+*Improved performance of soulbound item detection.
+
+v3.5.12
+*Fixed issue with pet imports.
+*Fixed issues related to unknown item message.
+*Fixed issues related to Legion material destroy searches.
+
+v3.5.11
+*Added missing BoP Engineering only items.
+
+v3.5.10
+*Added bonus ids related to item suffixes and sockets back.
+
+v3.5.9
+*Fixed some issues related to items with various bonuses.
+
+v3.5.8
+*Fixed a bug preventing legion ores from showing as prospectable.
+
+v3.5.7
+*Switched to Roseate Pigment for ink vendor trades.
+
+v3.5.6
+*Added soulbound materials added in Legion.
+
+v3.5.5
+*Fixed error caused by some Legion items (mainly with regards to TSM_Destroying).
+*Fixed issue with tooltip flashing in the bottom-left of the screen.
+
+v3.5.4
+*Added workaround for item level issue with some legion items.
+
+v3.5.3
+*Added preliminary prospect / milling ratios for crafting searches and destroy values.
+*Fixed an issue with soulbound item detection.
+
+v3.5.2
+*Added preliminary disenchant ratios for crafting searches and destroy values.
+
+v3.5.1
+*Added missing bonus ids.
+*Fixed some tooltip issues.
+
+v3.5
+*Replaced LibExtraTip with built-in tooltip code to improve reliablity and fix various bugs.
+*Improved performance of importing large groups.
+*Added some automatic cleanup of app-related data which is no longer of any use.
+
+v3.4.31
+*Fixed some tooltip issues.
+
+v3.4.30
+*Fixed issue where moving random enchant / staged items were treated as base items.
+
+v3.4.29
+*No changes.
+
+v3.4.28
+*Fixed bug affecting some items with bonusIds.
+
+v3.4.27
+*Fixed bug with getting the quality of battlepets.
+*Fixed error from disenchant searches.
+*Fixed item name issue when changing locales.
+
+v3.4.26
+*Fixed compatibility with TUJ addon.
+
+v3.4.25
+*Added missing bonus ids.
+
+v3.4.24
+*Fixed "Unknown Item" showing up in scan results for randomly-enchanted items by adding another workaround for Blizzard's issues.
+*Fixed some lag by reducing the frequency of inventory scans.
+
+v3.4.23
+*Fixed issue with some bonus ids.
+
+v3.4.22
+*Fixed error showing up upon load for some users.
+
+v3.4.21
+*Fix for filtering grouped items by quality
+
+v3.4.20
+*Fix for missing bonus ids
+
+v3.4.19
+*Fixed bug affecting randomly enchanted items.
+
+v3.4.18
+*Fixed bug affecting item info.
+
+v3.4.17
+*Further workaround for Blizzard's item caching issues by storing item info between sessions.
+*Fixed some lag when opening the AH with the auction sales feature enabled.
+
+v3.4.16
+*Added new bonus ids
+
+v3.4.15
+*Fixed error when saving item links in item info cache.
+*Fixed error from group filtering.
+
+v3.4.14
+*Removed debug print.
+
+v3.4.13
+*Fixed error when fetching battle pet item info.
+*Fixed item info messages printing forever when invalid items were in groups.
+*Reduced initial login lag.
+
+v3.4.12
+*Potentially fixed a bunch of item info related issues by working around Blizzard's item caching issues.
+*Fixed scans always searching for individual items.
+
+v3.4.11
+*Fixed issue with item classes when finding auctions.
+
+v3.4.10
+*Fixed issue with removed item classes.
+
+v3.4.9
+*Fixed bug affecting large scans.
+
+v3.4.8
+*Fixed bug with detecting bag type.
+
+v3.4.7
+*Fixed bug with inventory tracking of sent mail.
+*Fixed bug in LibExtraTip.
+
+v3.4.6
+*Fixed issue affecting items with bonus ids.
+
+v3.4.5
+*Fixed error with default mail frame and other mail addons.
+
+v3.4.4
+*Fixed bug with other addon errors showing up as a TSM error.
+*Fixed error when return mail.
+*Fixed bug with imports containing items with bonus ids.
+
+v3.4.3
+*Fixed issue with inventory data not being reliable due to bugs on Blizzard's end by adding some workarounds.
+
+v3.4.2
+*Fixed another bug with the mail inbox.
+
+v3.4.1
+*Fixed some bugs with the mail inbox.
+
+v3.4
+*Updated for patch 7.0.3.
+*Fixed bug with moving non-group items.
+
+v3.3.19
+*Fixed error when storing operations globally.
+
+v3.3.18
+*Fixed detection of region for some realms.
+
+v3.3.17
+*Disabled no-lib creation.
+*Added analytics framework.
+
+v3.3.16
+*Fixed bug with groups page.
+
+v3.3.15
+*Fixed bug with inventory data on some realms.
+
+v3.3.14
+*Greatly sped-up the groups page for people with large numbers of groups.
+*Fixed issue with cross-realm inventory data.
+*Fixed error when renaming custom price sources.
+*Fixed error caused by importing an operation as a group.
+*Fixed a bunch of errors caused by a bug in inter-thread communication.
+*Fixed error with custom price loop message.
+*Fixed error with attempting to applying an operation to nothing.
+
+v3.3.13
+*See v3.3.12 changes (no other changes)
+
+v3.3.12
+*Fixed bug with the current region being incorrectly identified in some cases.
+
+v3.3.11
+*Fixed bug with some WoD crafted items not being handled properly by TSM.
+
+v3.3.10
+*Removed debug print which was spamming chat.
+
+v3.3.9
+*Fixed crash with previous release.
+
+v3.3.8
+*Fixed bug with some items gaining incorrect bonusIds.
+
+v3.3.7
+*Fixed bug with including a dash in a group filter.
+
+v3.3.6
+*Added a delay and minimum quiet-period to update notifications.
+
+v3.3.5
+*Fixed bug affecting some existing group filters.
+*Fixed bug with filtering groups by equipment slot.
+
+v3.3.4
+*Fixed bug with connected realms with dashes in their name.
+
+v3.3.3
+*Fixed another bug with connected realms.
+
+v3.3.2
+*Fixed bug with connected realms.
+
+v3.3.1
+*Fixed a login error.
+
+v3.3
+*Added support for filtering by inventory slot to the group filter.
+*Added addon update information from the TSM Desktop Application.
+*Updated the "TradeSkillMaster Team" info.
+*Changed connected realm code to use game API instead of hard-coded list.
+*Removed temporary mapping for WoWuction prices.
+*Fixed bug with "TSM Features" page not showing up for esES (and possibly other) locales.
+
+v3.2
+*Added temporary mapping and warnings for WoWuction prices (http://bit.ly/tsmwuend for more info).
+*Added tooltip reset warning popup.
+*Improved custom price caching to reduce lag from complex custom prices.
+*Fixed bug with app data not being saved.
+
+v3.1.12
+*Fixed an issue where item filters ignored level.
+
+v3.1.11
+*Supporting update for TSM_Auctioning issue.
+
+v3.1.10
+*Fixed bug with previous version.
+
+v3.1.9
+*Fixed lag with large auction house scans.
+*Fixed lag from large custom prices with many price sources within them.
+*Fixed error in LibExtraTip library related to raid frames.
+
+v3.1.8
+*Fixed issue with filtering battlepets by type.
+*Added caching of battlepet species in guild vault.
+
+v3.1.7
+*Fixed issue with settings not properly saving in some cases for TSM_AuctionDB and TSM_Accounting.
+*Updated the list of tracked bonusIds.
+
+v3.1.6
+*Remove debug from last fix.
+
+v3.1.5
+*Fixed bug where some items in guild vault were seen as Soulbound for gathering / warehousing.
+*Added Ore nuggets to transformations.
+
+v3.1.4
+*Fixed bug affecting some Pre-WOD crafted items.
+
+v3.1.3
+*Fixed bug affecting some group+operation imports.
+
+v3.1.2
+*Fixed bug with upgrading from TSM2.
+
+v3.1.1
+*Fixed some issues with handling of battlepets.
+
+v3.1
+*Operations can now be exported with groups.
+*Filtering out unimportant bonusIds to make it easier to deal with different versions of crafted items.
+*No longer considering the health, power, or speed of battlepets in groups or elsewhere.
+*Empty dropdowns in the profile settings will now be disabled.
+*Fixed lag in items tab of groups.
+*Fixed lua error caused by entering an invalid filter in the items tab of a group.
+*Improved initial lag upon logging into the game.
+
+v3.0.3
+*Now properly displaying errors from unofficial TSM modules.
+
+v3.0.2
+*Fixed missing TSM tooltips in default profession UI due to bug in LibExtraTip.
+
+v3.0.1
+*Showing different text in the error window for errors from unofficial modules.
+
+v3.0
+*Initial 3.0 version!
+\\
+
+v2.10.26
+*One more try to fix version number.
+
+v2.10.25
+*No Changes, fixing version number.
+
+v2.10.24
+*No Changes, fixing curse upload issue.
+
+v2.10.23
+*Updated Interface version for patch 6.2.
+
+v2.10.22
+*Fixed min ilvl for disenchanting uncommon armor / weapons
+
+v2.10.21
+*Fixed greater / lesser magic essence transform rates.
+
+v2.10.20
+*Fixed bug caused by Blizzard AH loading before TSM does
+
+v2.10.19
+*Fix toc
+
+v2.10.18
+*No Change
+
+v2.10.17
+*Update Bagnon / Add LiteBag support
+*Updated for patch 6.1
+
+v2.10.16
+*Display prospect value in tooltips as per ore rather than per prospect.
+
+v2.10.15
+*Fix ILvl range for draenic dust.
+
+v2.10.14
+*Items which are bind on account (or bnet account) will now properly be treated as BoP.
+
+v2.10.13
+*Made some changes to how data for the app is stored.
+
+v2.10.12
+*Fixed bug with app data not loading properly and wiping previous data.
+*Added DE values for Temporal Crystals
+
+v2.10.11
+*Adjust DE levels for Draenic Dust for blue items.
+
+v2.10.10
+*Add Temporal Crystal to conversions.
+*Tweak DE levels for Draenic Dust / Luminous Shards.
+
+v2.10.9
+*Fixed bug in custom price code.
+
+v2.10.8
+*Fixed memory leak in custom price code.
+*Updated disenchanting rates.
+
+v2.10.7
+*Add TheUndermineJournal as optional dependency.
+
+v2.10.6
+*Fixed bug with search filter generation.
+
+v2.10.5
+*Reverted previous change.
+
+v2.10.4
+*Fixed bug regarding the option to open bags with AH.
+
+v2.10.3
+*Tweak some of the conversion rates.
+*Add missing vendor trade conversion for IOD.
+
+v2.10.2
+*Fixed Lua error caused by some changes in v2.10.
+
+v2.10.1
+*Fixed Lua error upon opening BMAH.
+
+v2.10
+*Added support for prices via the new TUJ addon.
+*Fixed bug with BMAH.
+*Fixed bug with disenchant price source.
+
+v2.9.19
+*Added WOD DE mats.
+*Fixed sorting on auction results tables.
+
+v2.9.18
+*Missed some of the WOD herbs for milling.
+
+v2.9.17
+*Updated Inscription item conversions / vendor trade inks for WOD
+
+v2.9.16
+*Fixed bug with upgrading from older version.
+*Updated some URLs.
+
+v2.9.15
+*Fixed bug with shopping search imports.
+
+v2.9.14
+*Spirit of Harmony no longer Soulbound.
+
+v2.9.13
+*Fix issues recognizing Auctioneer / Auctionator price sources.
+
+v2.9.12
+*Reverting previous change - bank bag counts are not updated correctly when the bank is not open.
+
+v2.9.11
+*Checking bank bags no longer requires the bank to be open
+
+v2.9.10
+*Fixed an issue with warehousing bank slots if the reagent bank has been purchased
+
+v2.9.9
+*Fixed an issue with warehousing bank slots if the reagent bank hasn't been purchased
+
+v2.9.8
+*Updated libs for patch 6.0.2
+
+v2.9.7
+*Updated for patch 6.0.2
+
+v2.9.6
+*Added support for shopping searches in the TSM app data.
+*Fixed the TSM App URL.
+*Rewrote most of the TSM threading code to add functionality and make it more robust.
+
+v2.9.5
+*Grabbing latest version of AccurateTime which should fix conflicts with other addons.
+
+v2.9.4
+*Grabbing latest version of LibParse which should fix some issues that users with large amounts of group data were experiencing.
+
+v2.9.3
+*Fixed another bug with data for TSM App not being saved properly.
+
+v2.9.2
+*Removed TUJ price sources.
+*Fixed bug with data for TSM App not being saved properly.
+*Fixed bug affecting WoD beta.
+
+v2.9.1
+*Fixed bug with ruRU localization causing lua error.
+
+v2.9
+*Updated to support the new TSM Desktop Application.
+*Custom price sources will now be listed in the popup that shows when changing a custom price.
+*Changed popups to hopefully avoid tainting Blizzard's UI code.
+
+v2.8.3
+*Made TSMAPI:IsSoulbound() MUCH more efficient which will GREATLY reduce the interface log of all modules..
+
+v2.8.2
+*Added LibChatAnims to fix Blizzard bug with adding chat filters.
+
+v2.8.1
+*Updated connected realms.
+*Added some more validation to price sources to avoid lua errors.
+
+v2.8
+*Fixed issue with TSM error handler.
+*Removed 1.x dealfinding / shopping list support for importing items to groups.
+*Added options for displaying prospect and mill values in tooltips (enabled by default).
+*Reorganized general tooltip options slightly.
+*Fixed bug with "/tsm version" not going in the right chat tab.
+*Added confirmation for copying a profile.
+
+v2.7
+*Added new "check" function for doing logic operations in custom prices.
+*Fixed bug with multiple fixed gold values in custom prices being invalid in certain situations.
+*Removed "Status / Credits" tab and put credits at the bottom of the first tab instead.
+*Modified the "New Group Name" editbox to contain the current group name by default.
+*Made external price sources (mainly from Auctioneer) more consistent with TSM price sources.
+
+v2.6.2
+*Added verify for a sync setup which has been corrupted due to manual copying of saved variables.
+*Added help button to main TSM frame for opening TSM assistant.
+*Made lines under icons in main TSM frame shorter so they don't interfere with the title text.
+
+v2.6.1
+*Fixed typo in Assistant step.
+*Made Assistant window wider.
+
+v2.6
+*Added new TSM Assistant feature!
+*Removed SetUnit hook from LibExtraTip to avoid errors.
+*Updated localized strings.
+*Updated hard-coded list of connected realms.
+
+v2.5.14
+*Added line to TSM Info / Help page.
+
+v2.5.13
+*Fixed issue with importing groups with spaces in the subgroup names.
+*Fixed bug with post confirmation window and removed coloring of g/s/c letters.
+
+v2.5.12
+*Fixed bug introduced in v2.5.11 with percentages in price sources.
+
+v2.5.11
+*Fixed bug with parsing price sources with multiple percentages.
+
+v2.5.10
+*Added functionality to TSMAPI functions including auto-complete support for editboxes.
+*Minor code cleanup.
+
+v2.5.9
+*Fixed bug which was causing lua errors in TSM_Shopping.
+
+v2.5.8
+*Minor bug fix.
+
+v2.5.7
+*Improved TSM:GROUPS:* events for external usage.
+
+v2.5.6
+*Added TUJ as optional dependency to ensure it loads first.
+
+v2.5.5
+*Fixed bug with importing operations.
+
+v2.5.4
+*Cleaned up some code in the error handler and made it more resilient.
+
+v2.5.3
+*No change - fixing issue with curse packager.
+
+v2.5.2
+*Fixed bug with new change in v2.5.1.
+
+v2.5.1
+*Fixed bug with preparing filters taking a very long time.
+*Removed name from auction results row.
+*Removed some debug code.
+
+v2.5
+*Added error message when you try and move a group to one of its subgroups.
+*Reorganized and cleaned up the code.
+*Added option for embedding TSM's tooltip lines (enabled by default to maintain prior behavior).
+*TSM's error handler will now ignore errors from auc-stat-wowuction.
+*Fixed issue with multi-account syncing in patch 5.4.7.
+
+v2.4.5
+*Fixed issue with resizing the TSM window.
+*Added some debug code.
+*Potentially fixed bug with scans scanning too many pages due to missing item info.
+*Fixed bug with main window not correctly saving its position and size between sessions.
+*Fixed bug with moving the main window from the TSM icon
+*Added TSMAPI:Assert for unexpected conditions which should be reported as errors to the TSM team.
+*Added TSMAPI:Verify for conditions which require corrective action by the user and are not addon bugs.
+*Soulbound items will no longer be moved for warehousing/auctioning options on the BankUI.
+*Added events and event logger. Improved error handler.
+*Fixed bug with tooltips having a delayed update after modifier keys are pressed.
+*Errors occurring within threads should now be properly reported.
+*Added vanilla gems to conversions.
+*Added TSMAPI:GetConnectedRealms() to allow for basic connected realm support.
+*Fixed bug with multi-account code constantly trying to add people to the friends list.
+
+v2.4.4
+*Fixed bug with TSM tooltip.
+*Cleaned up some code.
+
+v2.4.3
+*Added tooltip options for displaying custom price sources in tooltips.
+
+v2.4.2
+*Fixed stack overflow issue with importing of large groups.
+
+v2.4.1
+*No change, trying to fix issue with curse.
+
+v2.4
+*Implemented new method for modules to export data to the TSM app.
+*Changed red group color to be orange instead.
+*Added support for scanning the last page (used by the Sniper feature of TSM_Shopping).
+*Cleaned up much of the Auction scanning code.
+*Made the "max" labels in the post frame clickable buttons.
+*Added support for tabbing between fields in the post frame.
+*Fixed some issues with prices changing incorrectly in the post frame when certain fields were modified.
+*Added caching of battlepet names on-load to reduce errors from incomplete battlepet info.
+
+v2.3.2
+*Fixed some display issues with slider tooltips.
+
+v2.3.1
+*Fixed bug with common search term generation for items which have overlapping names (ie gems).
+*Fixed bug in group import code.
+
+v2.3
+*TSM will now take into account common classes when generating AH query.
+*Added option (enabled by default) to color group names within group trees based on their sub-group depth.
+*Added display of locals to error handler.
+*Fixed bug in common search term code.
+
+v2.2.10
+*Added [Jard's Peculiar Energy Source] to soulbound mats.
+
+v2.2.9
+*Fixed bug with adding a special character when renaming a group.
+
+v2.2.8
+*Fixed bug with battle pets.
+
+v2.2.7
+*Groups in grouptrees will now be selected by default.
+*Greatly improved TSM's display of error messages.
+*Fixed bug in TSMAPI:CreateTimeDelay which caused label-less timers to collide.
+
+v2.2.6
+*Fixed an issue with common search terms for items whose name matches the common search term (ie uncut gems).
+
+v2.2.5
+*Fixed bug with the current profile not being saved.
+*Fixed bug with getting battle pet item info.
+*Fixed sorting of auction result table.
+*Removing an operation from a group will no longer switch to the new operation page.
+
+v2.2.4
+*Made group trees select all groups by default.
+
+v2.2.3
+*Fixed bug with formatted gold amounts in custom prices.
+
+v2.2.2
+*Fixed issue with using itemlinks in custom prices.
+
+v2.2.1
+*Fixed issue with group trees not remember their selection status in some situations.
+
+v2.2
+*Fixed bug with getting battle pet item info.
+*Removed TSMAPI function to disable TSM error handler from packaged versions.
+*Added list of groups which an operation is currently applied to, along with a remove button for each group, to the management tab of operations.
+*Typing "/tsm freset" will now reset the position of all movable frames from all modules.
+*Group trees will now remember which groups are selected (all will be deselected by default).
+*Custom prices will now support any number of formatted gold values (instead of just one).
+*Renamed TSMSelectionList to TSMGroupItemList interally.
+*Added "avg()" function support to custom prices.
+
+v2.1.14
+*Fixed typo in code which caused issues with the bank UI and the DufUIBank addon.
+*Fixed issues with sliders and treegroups caused by 5.4 changes.
+
+v2.1.13
+*Grabbing latest version of AccurateTime (again).
+
+v2.1.12
+*Grabbing latest version of AccurateTime.
+
+v2.1.11
+*Added some missing soulbound mats to internal lookup table.
+*AccurateTime will now be embedded instead of standalone.
+
+v2.1.10
+*Fixed issue with '/tsm bankui' creating duplicate windows.
+*Fixed bug with auction result sorting.
+*Fixed some memory leaks.
+
+v2.1.9
+*Added new !AccurateTime library and fixed some issues around debugprofilestart/stop usage.
+*Cleaned up .toc file a bit.
+*Added bankui support for DufUIBank addon.
+
+v2.1.8
+*The BankUI will now remember its position (independantly for bank and guild bank).
+*Added /tsm bankuireset to reset the BankUI frame position
+
+v2.1.7
+*Added caching to various commonly used APIs.
+*Bug fix with item info caching.
+*Added disenchant mats to tooltip.
+
+v2.1.6
+*added bankUI support for cargBags Nivaya
+
+v2.1.5
+*Fixed bug with clicking on scrolling table columns.
+
+v2.1.4
+*Added latent kor'kron pieces as non-disenchantable.
+*Fixed bug with tree groups.
+
+v2.1.3
+*Fixed some conversion/destroying ratios.
+*Fixed some patch 5.4 issues.
+*Fixed a bug with switching profiles.
+*Limited quantity items from a vendor will no longer be tracked.
+*Updated TOC for patch 5.4.
+
+v2.1.2
+*Fixed various issues with disenchanting ratios.
+*Fixed issue with soulbound materials.
+*Made room for shopping tooltip options.
+*Fixed bug with importing of subgroup structure.
+
+v2.1.1
+*Fixed bug with multiple occurrences of a custom price sources within a custom price.
+*Fixed disenchanting ratios.
+*Fixed tooltips for auction result rows.
+*Improved how module icons are displayed in the main TSM window.
+
+v2.1
+*Some advanced features will now be designated as such with red title text.
+*Added theme option for the color used to designate advanced features.
+*Added the ability to import and export operations.
+*Fixed issue with detecting disenchantable items on non-enUS clients.
+*Added support for decimal places in percentages in custom prices.
+*Added option to export/import subgroup structure when exporting/importing groups.
+*Group selection trees will now remember their expanded/collapsed status info on a per-module basis.
+*Shift-clicking the "<<< Remove" button in the "Items" tab of a group will now remove the items from all groups rather than move the items to their parent group.
+*Filtering the item selection list in the "Items" tab for groups will now hide filtered-out rows.
+*Added option for changing the chat tab which TSM and its modules use for printing messages.
+*Added loop detection to custom price code.
+*Fixed a bug with custom prices with specific items in them.
+*Fixed error from missing localization phrase.
+*Fixed stack overflow with very long custom prices.
+*Added the ability to create custom price sources.
+*Added more error checking to the custom price validation code.
+
+v2.0.10
+*Fix for error when alt-clicking buying in destroy mode.
+
+v2.0.9
+*Fixed some divide by zero issues found on 5.4 PTR.
+*Fixed issue with bank updates going out to modules after bank was closed.
+*Fixed bug with alt-click buying in destroy mode for TSM_Shopping.
+
+v2.0.8
+*Fixed bug with certain gold amounts not getting correctly formatted.
+
+v2.0.7
+*All scrolling tables will now have constant-height rows.
+*Fixed bug with tooltip for battlepets.
+
+v2.0.6
+*Fixed issue with spaces in itemStrings.
+
+v2.0.5
+*Added option for including soulbound items in movement APIs.
+*Fixed bug with syncing code trying to sync with the current character.
+*Fixed various issues with manual posting.
+
+v2.0.4
+*Updated LibExtraTip.
+*Fixed a bug with auction result tooltips not working for battlepets.
+*TSM tooltip data will now be shown for battlepets as well as items.
+
+v2.0.3
+*Fixed a bug with vendorsell price source.
+
+v2.0.2
+*Fixed a bug with being unable to add ungrouped random enchant items as the base item.
+*Fixed issue with first() and vendorsell in custom prices.
+
+v2.0.1
+*Fixed a bug with the version showing as "Dev" instead of v2.0.
+
+v2.0
+*First 2.0 Version!
+\\
+
+v1.6
+*Updated TOC for patch 5.2.
+*Added quick buyout feature to auction result frames.
+*Added more theme options and preset themes.
+*Adjusted milling/prospecting/disenchanting ratios as necessary.
+*Added basic battle pet support.
+*Improved the TSM error handler.
+*Many other minor bug fixes and improvements.
+
+v1.5
+*Updated existing themes and added some new ones.
+*Changed default theme to "Goblineer" as voted on by forum members.
+*Updated TOC for patch 5.0.4
+*TSM will now block all chat messages related to creating and canceling auctions.
+*Added a slash command for resetting the position of the main TSM frame - '/tsm freset'.
+*Fixed the green +/- buttons in treegroups.
+*Made all the progress bars across the modules consistent.
+*Rewrote all the auction results table code to address multiple issues.
+*Added a slider to the TSM options tab for adjusting how many rows are shown in auction results tables.
+*Many other minor bug fixes and improvements.
+
 v1.4
 *Redesigned the look and feel of the main TSM window and the auction house tab.
 *Added a bunch of new options for customizing the new look.

@@ -60,7 +60,7 @@
 
 --]]
 
-local lib = LibStub:NewLibrary("LibParse", 1)
+local lib = LibStub:NewLibrary("LibParse", 2)
 if not lib then return end
 
 local pairs, ipairs, tonumber, tostring = pairs, ipairs, tonumber, tostring
@@ -71,7 +71,6 @@ local null = {} -- table ref to use for Null
 
 
 local JsonWriter = {
-	buffer = {},
 	backslashes = {
 		['\b'] = "\\b",
 		['\t'] = "\\t",	
@@ -85,7 +84,7 @@ local JsonWriter = {
 }
 
 function JsonWriter:New()
-	local o = {}
+	local o = {buffer={}}
 	setmetatable(o, self)
 	self.__index = self
 	return o
@@ -93,6 +92,10 @@ end
 
 function JsonWriter:Append(s)
 	self.buffer[#self.buffer+1] = s
+	if #self.buffer > 1000 then
+		local temp = table.concat(self.buffer)
+		self.buffer = {temp}
+	end
 end
 
 function JsonWriter:ToString()
@@ -434,4 +437,60 @@ end
 
 function lib:JSONNull()
 	return null
+end
+
+
+
+
+-- ###############################################################
+--                         CSV Functions
+-- ###############################################################
+
+function lib:CSVEncode(keys, data)
+	local lines = {}
+	tinsert(lines, table.concat(keys, ","))
+	for _, entry in ipairs(data) do
+		local lineParts = {}
+		for _, key in ipairs(keys) do
+			tinsert(lineParts, entry[key] or "")
+		end
+		tinsert(lines, table.concat(lineParts, ","))
+	end
+	return table.concat(lines, "\n")
+end
+
+local function SafeStrSplit(str, sep)
+	local parts = {}
+	local s = 1
+	while true do
+		local e = strfind(str, sep, s)
+		if not e then
+			tinsert(parts, strsub(str, s))
+			break
+		end
+		tinsert(parts, strsub(str, s, e-1))
+		s = e + 1
+	end
+	return parts
+end
+
+function lib:CSVDecode(str)
+	local keys
+	local result = {}
+	local lines = SafeStrSplit(str, "\n")
+	for i, line in ipairs(lines) do
+		if i == 1 then
+			keys = {(","):split(lines[1])}
+		else
+			local entry = {}
+			local lineParts = {(","):split(line)}
+			for j, key in ipairs(keys) do
+				if lineParts[j] ~= "" then
+					entry[key] = tonumber(lineParts[j]) or lineParts[j]
+				end
+			end
+			tinsert(result, entry)
+		end
+	end
+	return keys, result
 end

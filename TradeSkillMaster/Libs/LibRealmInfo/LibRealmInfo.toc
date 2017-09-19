@@ -1,0 +1,22 @@
+## Interface: 60000
+## Version: 10
+## X-Curse-Packaged-Version: 10
+## X-Curse-Project-Name: LibRealmInfo
+## X-Curse-Project-ID: librealminfo
+## X-Curse-Repository-ID: wow/librealminfo/mainline
+
+## Title: Lib: Realm Info
+## Notes: Library to provide information about realms.
+## Notes-deDE: Bibliothek, um Informationen über Realms zu liefern.
+## Notes-esES: Biblioteca para proporcionar información sobre reinos.
+## Notes-esMX: Biblioteca para proporcionar información sobre reinos.
+
+## Author: Phanx
+## X-Email: addons@phanx.net
+## X-Copyright: Copyright (c) 2014 Phanx. All rights reserved.
+## X-Website: https://github.com/Phanx/LibRealmInfo
+
+## OptionalDeps: LibStub
+LibStub\LibStub.lua
+
+LibRealmInfo.lua

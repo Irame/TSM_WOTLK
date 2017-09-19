@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-Dropdown.lua
 -- This Dropdown widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -11,7 +19,7 @@ local select, pairs, ipairs, type = select, pairs, ipairs, type
 local tsort = table.sort
 
 -- WoW APIs
-local PlaySound = PlaySound
+local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
 local UIParent, CreateFrame = UIParent, CreateFrame
 local _G = _G
 
@@ -64,20 +72,17 @@ end
 
 local function Dropdown_TogglePullout(this, button)
 	local self = this.obj
-	if button == "RightButton" and self.rightClickCallback then
-		self:rightClickCallback(false)
+	if self.disabled then return end
+	PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"]) -- missleading name, but the Blizzard code uses this sound
+	if self.open then
+		self.open = nil
+		self.pullout:Close()
+		AceGUI:ClearFocus()
 	else
-		PlaySound("igMainMenuOptionCheckBoxOn") -- missleading name, but the Blizzard code uses this sound
-		if self.open then
-			self.open = nil
-			self.pullout:Close()
-			AceGUI:ClearFocus()
-		else
-			self.open = true
-			self.pullout:SetWidth(math.max(self.frame:GetWidth() - 20 - 2, self.pullout:GetMaxWidth()))
-			self.pullout:Open("TOPLEFT", self.frame, "BOTTOMLEFT", 2, self.label:IsShown() and -2 or 0)
-			AceGUI:SetFocus(self)
-		end
+		self.open = true
+		self.pullout:SetWidth(self.dropdown:GetWidth())
+		self.pullout:Open("TOPLEFT", self.frame, "BOTTOMLEFT", 0, self.label:IsShown() and -2 or 0)
+		AceGUI:SetFocus(self)
 	end
 end
 
@@ -153,7 +158,7 @@ local methods = {
 		self:SetHeight(44)
 		self:SetWidth(200)
 		self:SetLabel()
-		self:SetRightClickCallback()
+		self:ClearMultiselectChecked()
 	end,
 	
 	["OnRelease"] = function(self)
@@ -184,12 +189,6 @@ local methods = {
 			self.button:Disable()
 		else
 			self.button:Enable()
-		end
-		
-		if self.rightClickCallback and disabled then
-			self.disabledFrame:Show()
-		else
-			self.disabledFrame:Hide()
 		end
 	end,
 	
@@ -259,6 +258,7 @@ local methods = {
 		item:SetText(text)
 		item.userdata.obj = self
 		item.userdata.value = value
+		item:SetValue()
 		item:SetCallback("OnValueChanged", OnItemValueChanged)
 		self.pullout:AddItem(item)
 	end,
@@ -318,15 +318,12 @@ local methods = {
 	["GetMultiselect"] = function(self)
 		return self.multiselect
 	end,
-	
-	["SetRightClickCallback"] = function(self, callback, tooltip)
-		if callback then
-			self.rightClickCallback = callback
-			self.disabledTooltip = tooltip
-		else
-			self.rightClickCallback = nil
-			self.disabledTooltip = nil
-			self.disabledFrame:Hide()
+
+	["ClearMultiselectChecked"] = function(self)
+		for i, widget in self.pullout:IterateItems() do
+			if widget.type == "TSMDropdown-Item-Toggle" then
+				widget:SetValue()
+			end
 		end
 	end,
 }
@@ -345,7 +342,7 @@ local function Constructor()
 	frame:SetScript("OnHide", Dropdown_OnHide)
 
 	dropdown:ClearAllPoints()
-	dropdown:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -20, 0)
+	dropdown:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -7, 0)
 	dropdown:SetScript("OnHide", nil)
 	dropdown:SetScript("OnEnter", Control_OnEnter)
 	dropdown:SetScript("OnLeave", Control_OnLeave)
@@ -369,7 +366,7 @@ local function Constructor()
 	button:SetScript("OnLeave", Control_OnLeave)
 	button:SetScript("OnClick", Dropdown_TogglePullout)
 	button:ClearAllPoints()
-	button:SetPoint("RIGHT", dropdown, -2, 0)
+	button:SetPoint("RIGHT", dropdown, 0, 0)
 
 	local text = _G[dropdown:GetName().."Text"]
 	text:ClearAllPoints()
@@ -391,18 +388,12 @@ local function Constructor()
 	middle:Hide()
 	right:Hide()
 	
-	local disabledFrame = TSM:CreateWidgetDisabledFrame(dropdown)
-	disabledFrame:ClearAllPoints()
-	disabledFrame:SetPoint("TOPLEFT")
-	disabledFrame:SetPoint("BOTTOMRIGHT", button)
-	
 	local widget = {
 		frame = frame,
 		label = label,
 		dropdown = dropdown,
 		text = text,
 		button = button,
-		disabledFrame = disabledFrame,
 		count = count,
 		alignoffset = 30,
 		type = Type,
@@ -414,7 +405,6 @@ local function Constructor()
 	dropdown.obj = widget
 	text.obj = widget
 	button.obj = widget
-	disabledFrame.obj = widget
 
 	return AceGUI:RegisterAsWidget(widget)
 end

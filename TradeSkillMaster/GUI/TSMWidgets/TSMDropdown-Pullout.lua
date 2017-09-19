@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-Dropdown.lua
 -- This Dropdown-Pullout widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -204,17 +212,6 @@ local methods = {
 
 	["IterateItems"] = function(self)
 		return ipairs(self.items)
-	end,
-	
-	["GetMaxWidth"] = function(self)
-		maxWidth = 0
-		for i, widget in self:IterateItems() do
-			itemTextWidth = widget:GetWidth()
-			if (itemTextWidth > maxWidth) then
-				maxWidth = itemTextWidth
-			end
-		end
-		return maxWidth + 8
 	end,
 
 	["SetHideOnLeave"] = function(self, val)

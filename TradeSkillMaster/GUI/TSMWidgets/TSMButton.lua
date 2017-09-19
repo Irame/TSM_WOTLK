@@ -1,3 +1,11 @@
+-- ------------------------------------------------------------------------------ --
+--                                TradeSkillMaster                                --
+--                http://www.curse.com/addons/wow/tradeskill-master               --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 -- Much of this code is copied from .../AceGUI-3.0/widgets/AceGUIWidget-Button.lua
 -- This Button widget is modified to fit TSM's theme / needs
 local TSM = select(2, ...)
@@ -11,7 +19,7 @@ local pairs = pairs
 
 -- WoW APIs
 local _G = _G
-local PlaySound, CreateFrame, UIParent = PlaySound, CreateFrame, UIParent
+local PlaySound, CreateFrame, UIParent, SOUNDKIT = PlaySound, CreateFrame, UIParent, SOUNDKIT
 
 
 --[[-----------------------------------------------------------------------------
@@ -20,7 +28,7 @@ Scripts
 
 local function Button_OnClick(frame, ...)
 	AceGUI:ClearFocus()
-	PlaySound("igMainMenuOption")
+	PlaySound(SOUNDKIT["IG_MAINMENU_OPTION"])
 	frame.obj:Fire("OnClick", ...)
 end
 
@@ -43,6 +51,7 @@ local methods = {
 		self:SetWidth(200)
 		self:SetDisabled(false)
 		self:SetText()
+		self.btn:GetFontString():SetTextColor(1, 1, 1, 1)
 	end,
 
 	["SetText"] = function(self, text)
@@ -53,8 +62,10 @@ local methods = {
 		self.disabled = disabled
 		if disabled then
 			self.btn:Disable()
+			self.btn:GetFontString():SetTextColor(1, 1, 1, 0.5)
 		else
 			self.btn:Enable()
+			self.btn:GetFontString():SetTextColor(1, 1, 1, 1)
 		end
 	end
 }
@@ -66,7 +77,7 @@ Constructor
 
 local function Constructor()
 	local name = "TSMButton" .. AceGUI:GetNextWidgetNum(Type)
-	
+
 	local frame = CreateFrame("Frame", nil, UIParent)
 	local btn = CreateFrame("Button", name, frame)
 	btn:Hide()
@@ -76,14 +87,14 @@ local function Constructor()
 	TSMAPI.Design:SetContentColor(btn)
 	local highlight = btn:CreateTexture(nil, "HIGHLIGHT")
 	highlight:SetAllPoints()
-	highlight:SetTexture(1, 1, 1, .2)
+	highlight:SetColorTexture(1, 1, 1, .2)
 	highlight:SetBlendMode("BLEND")
 	btn.highlight = highlight
 	btn:SetScript("OnClick", Button_OnClick)
 	btn:SetScript("OnEnter", Control_OnEnter)
 	btn:SetScript("OnLeave", Control_OnLeave)
 	btn:Show()
-	
+
 	local label = btn:CreateFontString()
 	label:SetPoint("CENTER")
 	label:SetHeight(15)
