@@ -41,8 +41,8 @@ local GET_ITEM_INFO_KEYS = {
 	quality = 3,
 	itemLevel = 4,
 	minLevel = 5,
-	classId = 6,
-	subClassId = 7,
+	class = 6,
+	subClass = 7,
 	maxStack = 8,
 	equipSlot = 9,
 	texture = 10,
@@ -887,11 +887,11 @@ function TSMAPI.Item:GetVendorPrice(itemString)
 end
 
 function TSMAPI.Item:GetClassId(itemString)
-	return private.GetItemInfoKey(itemString, "classId")
+	return TSMAPI.Item:GetClassIdFromClassString(private.GetItemInfoKey(itemString, "class"))
 end
 
 function TSMAPI.Item:GetSubClassId(itemString)
-	return private.GetItemInfoKey(itemString, "subClassId")
+	return TSMAPI.Item:GetSubClassIdFromSubClassString(private.GetItemInfoKey(itemString, "subClass"))
 end
 
 
