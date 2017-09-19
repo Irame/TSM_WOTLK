@@ -222,9 +222,6 @@ function private:LoadInventoryViewer(container)
 		for itemString, quantity in pairs(data.bank) do
 			totalValue = totalValue + (TSMAPI:GetCustomPriceValue(TSM.db.profile.inventoryViewerPriceSource, itemString) or 0) * quantity
 		end
-		for itemString, quantity in pairs(data.reagentBank) do
-			totalValue = totalValue + (TSMAPI:GetCustomPriceValue(TSM.db.profile.inventoryViewerPriceSource, itemString) or 0) * quantity
-		end
 		for itemString, quantity in pairs(data.auction) do
 			totalValue = totalValue + (TSMAPI:GetCustomPriceValue(TSM.db.profile.inventoryViewerPriceSource, itemString) or 0) * quantity
 		end
@@ -344,9 +341,6 @@ function private:UpdateInventoryViewerST()
 				private:AddInventoryItem(items, itemString, "bags", quantity)
 			end
 			for itemString, quantity in pairs(playerData[playerName].bank) do
-				private:AddInventoryItem(items, itemString, "bank", quantity)
-			end
-			for itemString, quantity in pairs(playerData[playerName].reagentBank) do
 				private:AddInventoryItem(items, itemString, "bank", quantity)
 			end
 			for itemString, quantity in pairs(playerData[playerName].auction) do

@@ -48,9 +48,6 @@ function Features:OnEnable()
 	end
 	-- setup BMAH scanning
 	Features:RegisterEvent("BLACK_MARKET_ITEM_UPDATE", private.ScanBMAH)
-	-- setup WoW token scaning
-	Features:RegisterEvent("AUCTION_HOUSE_SHOW", function() C_WowTokenPublic.UpdateMarketPrice() end)
-	Features:RegisterEvent("TOKEN_MARKET_PRICE_UPDATED", private.ScanWoWToken)
 	-- setup auction created / cancelled filtering
 	local ElvUIChat, ElvUIChatIsEnabled = nil, nil
 	if IsAddOnLoaded("ElvUI") then

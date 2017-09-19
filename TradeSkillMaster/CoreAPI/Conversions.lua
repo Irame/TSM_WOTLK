@@ -143,7 +143,7 @@ function TSMAPI.Conversions:GetValue(sourceItem, customPrice, method)
 	if TSMAPI.Item:IsDisenchantable(sourceItem) and (not method or method == "disenchant") then
 		local quality = TSMAPI.Item:GetQuality(sourceItem)
 		local ilvl = TSMAPI.Item:GetItemLevel(sourceItem) or 0
-		local iType = GetItemClassInfo(TSMAPI.Item:GetClassId(sourceItem))
+		local iType = TSMAPI.Item:GetItemClassInfo(TSMAPI.Item:GetClassId(sourceItem))
 		local value = 0
 		for _, data in ipairs(TSM.STATIC_DATA.disenchantInfo) do
 			for itemString, itemData in pairs(data) do

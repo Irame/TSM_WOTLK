@@ -23,7 +23,7 @@ function GUI:CreateButton(parent, textHeight, name, isSecure)
 	TSMAPI.Design:SetContentColor(btn)
 	local highlight = btn:CreateTexture(nil, "HIGHLIGHT")
 	highlight:SetAllPoints()
-	highlight:SetColorTexture(1, 1, 1, .2)
+	highlight:SetTexture(1, 1, 1, .2)
 	highlight:SetBlendMode("BLEND")
 	btn.highlight = highlight
 	btn:SetScript("OnEnter", private.ShowTooltip)
@@ -341,6 +341,5 @@ function private.ShowTooltip(self)
 end
 
 function private.HideTooltip()
-	BattlePetTooltip:Hide()
 	GameTooltip:Hide()
 end

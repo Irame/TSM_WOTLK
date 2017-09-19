@@ -361,7 +361,7 @@ local methods = {
 		end
 		local highlight = row:CreateTexture()
 		highlight:SetAllPoints()
-		highlight:SetColorTexture(1, .9, .9, .1)
+		highlight:SetTexture(1, .9, .9, .1)
 		highlight:Hide()
 		row.highlight = highlight
 		row.st = st

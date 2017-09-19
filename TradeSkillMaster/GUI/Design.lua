@@ -111,7 +111,7 @@ function private:SetFrameColor(obj, colorKey)
 		obj:SetBackdropColor(private:ExpandColor(color.backdrop))
 		obj:SetBackdropBorderColor(private:ExpandColor(color.border))
 	else
-		obj:SetColorTexture(private:ExpandColor(color.backdrop))
+		obj:SetTexture(private:ExpandColor(color.backdrop))
 	end
 end
 
@@ -120,7 +120,7 @@ function private:SetTextColor(obj, colorKey, isDisabled)
 	if not obj then return private:ExpandColor(color.enabled) end
 	private.coloredTexts[obj] = {obj, colorKey, isDisabled}
 	if obj:IsObjectType("Texture") then
-		obj:SetColorTexture(private:ExpandColor(color.enabled))
+		obj:SetTexture(private:ExpandColor(color.enabled))
 	else
 		if isDisabled then
 			obj:SetTextColor(private:ExpandColor(color.disabled))

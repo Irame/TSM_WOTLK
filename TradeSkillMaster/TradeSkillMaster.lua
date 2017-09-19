@@ -317,9 +317,6 @@ function TSM:OnInitialize()
 		TSM.db.global.auctionSaleSound = TSM.NO_SOUND_KEY
 	end
 	
-	
-	-- Cache battle pet names
-	for i=1, C_PetJournal.GetNumPets() do C_PetJournal.GetPetInfoByIndex(i) end
 	-- force a garbage collection
 	collectgarbage()
 end
@@ -525,7 +522,7 @@ function TSM:LoadTooltip(itemString, quantity, moneyCoins, lines)
 			if TSM.db.profile.detailedDestroyTooltip then
 				local rarity = TSMAPI.Item:GetQuality(itemString)
 				local ilvl = TSMAPI.Item:GetItemLevel(itemString)
-				local iType = GetItemClassInfo(TSMAPI.Item:GetClassId(itemString))
+				local iType = TSMAPI.Item:GetItemClassInfo(TSMAPI.Item:GetClassId(itemString))
 				for _, data in ipairs(TSM.STATIC_DATA.disenchantInfo) do
 					for targetItem, itemData in pairs(data) do
 						if targetItem ~= "desc" then
@@ -655,13 +652,13 @@ function TSM:LoadTooltip(itemString, quantity, moneyCoins, lines)
 		local totalNum = 0
 		local playerData, guildData = TSM.Inventory:GetItemData(itemString)
 		for playerName, data in pairs(playerData) do
-			local playerTotal = data.bag + data.bank + data.reagentBank + data.auction + data.mail
+			local playerTotal = data.bag + data.bank + data.auction + data.mail
 			if playerTotal > 0 then
 				totalNum = totalNum + playerTotal
 				local classColor = type(TSM.db.factionrealm.characters[playerName]) == "string" and RAID_CLASS_COLORS[TSM.db.factionrealm.characters[playerName]]
-				local rightText = format(L["%s (%s bags, %s bank, %s AH, %s mail)"], "|cffffffff"..playerTotal.."|r", "|cffffffff"..data.bag.."|r", "|cffffffff"..(data.bank+data.reagentBank).."|r", "|cffffffff"..data.auction.."|r", "|cffffffff"..data.mail.."|r")
+				local rightText = format(L["%s (%s bags, %s bank, %s AH, %s mail)"], "|cffffffff"..playerTotal.."|r", "|cffffffff"..data.bag.."|r", "|cffffffff"..(data.bank).."|r", "|cffffffff"..data.auction.."|r", "|cffffffff"..data.mail.."|r")
 				if classColor then
-					tinsert(lines, {left="    |c"..classColor.colorStr..playerName.."|r:", right=rightText})
+					tinsert(lines, {left="    |c"..("%02x%02x%02x"):format(classColor.r, classColor.g, classColor.b)..playerName.."|r:", right=rightText})
 				else
 					tinsert(lines, {left="    "..playerName..":", right=rightText})
 				end
@@ -682,10 +679,10 @@ function TSM:LoadTooltip(itemString, quantity, moneyCoins, lines)
 		local playerData, guildData = TSM.Inventory:GetItemData(itemString)
 		for playerName, data in pairs(playerData) do
 			if playerName == UnitName("player") then
-				totalPlayer = totalPlayer + data.bag + data.bank + data.reagentBank + data.mail
+				totalPlayer = totalPlayer + data.bag + data.bank + data.mail
 				totalAuction = totalAuction + data.auction
 			else
-				totalAlt = totalAlt + data.bag + data.bank + data.reagentBank + data.mail
+				totalAlt = totalAlt + data.bag + data.bank + data.mail
 				totalAuction = totalAuction + data.auction
 			end
 		end
@@ -832,7 +829,7 @@ end
 function TSMAPI:GetConnectedRealms()
 	if not private.cachedConnectedRealms then
 		local currentRealm = gsub(GetRealmName(), "[ %-]", "")
-		local connectedRealms = GetAutoCompleteRealms() or {}
+		local connectedRealms = {}
 
 		if #connectedRealms > 0 then
 			local currentRealmIndex = nil

@@ -167,7 +167,7 @@ local methods = {
 		end
 		local highlight = row:CreateTexture()
 		highlight:SetAllPoints()
-		highlight:SetColorTexture(1, .9, 0, .2)
+		highlight:SetTexture(1, .9, 0, .2)
 		highlight:Hide()
 		row.highlight = highlight
 		local text = row:CreateFontString()

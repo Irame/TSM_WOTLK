@@ -20,8 +20,6 @@ function TooltipLib:Initialize(callback)
 	private.callback = callback
 	private.RegisterTooltip(GameTooltip)
 	private.RegisterTooltip(ItemRefTooltip)
-	private.RegisterTooltip(BattlePetTooltip)
-	private.RegisterTooltip(FloatingBattlePetTooltip)
 end
 
 function TooltipLib:AddLine(tooltip, text, r, g, b)

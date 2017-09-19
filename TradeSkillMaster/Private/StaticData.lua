@@ -11,8 +11,7 @@
 local TSM = select(2, ...)
 TSM.STATIC_DATA = {}
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster")
-local WEAPON = GetItemClassInfo(LE_ITEM_CLASS_WEAPON)
-local ARMOR = GetItemClassInfo(LE_ITEM_CLASS_ARMOR)
+local WEAPON, ARMOR = GetAuctionItemClasses()
 
 
 

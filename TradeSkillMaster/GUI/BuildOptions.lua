@@ -463,7 +463,6 @@ function private:CreateWidget(wType, parent, args)
 			GameTooltip:Show()
 		end)
 		widget:SetCallback("OnLeave", function()
-			BattlePetTooltip:Hide()
 			GameTooltip:Hide()
 		end)
 	end

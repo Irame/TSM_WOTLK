@@ -80,7 +80,7 @@ Scripts
 
 local function Tab_OnClick(frame)
 	if not (frame.selected or frame.disabled) then
-		PlaySound(SOUNDKIT["IG_CHARACTER_INFO_TAB"])
+		PlaySound("igCharacterInfoTab")
 		frame.obj:SelectTab(frame.value)
 	end
 end
@@ -134,7 +134,7 @@ local methods = {
 		tab.bottom = bottom
 		local highlight = tab:CreateTexture(nil, "HIGHLIGHT")
 		highlight:SetAllPoints()
-		highlight:SetColorTexture(1, 1, 1, .2)
+		highlight:SetTexture(1, 1, 1, .2)
 		highlight:SetBlendMode("BLEND")
 		tab.highlight = highlight
 

@@ -46,9 +46,9 @@ local function CheckBox_OnMouseUp(frame, button)
 		self:ToggleChecked()
 		
 		if self.checked then
-			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"])
+			PlaySound("igMainMenuOptionCheckBoxOn")
 		else
-			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_OFF"])
+			PlaySound("igMainMenuOptionCheckBoxOff")
 		end
 
 		self:Fire("OnValueChanged", self.checked)
@@ -146,7 +146,7 @@ local function Constructor()
 	TSMAPI.Design:SetContentColor(btn)
 	local highlight = btn:CreateTexture(nil, "HIGHLIGHT")
 	highlight:SetAllPoints()
-	highlight:SetColorTexture(1, 1, 1, .2)
+	highlight:SetTexture(1, 1, 1, .2)
 	highlight:SetBlendMode("BLEND")
 
 	local check = btn:CreateTexture(nil, "OVERLAY")

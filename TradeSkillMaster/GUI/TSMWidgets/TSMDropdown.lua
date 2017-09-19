@@ -73,7 +73,7 @@ end
 local function Dropdown_TogglePullout(this, button)
 	local self = this.obj
 	if self.disabled then return end
-	PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"]) -- missleading name, but the Blizzard code uses this sound
+	PlaySound("igMainMenuOptionCheckBoxOn") -- missleading name, but the Blizzard code uses this sound
 	if self.open then
 		self.open = nil
 		self.pullout:Close()

@@ -993,32 +993,6 @@ function private:LoadMiscFeatures(container)
 						},
 					},
 				},
-				{
-					type = "Spacer"
-				},
-				{
-					type = "InlineGroup",
-					layout = "Flow",
-					title = L["Twitter Integration"],
-					children = {
-						{
-							type = "Label",
-							text = L["If you have WoW's Twitter integration setup, TSM will add a share link to its enhanced auction sale / purchase messages (enabled above) as well as replace the URL in item tweets with a TSM link."],
-							relativeWidth = 1,
-						},
-						{
-							type = "HeadingLine"
-						},
-						{
-							type = "CheckBox",
-							label = L["Enable Tweet Enhancement (Only Works if WoW Twitter Integration is Setup)"],
-							relativeWidth = 1,
-							disabled = not C_Social.IsSocialEnabled(),
-							settingInfo = {TSM.db.global, "tsmItemTweetEnabled"},
-							callback = private.PromptToReload,
-						},
-					},
-				},
 			},
 		},
 	}

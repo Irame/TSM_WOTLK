@@ -32,7 +32,7 @@ function Debug:ShowGUIHelper()
 	if not private.highlightFrame then
 		private.highlightFrame = CreateFrame("Frame")
 		local tex = private.highlightFrame:CreateTexture()
-		tex:SetColorTexture(0, 1, 1, 0.2)
+		tex:SetTexture(0, 1, 1, 0.2)
 		tex:SetAllPoints(private.highlightFrame)
 		tex:SetBlendMode("BLEND")
 	end

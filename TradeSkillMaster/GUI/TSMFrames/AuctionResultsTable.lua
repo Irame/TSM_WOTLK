@@ -230,9 +230,9 @@ local methods = {
 			tex:SetAlpha(0.5)
 		end
 		if rt.sortInfo.descending then
-			rt.headCells[rt.sortInfo.columnIndex]:GetNormalTexture():SetColorTexture(0.8, 0.6, 1, 0.8)
+			rt.headCells[rt.sortInfo.columnIndex]:GetNormalTexture():SetTexture(0.8, 0.6, 1, 0.8)
 		else
-			rt.headCells[rt.sortInfo.columnIndex]:GetNormalTexture():SetColorTexture(0.6, 0.8, 1, 0.8)
+			rt.headCells[rt.sortInfo.columnIndex]:GetNormalTexture():SetTexture(0.6, 0.8, 1, 0.8)
 		end
 
 		-- update the scroll frame
@@ -728,7 +728,7 @@ function TSM:CreateAuctionResultsTable(parent)
 		end
 		local highlight = row:CreateTexture()
 		highlight:SetAllPoints()
-		highlight:SetColorTexture(1, .9, 0, .5)
+		highlight:SetTexture(1, .9, 0, .5)
 		highlight:Hide()
 		row.highlight = highlight
 		row.rt = rt
@@ -762,7 +762,7 @@ function TSM:CreateAuctionResultsTable(parent)
 			if j % 2 == 1 then
 				local tex = cell:CreateTexture()
 				tex:SetAllPoints()
-				tex:SetColorTexture(0.3, 0.3, 0.3, 0.2)
+				tex:SetTexture(0.3, 0.3, 0.3, 0.2)
 				cell:SetNormalTexture(tex)
 			end
 
@@ -801,7 +801,7 @@ function TSM:CreateAuctionResultsTable(parent)
 		if i % 2 == 0 then
 			local tex = row:CreateTexture()
 			tex:SetAllPoints()
-			tex:SetColorTexture(0.3, 0.3, 0.3, 0.3)
+			tex:SetTexture(0.3, 0.3, 0.3, 0.3)
 		end
 
 		tinsert(rt.rows, row)

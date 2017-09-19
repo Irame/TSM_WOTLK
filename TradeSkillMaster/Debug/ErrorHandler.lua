@@ -296,26 +296,26 @@ function private.AddonBlockedEvent(event, addonName, addonFunc)
 end
 
 do
-	private.origErrorHandler = geterrorhandler()
-	seterrorhandler(function(errMsg)
-		if not AceGUI or not TSM.db then
-			-- we can't show our error window until AceGUI and our DB are loaded, so just use the default error handler
-			return private.origErrorHandler and private.origErrorHandler(errMsg) or nil
-		end
-		local isTSMError = false
-		local tsmErrMsg = tostring(errMsg):trim()
-		-- ignore auc-stat-wowuction errors or non-TSM errors or corrupt SV errors
-		if private.ignoreErrors or strmatch(tsmErrMsg, "auc%-stat%-wowuction") or strmatch(tsmErrMsg, "TheUndermineJournal%.lua") or (not strmatch(tsmErrMsg, "TradeSkillMaster") and not (strmatch(tsmErrMsg, "^%.%.%.T?r?a?d?e?S?k?i?l?lMaster_[A-Z][a-z]+[\\/]") or strmatch(tsmErrMsg, "AddOn TradeSkillMaster[_a-zA-Z]* attempted"))) or strmatch(tsmErrMsg, "\\SavedVariables\\TradeSkillMaster") then
-			tsmErrMsg = nil
-		end
-		if tsmErrMsg then
-			local status, ret = pcall(private.ErrorHandler, tsmErrMsg)
-			if status then
-				return ret
-			end
-		end
-		return private.origErrorHandler and private.origErrorHandler(errMsg) or nil
-	end)
-	TSM:RegisterEvent("ADDON_ACTION_FORBIDDEN", private.AddonBlockedEvent)
-	TSM:RegisterEvent("ADDON_ACTION_BLOCKED", private.AddonBlockedEvent)
+	-- private.origErrorHandler = geterrorhandler()
+	-- seterrorhandler(function(errMsg)
+		-- if not AceGUI or not TSM.db then
+			-- -- we can't show our error window until AceGUI and our DB are loaded, so just use the default error handler
+			-- return private.origErrorHandler and private.origErrorHandler(errMsg) or nil
+		-- end
+		-- local isTSMError = false
+		-- local tsmErrMsg = tostring(errMsg):trim()
+		-- -- ignore auc-stat-wowuction errors or non-TSM errors or corrupt SV errors
+		-- if private.ignoreErrors or strmatch(tsmErrMsg, "auc%-stat%-wowuction") or strmatch(tsmErrMsg, "TheUndermineJournal%.lua") or (not strmatch(tsmErrMsg, "TradeSkillMaster") and not (strmatch(tsmErrMsg, "^%.%.%.T?r?a?d?e?S?k?i?l?lMaster_[A-Z][a-z]+[\\/]") or strmatch(tsmErrMsg, "AddOn TradeSkillMaster[_a-zA-Z]* attempted"))) or strmatch(tsmErrMsg, "\\SavedVariables\\TradeSkillMaster") then
+			-- tsmErrMsg = nil
+		-- end
+		-- if tsmErrMsg then
+			-- local status, ret = pcall(private.ErrorHandler, tsmErrMsg)
+			-- if status then
+				-- return ret
+			-- end
+		-- end
+		-- return private.origErrorHandler and private.origErrorHandler(errMsg) or nil
+	-- end)
+	-- TSM:RegisterEvent("ADDON_ACTION_FORBIDDEN", private.AddonBlockedEvent)
+	-- TSM:RegisterEvent("ADDON_ACTION_BLOCKED", private.AddonBlockedEvent)
 end

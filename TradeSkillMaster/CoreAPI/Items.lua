@@ -13,39 +13,20 @@ local Items = TSM:NewModule("Items", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster") -- loads the localization table
 local private = {itemInfo={}, bonusIdCache={}, bonusIdTemp={}, scanTooltip=nil, newItems={}, numPending=0, itemLevelCache = {}, soulboundCache = {}, minLevelCache = {}, canUseCache = {}}
 local STATIC_DATA = {classLookup={}, classIdLookup={}, inventorySlotIdLookup={}}
-STATIC_DATA.weaponClassName = GetItemClassInfo(LE_ITEM_CLASS_WEAPON)
-STATIC_DATA.armorClassName = GetItemClassInfo(LE_ITEM_CLASS_ARMOR)
--- Needed because NUM_LE_ITEM_CLASSS contains an erroneous value
-local ITEM_CLASS_IDS = {
-	LE_ITEM_CLASS_WEAPON,
-	LE_ITEM_CLASS_ARMOR,
-	LE_ITEM_CLASS_CONTAINER,
-	LE_ITEM_CLASS_GEM,
-	LE_ITEM_CLASS_ITEM_ENHANCEMENT,
-	LE_ITEM_CLASS_CONSUMABLE,
-	LE_ITEM_CLASS_GLYPH,
-	LE_ITEM_CLASS_TRADEGOODS,
-	LE_ITEM_CLASS_RECIPE,
-	LE_ITEM_CLASS_BATTLEPET,
-	LE_ITEM_CLASS_QUESTITEM,
-	LE_ITEM_CLASS_MISCELLANEOUS
-}
 
-for _, classId in ipairs(ITEM_CLASS_IDS) do
-	local class = GetItemClassInfo(classId)
-	if class then
-		STATIC_DATA.classIdLookup[strlower(class)] = classId
-		STATIC_DATA.classLookup[class] = {}
-		STATIC_DATA.classLookup[class]._index = classId
-		for _, subClassId in pairs({GetAuctionItemSubClasses(classId)}) do
-			STATIC_DATA.classLookup[class][GetItemSubClassInfo(classId, subClassId)] = subClassId
-		end
+for classId, class in pairs({GetAuctionItemClasses()}) do
+	STATIC_DATA.classIdLookup[strlower(class)] = classId
+	STATIC_DATA.classLookup[class] = {}
+	STATIC_DATA.classLookup[class]._index = classId
+	for subClassId, subClass in pairs({GetAuctionItemSubClasses(classId)}) do
+		STATIC_DATA.classLookup[class][subClass] = subClassId
 	end
 end
-for i = 0, NUM_LE_INVENTORY_TYPES do
-	local invType = GetItemInventorySlotInfo(i)
-	if invType then
-		STATIC_DATA.inventorySlotIdLookup[strlower(invType)] = i
+local ITEM_INVENTORY_SLOT_NAMES = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot", "Bag0Slot", "Bag1Slot", "Bag2Slot", "Bag3Slot" }
+for _, invType in pairs(ITEM_INVENTORY_SLOT_NAMES) do
+	local id = GetInventorySlotInfo(invType)
+	if id then
+		STATIC_DATA.inventorySlotIdLookup[strlower(invType)] = id
 	end
 end
 local GET_ITEM_INFO_INSTANT_KEYS = {
@@ -60,12 +41,12 @@ local GET_ITEM_INFO_KEYS = {
 	quality = 3,
 	itemLevel = 4,
 	minLevel = 5,
+	classId = 6,
+	subClassId = 7,
 	maxStack = 8,
 	equipSlot = 9,
 	texture = 10,
-	vendorPrice = 11,
-	classId = 12,
-	subClassId = 13
+	vendorPrice = 11
 }
 local GET_PET_INFO_KEYS = {
 	name = 1,
@@ -85,6 +66,31 @@ end
 local MAX_REQUESTS_PENDING = 200
 local UPGRADE_VALUE_SHIFT = 1000000
 
+-- ============================================================================
+-- TSMAPI gloabl constants
+-- ============================================================================
+
+TSMAPI.Item.CLASS_WEAPON = 1
+TSMAPI.Item.CLASS_ARMOR = 2
+TSMAPI.Item.CLASS_CONTAINER = 3
+TSMAPI.Item.CLASS_CONSUMABLE = 4
+TSMAPI.Item.CLASS_GLYPH = 5
+TSMAPI.Item.CLASS_TRADEGOODS = 6
+TSMAPI.Item.CLASS_AMMO = 7
+TSMAPI.Item.CLASS_QUIVER = 8
+TSMAPI.Item.CLASS_RECIPE = 9
+TSMAPI.Item.CLASS_GEM = 10
+TSMAPI.Item.CLASS_MISCELLANEOUS = 11
+TSMAPI.Item.CLASS_QUESTITEM = 12
+
+TSMAPI.Item.QUALITY_POOR = 1
+TSMAPI.Item.QUALITY_COMMON = 2
+TSMAPI.Item.QUALITY_UNCOMMON = 3
+TSMAPI.Item.QUALITY_RARE = 4
+TSMAPI.Item.QUALITY_EPIC = 5
+TSMAPI.Item.QUALITY_LEGENDARY = 6
+TSMAPI.Item.QUALITY_ARTIFACT = 7
+TSMAPI.Item.QUALITY_HEIRLOOM = 8
 
 -- ============================================================================
 -- TSMAPI Functions
@@ -103,13 +109,7 @@ function TSMAPI.Item:ToItemString(item)
 	end
 
 	-- test if it's already (likely) an item string or battle pet string
-	if strmatch(item, "^p:([0-9%-:]+)$") then
-		result = strjoin(":", strmatch(item, "^(p):(%d+:%d+:%d+)"))
-		if result then
-			return result
-		end
-		return item
-	elseif strmatch(item, "^i:([0-9%-:]+)$") then
+	if strmatch(item, "^i:([0-9%-:]+)$") then
 		return private:FixItemString(item)
 	end
 
@@ -123,20 +123,6 @@ function TSMAPI.Item:ToItemString(item)
 	result = strjoin(":", strmatch(item, "^(i)tem:([0-9%-]+):[0-9%-]+:[0-9%-]+:[0-9%-]+:[0-9%-]+:[0-9%-]+:([0-9%-]+)$"))
 	if result then
 		return private:FixItemString(result)
-	end
-
-	-- test if it's an old style battle pet string (or if it was a link)
-	result = strjoin(":", strmatch(item, "^battle(p)et:(%d+:%d+:%d+)"))
-	if result then
-		return result
-	end
-	result = strjoin(":", strmatch(item, "^battle(p)et:(%d+)$"))
-	if result then
-		return result
-	end
-	result = strjoin(":", strmatch(item, "^(p):(%d+:%d+:%d+)"))
-	if result then
-		return result
 	end
 
 	-- test if it's a long item string
@@ -298,7 +284,15 @@ function TSMAPI.Item:IsDisenchantable(itemString)
 	if not itemString or TSM.STATIC_DATA.notDisenchantable[itemString] then return end
 	local quality = TSMAPI.Item:GetQuality(itemString) or 0
 	local classId = TSMAPI.Item:GetClassId(itemString)
-	return quality >= LE_ITEM_QUALITY_UNCOMMON and (classId == LE_ITEM_CLASS_ARMOR or classId == LE_ITEM_CLASS_WEAPON)
+	return quality >= self.QUALITY_UNCOMMON and (classId == self.CLASS_ARMOR or classId == self.CLASS_WEAPON)
+end
+
+function TSMAPI.Item:GetItemClassInfo(classId)
+	return select(classId, GetAuctionItemClasses())
+end
+
+function TSMAPI.Item:GetItemSubClassInfo(classId, subClassId)
+	return select(subClassId, GetAuctionItemSubClasses(classId))
 end
 
 function TSMAPI.Item:GetItemClasses()
@@ -311,7 +305,7 @@ function TSMAPI.Item:GetItemClasses()
 end
 
 function TSMAPI.Item:GetItemSubClasses(classId)
-	local class = GetItemClassInfo(classId)
+	local class = self:GetItemClassInfo(classId)
 	local result = {}
 	for subClass in pairs(STATIC_DATA.classLookup[class]) do
 		if subClass ~= "_index" then
@@ -328,7 +322,7 @@ end
 
 function TSMAPI.Item:GetSubClassIdFromSubClassString(subClass, classId)
 	if not classId then return end
-	local class = GetItemClassInfo(classId)
+	local class = self:GetItemClassInfo(classId)
 	if not STATIC_DATA.classLookup[class] then return end
 	for str, index in pairs(STATIC_DATA.classLookup[class]) do
 		if strlower(str) == strlower(subClass) then
@@ -540,14 +534,7 @@ function private.GetCachedItemInfo(itemString)
 	if not itemString then return end
 	if not private.itemInfo[itemString] then
 		private.itemInfo[itemString] = {}
-		if strmatch(itemString, "^p:") then
-			-- pets don't have a variant of GetItemInfoInstant, so just pretend we already got it
-			local speciesId = tonumber(strmatch(itemString, "^p:(%d+)"))
-			private.StoreGetPetInfoResult(itemString, private.GetPetInfo(speciesId))
-			private.itemInfo[itemString]._getInfoInstantResult = true
-		else
-			private.newItems[itemString] = 1
-		end
+		private.newItems[itemString] = 1
 	end
 	return private.itemInfo[itemString]
 end
@@ -642,7 +629,7 @@ function private.ItemInfoThread(self)
 		for itemString in pairs(private.loadedItemInfo) do
 			local info = private.itemInfo[itemString]
 			if not info._getInfoInstantResult then
-				private.StoreGetItemInfoInstantResult(itemString, GetItemInfoInstant(TSMAPI.Item:ToItemID(itemString)))
+				private.StoreGetItemInfoResult(itemString, GetItemInfo(TSMAPI.Item:ToItemID(itemString)))
 			end
 			numLoops = (numLoops + 1) % 100
 			self:Yield(numLoops == 0)
@@ -661,7 +648,7 @@ function private.ItemInfoThread(self)
 		for itemString in pairs(private.newItems) do
 			local info = private.itemInfo[itemString]
 			if not info._getInfoInstantResult then
-				private.StoreGetItemInfoInstantResult(itemString, GetItemInfoInstant(TSMAPI.Item:ToItemID(itemString)))
+				private.StoreGetItemInfoResult(itemString, GetItemInfo(TSMAPI.Item:ToItemID(itemString)))
 			end
 			if private.numPending < maxPending then
 				local itemId = TSMAPI.Item:ToItemID(itemString)
@@ -714,7 +701,7 @@ function private.GetItemInfoKey(itemString, key)
 		if info._isInvalid then return end
 		if not info[key] and not info._getInfoInstantResult and GET_ITEM_INFO_INSTANT_KEYS[key] then
 			-- we can look up this key via GetItemInfoInstant
-			private.StoreGetItemInfoInstantResult(itemString, GetItemInfoInstant(TSMAPI.Item:ToItemID(itemString)))
+			private.StoreGetItemInfoResult(itemString, GetItemInfo(TSMAPI.Item:ToItemID(itemString)))
 			TSMAPI:Assert(info._isInvalid or info[key], format("Failed to get instant info! (%s, %s)", itemString, key))
 		end
 		return info[key]
@@ -942,16 +929,9 @@ function private.GetTooltipText(text)
 end
 
 function private.ToWoWItemString(itemString)
-	local _, itemId, rand, numBonus = (":"):split(itemString)
+	local _, itemId, rand = (":"):split(itemString)
 	local level = UnitLevel("player")
-	local spec = GetSpecialization()
-	spec = spec and GetSpecializationInfo(spec) or ""
-	local upgradeValue = private.GetUpgradeValue(itemString)
-	if upgradeValue and numBonus then
-		local bonusIds = strmatch(itemString, "i:[0-9]+:[0-9%-]*:[0-9]+:(.+):"..upgradeValue.."$")
-		return "item:"..itemId.."::::::"..(rand or "").."::"..level..":"..spec..":512::"..numBonus..":"..bonusIds..":"..(upgradeValue-UPGRADE_VALUE_SHIFT)..":::"
-	end
-	return "item:"..itemId.."::::::"..(rand or "").."::"..level..":"..spec..":::"..(numBonus and strmatch(itemString, "i:[0-9]+:[0-9%-]*:(.*)") or "")..":::"
+	return "item:"..itemId.."::::::"..(rand or "").."::"..level
 end
 
 function private.RemoveExtra(itemString)
