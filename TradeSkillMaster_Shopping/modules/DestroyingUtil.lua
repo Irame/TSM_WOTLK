@@ -47,15 +47,20 @@ function DestroyingUtil:GetScanData(mode, itemData, queue)
 	elseif mode == "disenchant" then
 		tinsert(queue, {name=itemData.name})
 	
-		local minQuality = 7
-		for _, data in pairs(itemData.itemTypes) do
-			for quality in pairs(data) do
-				minQuality = min(minQuality, quality)
+		local function GetItemClass(str)
+			for i, class in ipairs({GetAuctionItemClasses()}) do
+				if str == class then
+					return i
+				end
 			end
 		end
-		for class=1, 2 do
-			local uniqueString = itemData.minLevel.."$"..itemData.maxLevel.."$"..class.."$"..minQuality
-			tinsert(queue, {minLevel=itemData.minLevel, maxLevel=itemData.maxLevel, class=class, quality=minQuality, uniqueString=uniqueString})
+	
+		for classStr, classData in pairs(itemData.itemTypes) do
+			class = GetItemClass(classStr)
+			for quality in pairs(classData) do
+				local uniqueString = itemData.minLevel.."$"..itemData.maxLevel.."$"..class.."$"..quality
+				tinsert(queue, {minLevel=itemData.minLevel, maxLevel=itemData.maxLevel, class=class, quality=quality, uniqueString=uniqueString})
+			end
 		end
 	elseif mode == "transform" then
 		tinsert(queue, {name=itemData.name})
