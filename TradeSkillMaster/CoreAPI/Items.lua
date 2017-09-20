@@ -23,11 +23,12 @@ for classId, class in pairs({GetAuctionItemClasses()}) do
 	end
 end
 
-local ITEM_INVENTORY_SLOT_NAMES = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot", "Bag0Slot", "Bag1Slot", "Bag2Slot", "Bag3Slot" }
+local ITEM_INVENTORY_SLOT_NAMES = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot" }
 for _, invType in pairs(ITEM_INVENTORY_SLOT_NAMES) do
 	local id = GetInventorySlotInfo(invType)
-	if id then
-		STATIC_DATA.inventorySlotIdLookup[strlower(invType)] = id
+	local slotName = _G[strupper(invType)]
+	if id and slotName then
+		STATIC_DATA.inventorySlotIdLookup[strlower(slotName)] = id
 	end
 end
 
