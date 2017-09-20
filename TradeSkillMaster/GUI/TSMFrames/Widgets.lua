@@ -159,8 +159,7 @@ function GUI:CreateStatusBar(parent, baseName)
 	local ag = statusBar:CreateAnimationGroup()
 	local alpha = ag:CreateAnimation("Alpha")
 	alpha:SetDuration(1)
-	alpha:SetFromAlpha(0.7)
-	alpha:SetToAlpha(0.2)
+	alpha:SetChange(-0.5)
 	ag:SetLooping("Bounce")
 	statusBar.ag = ag
 	frame.minorStatusBar = statusBar
@@ -176,8 +175,7 @@ function GUI:CreateStatusBar(parent, baseName)
 	local ag = statusBar:CreateAnimationGroup()
 	local alpha = ag:CreateAnimation("Alpha")
 	alpha:SetDuration(1)
-	alpha:SetFromAlpha(0.9)
-	alpha:SetToAlpha(0.4)
+	alpha:SetChange(-0.5)
 	ag:SetLooping("Bounce")
 	statusBar.ag = ag
 	frame.majorStatusBar = statusBar

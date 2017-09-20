@@ -42,16 +42,6 @@ end
 -- Module Functions
 -- ============================================================================
 
-function TSM:GetAuctionPlayer(player, player_full)
-	if not player then return end
-	local realm = GetRealmName() or ""
-	if player_full and strjoin("-", player, realm) ~= player_full then
-		return player_full
-	else
-		return player
-	end
-end
-
 function TSM:SetAuctionTabFlashing(moduleName, flashing)
 	if not moduleName then return end
 	local moduleTab = nil
@@ -157,7 +147,7 @@ function private:CreateTSMAHTab(moduleName, callbackShow, callbackHide)
 					local currentTotal = 0
 					local incomingTotal = 0
 					for i=1, GetNumAuctionItems("owner") do
-						local count, buyoutAmount = TSMAPI.Util:Select({3, 10}, GetAuctionItemInfo("owner", i))
+						local count, buyoutAmount = TSMAPI.Util:Select({3, 9}, GetAuctionItemInfo("owner", i))
 						if count == 0 then
 							incomingTotal = incomingTotal + buyoutAmount
 						else
@@ -200,13 +190,11 @@ function private:CreateTSMAHTab(moduleName, callbackShow, callbackHide)
 	local ag = tab:CreateAnimationGroup()
 	local flash = ag:CreateAnimation("Alpha")
 	flash:SetOrder(1)
-	flash:SetFromAlpha(1)
-	flash:SetToAlpha(0.5)
+	flash:SetChange(-0.5)
 	flash:SetDuration(0.5)
 	local flash = ag:CreateAnimation("Alpha")
 	flash:SetOrder(2)
-	flash:SetFromAlpha(0.5)
-	flash:SetToAlpha(1)
+	flash:SetChange(0.5)
 	flash:SetDuration(0.5)
 	ag:SetLooping("REPEAT")
 	auctionTab.flash = ag
