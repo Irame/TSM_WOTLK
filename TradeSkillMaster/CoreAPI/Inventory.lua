@@ -555,7 +555,7 @@ function private.MailThread(self)
 	-- handle auction buying
 	local function OnAuctionBid(listType, index, bidPlaced)
 		local itemString = TSMAPI.Item:ToBaseItemString(GetAuctionItemLink(listType, index))
-		local name, stackSize, buyout = TSMAPI.Util:Select({ 1, 3, 10 }, GetAuctionItemInfo(listType, index))
+		local name, stackSize, buyout = TSMAPI.Util:Select({ 1, 3, 9 }, GetAuctionItemInfo(listType, index))
 		if itemString and bidPlaced == buyout then
 			private:InsertPendingMail(PLAYER_NAME, "auction_buy", { [itemString] = stackSize }, time())
 		end
@@ -740,7 +740,7 @@ function private:ScanAuction(dataTbl)
 	for i = 1, GetNumAuctionItems("owner") do
 		local itemString = TSMAPI.Item:ToBaseItemString(GetAuctionItemLink("owner", i))
 		if itemString then
-			local _, _, quantity, _, _, _, _, _, _, _, _, bidder = GetAuctionItemInfo("owner", i)
+			local _, _, quantity, _, _, _, _, _, _, _, bidder = GetAuctionItemInfo("owner", i)
 			if not bidder then
 				dataTbl[itemString] = (dataTbl[itemString] or 0) + quantity
 			end
