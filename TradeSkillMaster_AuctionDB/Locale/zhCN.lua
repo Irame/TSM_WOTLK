@@ -1,12 +1,10 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_AuctionDB - AddOn by Sapu94							 	  	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctiondb.aspx   --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
+-- ------------------------------------------------------------------------------ --
+--                           TradeSkillMaster_AuctionDB                           --
+--           http://www.curse.com/addons/wow/tradeskillmaster_auctiondb           --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 -- TradeSkillMaster_AuctionDB Locale - zhCN
 -- Please use the localization app on CurseForge to update this
@@ -15,81 +13,103 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster_AuctionDB", "zhCN")
 if not L then return end
 
-L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."] = "完整扫描拍卖行内的所有物品，此方式远慢于快速扫描，预计费时几分钟甚至更久。" -- Needs review
-L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, it may disconnect you from the game and has a 15 minute cooldown."] = "快速扫描是游戏中获取拍卖行内所有物品数据的最快的扫描方式。但是，快速扫描可能导致掉线并有15分钟冷却。" -- Needs review
-L["Alchemy"] = "炼金" -- Needs review
--- L["Any items in the AuctionDB database that contain the search phrase in their names will be displayed."] = ""
-L["A profession scan will scan items required/made by a certain profession."] = "专业扫描将扫描指定专业所需/产出的物品。" -- Needs review
-L["Are you sure you want to clear your AuctionDB data?"] = "你确定你要清除AuctionDB的数据吗?" -- Needs review
-L["Ascending"] = "递增" -- Needs review
-L["AuctionDB - Market Value"] = "AuctionDB - 市场价格" -- Needs review
-L["AuctionDB Market Value:"] = "AuctionDB 市场价" -- Needs review
-L["AuctionDB Min Buyout:"] = "AuctionDB 最低一口价" -- Needs review
-L["AuctionDB - Minimum Buyout"] = "AuctionDB - 最低一口价" -- Needs review
-L["AuctionDB Seen Count:"] = "AuctionDB 历史计数" -- Needs review
-L["Blacksmithing"] = "锻造" -- Needs review
-L["|cffff0000WARNING:|r As of 4.0.1 there is a bug with GetAll scans only scanning a maximum of 42554 auctions from the AH which is less than your auction house currently contains. As a result, thousands of items may have been missed. Please use regular scans until blizzard fixes this bug."] = "|cffff0000警告:|r 4.0.1版本的快速扫描有个最多扫描42554项拍卖品的问题，这远少于当前拍卖行商品的实际数量。因此，有上千个商品数据遗失。在暴雪修复此问题前请使用普通扫描。" -- Needs review
-L["Cooking"] = "烹饪" -- Needs review
-L["Descending"] = "递减" -- Needs review
-L["Done Scanning"] = "完成扫描" -- Needs review
-L["Enable display of AuctionDB data in tooltip."] = "在鼠标提示中显示AuctionDB数据" -- Needs review
-L["Enchanting"] = "附魔" -- Needs review
-L["Engineering"] = "工程" -- Needs review
-L["General Options"] = "常规选项" -- Needs review
-L["Hide poor quality items"] = "隐藏灰色物品" -- Needs review
-L["If checked, poor quality items won't be shown in the search results."] = "开启本选项,灰色物品将不在扫描结果中显示." -- Needs review
-L["Inscription"] = "铭文" -- Needs review
-L["Invalid value entered. You must enter a number between 5 and 500 inclusive."] = "输入错误,你必须输入一个5 - 500 之间的数字." -- Needs review
-L["Item Link"] = "物品链接" -- Needs review
-L["Item MinLevel"] = "最低物品等级" -- Needs review
-L["Items per page"] = "每页显示的物品" -- Needs review
-L["Items %s - %s (%s total)"] = "物品 %s - %s (总数 %s) " -- Needs review
-L["Item SubType Filter"] = "物品子类型过滤" -- Needs review
-L["Item Type Filter"] = "物品类型过滤" -- Needs review
-L["It is strongly recommended that you reload your ui (type '/reload') after running a GetAll scan. Otherwise, any other scans (Post/Cancel/Search/etc) will be much slower than normal."] = "强烈推荐你在运行快速扫描后重载界面(输入'/reload')，否则任何其他的扫描（上架/下架/搜索/等）都较平时要慢。" -- Needs review
-L["Jewelcrafting"] = "珠宝加工" -- Needs review
-L["Last Scanned"] = "最后一次扫描" -- Needs review
-L["Leatherworking"] = "制皮" -- Needs review
-L["Market Value"] = "市场价" -- Needs review
-L["Minimum Buyout"] = "最低一口价" -- Needs review
-L["Never scan the auction house again!"] = "不再扫描拍卖行!" -- Needs review
-L["Next Page"] = "下一页" -- Needs review
-L["No items found"] = "未找到物品" -- Needs review
-L["Not Ready"] = "还未就绪" -- Needs review
--- L["Num(Yours)"] = ""
-L["Options"] = "选项" -- Needs review
-L["Previous Page"] = "上一页" -- Needs review
-L["Professions:"] = "专业:" -- Needs review
-L["Ready"] = "准备完毕" -- Needs review
-L["Ready in %s min and %s sec"] = "在%s分钟%s秒內完成" -- Needs review
-L["Refresh"] = "刷新" -- Needs review
-L["Refreshes the current search results."] = "刷新当前搜索结果." -- Needs review
-L["Removed %s from AuctionDB."] = "以从AuctionDB中移除%s。" -- Needs review
-L["Reset Data"] = "重置数据" -- Needs review
-L["Resets AuctionDB's scan data"] = "重置AuctionDB扫描数据" -- Needs review
-L["Run Full Scan"] = "运行完整扫描" -- Needs review
-L["Run GetAll Scan"] = "进行快速扫描" -- Needs review
-L["Run Profession Scan"] = "运行专业扫描" -- Needs review
-L["Run Scan"] = "进行扫描" -- Needs review
-L["%s ago"] = "%s 之前" -- Needs review
-L["Scan interrupted."] = "扫描已中断" -- Needs review
-L["Scanning..."] = "扫描中..." -- Needs review
-L["Scan the auction house with AuctionDB to update its market value and min buyout data."] = "扫描拍卖行来更新市场价和最低一口价的数据." -- Needs review
-L["Search"] = "搜索" -- Needs review
-L["Search Options"] = "搜索选项" -- Needs review
-L["Select how you would like the search results to be sorted. After changing this option, you may need to refresh your search results by hitting the \"Refresh\" button."] = "将搜索结果按你的要求排序.改变该选项后,你可能需要点击\"刷新\"按钮来刷新搜索结果." -- Needs review
-L["Select professions to include in the profession scan."] = "选择要进行专业扫描的专业" -- Needs review
-L["Shift-Right-Click to clear all data for this item from AuctionDB."] = "Shift-右键点击从AuctionDB中清除此项的所有数据" -- Needs review
-L["Sort items by"] = "排序物品按" -- Needs review
-L["Sort search results in ascending order."] = "升序排列" -- Needs review
-L["Sort search results in descending order."] = "搜索结果降序排列" -- Needs review
-L["%s - Scanning page %s/%s of filter %s/%s"] = "%s - 扫描页面 %s/%s 过滤器 %s/%s" -- Needs review
-L["Tailoring"] = "裁缝" -- Needs review
-L["The author of TradeSkillMaster has created an application which uses blizzard's online auction house APIs to update your AuctionDB data automatically. Check it out at the link in TSM_AuctionDB's description on curse or at: %s"] = "TradeSkillMaster的作者开发了一个使用暴雪在线拍卖行接口自动更新AuctionDB数据库的软件。通过curse网TSM_AuctionDB插件描述中的连接查看信息或此连接：%s" -- Needs review
-L["This determines how many items are shown per page in results area of the \"Search\" tab of the AuctionDB page in the main TSM window. You may enter a number between 5 and 500 inclusive. If the page lags, you may want to decrease this number."] = "这个数字决定TSM主窗口中AuctionDB页面的\"搜索\"标签的搜索结果区域每页显示多少项目.你可以输入一个5到500之间的数字.如果页面加载缓慢，可以尝试减小这个数字。" -- Needs review
-L["Use the search box and category filters above to search the AuctionDB data."] = "使用搜索框和过滤器来搜索AuctionDB数据." -- Needs review
-L["Waiting for data..."] = "等待数据中..." -- Needs review
-L["You can filter the results by item subtype by using this dropdown. For example, if you want to search for all herbs, you would select \"Trade Goods\" in the item type dropdown and \"Herbs\" in this dropdown."] = "你可以用这个下拉菜单来按物品子类型过滤搜索结果.例如,如果你想搜索所有的草药,你需要物品类型下拉菜单中选择\"商品\",并在物品子类型下拉菜单中选择\"草药\"." -- Needs review
-L["You can filter the results by item type by using this dropdown. For example, if you want to search for all herbs, you would select \"Trade Goods\" in this dropdown and \"Herbs\" as the subtype filter."] = "你可以用这个下拉菜单来按物品类型过滤搜索结果.例如,如果你想搜索所有的草药,你需要物品类型下拉菜单中选择\"商品\",并在物品子类型下拉菜单中选择\"草药\"." -- Needs review
-L["You can use this page to lookup an item or group of items in the AuctionDB database. Note that this does not perform a live search of the AH."] = "你可以使用这个页面来查看AuctionDB数据库中的物品或者物品组.请注意,这并不是在拍卖行的实时搜索." -- Needs review
+L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."] = "完整扫描拍卖行内的所有物品，此方式远慢于快速扫描，预计费时几分钟甚至更久。"
+L["A full scan is a slow, manual scan of the entire auction house."] = "全部扫描，比较慢的扫描整个拍卖行的方法。"
+L["A 'GetAll' scan is an extremely fast way to manually scan the entire AH, but may run into bugs on Blizzard's end such as disconnection issues. It also has a 15 minute cooldown."] = "“快速扫描”是扫描拍卖行极快的方法，但是很有可能发生错误而被暴雪断开连接。有15分钟冷却时间。"
+L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, there are many possible bugs on Blizzard's end with it including the chance for it to disconnect you from the game. Also, it has a 15 minute cooldown."] = "快速扫描时扫描拍卖行中每件物品最快的方式。然而,在服务器端有着可能的BUG会使您掉线,所以每15分钟才能执行一次。"
+L["AuctionDB - Global Historical Price (via TSM App)"] = "AuctionDB - 全球历史价格（通过TSM桌面软件）"
+L["AuctionDB - Global Market Value Average (via TSM App)"] = "AuctionDB - 全球市场均价（通过TSM桌面软件）"
+L["AuctionDB - Global Minimum Buyout Average (via TSM App)"] = "AuctionDB - 全球平均买入价（通过TSM桌面软件）"
+L["AuctionDB - Global Sale Average (via TSM App)"] = "AuctionDB - 全球平均卖出价（通过TSM桌面软件）"
+L["AuctionDB - Historical Price (via TSM App)"] = "AuctionDB - 历史价格（通过TSM桌面软件）"
+L["AuctionDB - Market Value"] = "AuctionDB - 市场价"
+L["AuctionDB - Minimum Buyout"] = "AuctionDB - 最低一口价"
+L["AuctionDB - Region Historical Price (via TSM App)"] = "AuctionDB - 服务区历史价格（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["AuctionDB - Region Market Value Average (via TSM App)"] = "AuctionDB - 服务区市场均价（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["AuctionDB - Region Minimum Buyout Average (via TSM App)"] = "AuctionDB - 服务区最低买入均价（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["AuctionDB - Region Sale Average (via TSM App)"] = "AuctionDB - 服务区卖出均价（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Can't run a GetAll scan right now."] = "现在还不能执行快速扫描。"
+L["|cffff0000WARNING:|r TSM_AuctionDB doesn't currently have any pricing data for your realm. Either download the TSM Desktop Application from |cff99ffffhttp://tradeskillmaster.com|r to automatically update TSM_AuctionDB's data, or run a manual scan in-game."] = "|cffff0000警告:|r  TSM_AuctionDB目前没有任何你所在国度的价格。请从 |cff99ffffhttp://tradeskillmaster.com|r 下载TSM桌面软件自动更新数据，或者在游戏内手动扫描。（国服不支持TSM桌面插件，请进入游戏，首次请选择“全面扫描”）"
+L["%d auctions"] = "%d拍卖"
+L["Display global historical price (via TSM Application) in the tooltip."] = "在鼠标提示中显示全球历史价格（通过TSM桌面软件）。"
+L["Display global market value avg (via TSM Application) in the tooltip."] = "在鼠标提示中显示全球平均市场价（通过TSM桌面软件）。"
+L["Display global min buyout avg (via TSM Application) in the tooltip."] = "在鼠标提示中显示全球平均买入价（通过TSM桌面软件）。"
+L["Display global sale avg (via TSM Application) in the tooltip."] = "在鼠标提示中显示全球平均卖出价（通过TSM桌面软件）。"
+L["Display historical price (via TSM Application) in the tooltip."] = "在鼠标提示中显示历史价格（通过TSM桌面软件）。"
+L["Display market value in tooltip."] = "在鼠标提示中显示市场价。"
+L["Display min buyout in tooltip."] = "在鼠标提示中显示全球历史价格。"
+L["Display region average daily sold quantity (via TSM Application) in the tooltip."] = "在鼠标提示中显示服务区平均每日成交数量（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Display region historical price (via TSM Application) in the tooltip."] = "在鼠标提示中显示服务区历史价格（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Display region market value avg (via TSM Application) in the tooltip."] = "在鼠标提示中显示服务区市场均价（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Display region min buyout avg (via TSM Application) in the tooltip."] = "在鼠标提示中显示服务区最低买入均价（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Display region sale avg (via TSM Application) in the tooltip."] = "在鼠标提示中显示服务区卖出均价（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Display region sale rate (via TSM Application) in the tooltip."] = "在鼠标提示中显示服务区成交率（通过TSM桌面插件）（国服不支持，无需选择！）"
+L["Done Scanning"] = "完成扫描"
+L["Download the FREE TSM desktop application which will automatically update your TSM_AuctionDB prices using Blizzard's online APIs (and does MUCH more). Visit %s for more info and never scan the AH again! This is the best way to update your AuctionDB prices."] = "下载完全免费的 TSM APP (TSM应用程序) 来更新你的 AuctionDB数据库中的物品价格 (利用到暴雪提供的在线APIs)。访问 %s 来获取更多信息。以后将不用在游戏里扫描拍卖行物价了,这将是更新拍卖行物价好最好的方法。(已经不支持国服！)"
+L["General Options"] = "常规选项"
+L["Global Historical Price:"] = "全球历史价格："
+L["Global Historical Price x%s:"] = "全球历史价格 x%s:"
+L["Global Market Value Avg:"] = "全球市场均价："
+L["Global Market Value Avg x%s:"] = "全球市场均价 x%s:"
+L["Global Min Buyout Avg:"] = "全球最低买入均价："
+L["Global Min Buyout Avg x%s:"] = "全球平均买入价 x%s:"
+L["Global Sale Avg:"] = "全球卖出均价："
+L["Global Sale Avg x%s:"] = "全球卖出均价 x%s："
+L["Historical Price:"] = "历史价格："
+L["Historical Price x%s:"] = "历史价格 x%s:"
+L["If checked, AuctionDB will add a tab to the AH to allow for in-game scans. If you are using the TSM app exclusively for your scans, you may want to hide it by unchecking this option. This option requires a reload to take effect."] = "如果勾选，AuctionDB将在拍卖行添加标签来允许在游戏内扫描。如果正在使用TSM桌面软件扫描，可以取消勾选来隐藏选项。这个选项在重载界面后生效。"
+L["If checked, the global historical price of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示全球历史价格。需要TSM桌面软件支持。（因国服不支持TSM桌面软件，故此选项无用，无需勾选！）"
+L["If checked, the global market value average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示全球市场均价。需要TSM桌面软件支持。（因国服不支持TSM桌面软件，故此选项无用，无需勾选！）"
+L["If checked, the global minimum buyout average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示全球最低买入均价。需要TSM桌面软件支持。（因国服不支持TSM桌面软件，故此选项无用，无需勾选！）"
+L["If checked, the global sale average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示全球卖出均价。需要TSM桌面软件支持。（因国服不支持TSM桌面软件，故此选项无用，无需勾选！）"
+L["If checked, the historical price of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示历史价格。需要TSM桌面软件支持。（因国服不支持TSM桌面软件，故此选项无用，无需勾选！）"
+L["If checked, the lowest buyout value seen in the last scan of the item will be displayed."] = "如果勾选,将显示上次扫描的物品最低一口价。"
+L["If checked, the market value of the item will be displayed"] = "如果勾选,将显示物品的市场价。"
+L["If checked, the region average daily sold quantity of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示服务区平均日成交数量。只能通过TSM桌面插件获取。（国服不支持，无需勾选！）"
+L["If checked, the region historical price of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示服务区历史价格。只能通过TSM桌面插件获取。（国服不支持，无需勾选！）"
+L["If checked, the region market value average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示服务区市场均价。只能通过TSM桌面插件获取。（国服不支持，无需勾选！）"
+L["If checked, the region minimum buyout average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示服务区最低买入均价。只能通过TSM桌面插件获取。（国服不支持，无需勾选！）"
+L["If checked, the region sale average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示服务区卖出均价。只能通过TSM桌面插件获取。（国服不支持，无需勾选！）"
+L["If checked, the region sale rate of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = "如果勾选，将显示服务区物品成交率。只能通过TSM桌面插件获取。（国服不支持，无需勾选！）"
+L["If you have created TSM groups, they will be listed here for selection."] = "如果已经创建了TSM分组，选中的将在这里列出。"
+L["Last updated from in-game scan %s ago."] = "距离上次游戏内的数据扫描 %s 。"
+L["Last updated from the TSM Application %s ago."] = "距离上次游戏外TSM APP的数据扫描 %s 。"
+L["Last Update Time"] = "最近更新时间"
+L["Market Value:"] = "市场价:"
+L["Market Value x%s:"] = "市场价 x%s:"
+L["Min Buyout:"] = "最低一口价:"
+L["Min Buyout x%s:"] = "最低一口价 x%s:"
+L["No scans found."] = "扫描无发现。"
+L["Not Ready"] = "还未就绪"
+L["Not Scanned"] = "未扫描"
+L["Preparing Filters..."] = "正在准备筛选..."
+L["Processing data..."] = "处理数据…"
+L["Ready"] = "准备完毕"
+L["Region Avg Daily Sold:"] = "服务区平均每日售出:"
+L["Region Avg Daily Sold x%s:"] = "服务区平均每日售出x%s:"
+L["Region Historical Price:"] = "服务区历史价格："
+L["Region Historical Price x%s:"] = "服务区历史价格x%s:"
+L["Region Market Value Avg:"] = "服务区市场均价："
+L["Region Market Value Avg x%s:"] = "服务区市场均价x%s:"
+L["Region Min Buyout Avg:"] = "服务区最低买入均价："
+L["Region Min Buyout Avg x%s:"] = "服务区最低买入均价x%s:"
+L["Region Sale Avg:"] = "服务区售出均价："
+L["Region Sale Avg x%s:"] = "服务区售出均价x%s:"
+L["Region Sale Rate:"] = "服务区成交率："
+L["Region Sale Rate x%s:"] = "服务区成交率x%s:"
+L["Run Full Scan"] = "执行完整扫描"
+L["Run GetAll Scan"] = "执行快速扫描"
+L["Running query..."] = "运行查询…"
+L["%s ago"] = "%s之前"
+L["Scanning %d / %d (Page %d / %d)"] = "正在扫描第%d项/共%d项(第%d页/共%d页)"
+L["Scanning page %s/%s"] = "扫描页面 %s/%s"
+L["Scanning page %s/%s - Approximately %s remaining"] = "正在扫描大约%s/%s -  剩余%s"
+L["Scanning results..."] = "正在扫描结果..."
+L["Scanning the auction house in game is no longer necessary!"] = "在游戏扫描拍卖行不再是必要的了!（国服还是必要的！！！）"
+L["Scan Selected Groups"] = "扫描选中的分组"
+L["Show AuctionDB AH Tab (Requires Reload)"] = "显示AuctionDB拍卖行标签（需要重载页面）"
+L["The scan did not run successfully due to issues on Blizzard's end. Using the TSM desktop application for your scans is recommended."] = "扫描因出现错误而被“暴雪”终止。推荐使用TSM桌面软件进行扫描。（不支持国服！）"
+L["This button will scan just the items in the groups you have selected."] = "这个按钮将只扫描选中分组的物品。"
+L["This will do a slow auction house scan of every item in the selected groups and update their AuctionDB prices. This may take several minutes."] = "这将对选中分组物品进行慢速扫描并更新AuctionDB价格。可能会耗费几分钟。"
+L["You must select at least one group before starting the group scan."] = "开始分组扫描前必须选择至少一个分组。"
  

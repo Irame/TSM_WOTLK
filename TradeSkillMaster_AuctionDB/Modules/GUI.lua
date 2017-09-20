@@ -1,258 +1,279 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_AuctionDB - AddOn by Sapu94							 	  	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctiondb.aspx   --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
-
+-- ------------------------------------------------------------------------------ --
+--                           TradeSkillMaster_AuctionDB                           --
+--           http://www.curse.com/addons/wow/tradeskillmaster_auctiondb           --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 -- load the parent file (TSM) into a local variable and register this file as a module
 local TSM = select(2, ...)
 local GUI = TSM:NewModule("GUI")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_AuctionDB") -- loads the localization table
-local GUIUtil = TSMAPI:GetGUIFunctions()
+local private = {frame=nil}
 
-local professions = {
-	Enchanting = L["Enchanting"],
-	Inscription = L["Inscription"],
-	Jewelcrafting = L["Jewelcrafting"],
-	Alchemy = L["Alchemy"],
-	Blacksmithing = L["Blacksmithing"],
-	Leatherworking = L["Leatherworking"],
-	Tailoring = L["Tailoring"],
-	Engineering = L["Engineering"],
-	Cooking = L["Cooking"],
-}
-	
-local private = {}
 
-function GUI:OnInitialize()
-	TSMAPI:RegisterAuctionFunction("TradeSkillMaster_AuctionDB", GUI, L["Run Scan"], L["Scan the auction house with AuctionDB to update its market value and min buyout data."])
-end
+
+-- ============================================================================
+-- Module Functions
+-- ============================================================================
 
 function GUI:Show(frame)
-	private.statusBar = private.statusBar or private:CreateStatusBar(frame.content)
-	private.statusBar:Show()
+	private:Create(frame)
+	private.frame:Show()
 	GUI:UpdateStatus("", 0, 0)
-	
-	private.startScanContent = private.startScanContent or private:CreateStartScanContent(frame.content)
-	private.startScanContent:Show()
+	TSMAPI.Delay:AfterTime("auctionDBGetAllStatus", 0, private.UpdateGetAllStatus, 0.2)
 end
 
 function GUI:Hide()
-	private.statusBar:Hide()
-	private.startScanContent:Hide()
-	
-	TSMAPI:StopScan()
+	private.frame:Hide()
+	TSM.Scan:StopScanning()
+	TSMAPI.Delay:Cancel("auctionDBGetAllStatus")
 end
 
 function GUI:UpdateStatus(text, major, minor)
 	if text then
-		private.statusBar:SetStatusText(text)
+		private.frame.statusBar:SetStatusText(text)
 	end
 	if major or minor then
-		private.statusBar:UpdateStatus(major, minor)
+		private.frame.statusBar:UpdateStatus(major, minor)
 	end
 end
 
-function private:CreateStatusBar(parent)
-	local function UpdateStatus(self, majorStatus, minorStatus)
-		if majorStatus then
-			self.majorStatusBar:SetValue(majorStatus)
-		end
-		if minorStatus then
-			self.minorStatusBar:SetValue(minorStatus)
-		end
-	end
-	
-	local function SetStatusText(self, text)
-		self.text:SetText(text)
-	end
 
-	local level = parent:GetFrameLevel()
-	local frame = CreateFrame("Frame", nil, parent)
-	frame:SetHeight(25)
-	frame:SetPoint("TOPLEFT", 2, -3)
-	frame:SetPoint("TOPRIGHT", -2, -3)
-	frame:SetFrameLevel(level+1)
-	frame.UpdateStatus = UpdateStatus
-	frame.SetStatusText = SetStatusText
-	
-	-- minor status bar (gray one)
-	local statusBar = CreateFrame("STATUSBAR", "TSMAuctionDBMinorStatusBar", frame, "TextStatusBar")
-	statusBar:SetOrientation("HORIZONTAL")
-	statusBar:SetMinMaxValues(0, 100)
-	statusBar:SetAllPoints()
-	statusBar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
-	statusBar:SetStatusBarColor(.19, .22, .33, .9)
-	statusBar:SetFrameLevel(level+2)
-	frame.minorStatusBar = statusBar
-	
-	-- major status bar (main blue one)
-	local statusBar = CreateFrame("STATUSBAR", "TSMAuctionDBMajorStatusBar", frame, "TextStatusBar")
-	statusBar:SetOrientation("HORIZONTAL")
-	statusBar:SetMinMaxValues(0, 100)
-	statusBar:SetAllPoints()
-	statusBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-TargetingFrame-BarFill")
-	statusBar:SetStatusBarColor(0.71, 0.71, 0.89, 0.9)
-	statusBar:SetFrameLevel(level+3)
-	frame.majorStatusBar = statusBar
-	
-	local textFrame = CreateFrame("Frame", nil, frame)
-	textFrame:SetFrameLevel(level+4)
-	textFrame:SetAllPoints(frame)
-	-- Text for the StatusBar
-	local text = TSMAPI.GUI:CreateLabel(textFrame)
-	text:SetPoint("CENTER")
-	frame.text = text
-	
-	TSMAPI.GUI:CreateHorizontalLine(frame, -30, parent, true)
-	
-	return frame
-end
+-- ============================================================================
+-- GUI Creation Functions
+-- ============================================================================
 
-function private:CreateStartScanContent(parent)
-	local frame = CreateFrame("Frame", nil, parent)
-	TSMAPI.Design:SetFrameBackdropColor(frame)
-	frame:SetAllPoints(parent)
-	frame:Hide()
+function private:Create(parent)
+	if private.frame then return end
 
 	local function UpdateGetAllButton()
-		if TSM.Scan:IsScanning() then
-			frame:Disable()
-		elseif not select(2, CanSendAuctionQuery()) then
-			local previous = TSM.db.profile.lastGetAll or time()
-			if previous > (time() - 15*60) then
-				local diff = previous + 15*60 - time()
-				local diffMin = math.floor(diff/60)
-				local diffSec = diff - diffMin*60
-				frame.getAllStatusText:SetText("|cff990000"..format(L["Ready in %s min and %s sec"], diffMin, diffSec))
-			else
-				frame.getAllStatusText:SetText("|cff990000"..L["Not Ready"])
-			end
-			frame:Enable()
-			frame.startGetAllButton:Disable()
-		else
-			frame:Enable()
-			frame.getAllStatusText:SetText("|cff009900"..L["Ready"])
-			frame.startGetAllButton:Enable()
-		end
-	end
-	
-	frame:SetScript("OnShow", function(self)
-			TSMAPI:CreateTimeDelay("auctionDBGetAllStatus", 0, UpdateGetAllButton, 0.2)
-		end)
-	
-	frame:SetScript("OnHide", function(self)
-			TSMAPI:CancelFrame("auctionDBGetAllStatus")
-		end)
-		
-	frame.Enable = function(self)
-		self.startGetAllButton:Enable()
-		self.startFullScanButton:Enable()
-		self.startProfessionScanButton:Enable()
 	end
 
-	frame.Disable = function(self)
-		self.startGetAllButton:Disable()
-		self.startFullScanButton:Disable()
-		self.startProfessionScanButton:Disable()
-	end
+	local BFC = TSMAPI.GUI:GetBuildFrameConstants()
+	local frameInfo = {
+		type = "Frame",
+		parent = parent,
+		points = "ALL",
+		children = {
+			{
+				type = "Text",
+				key = "appAd",
+				text = TSMAPI.Design:GetInlineColor("link")..L["Scanning the auction house in game is no longer necessary!"].."|r",
+				textHeight = 20,
+				justify = {"CENTER", "MIDDLE"},
+				size = {0, 20},
+				points = {{"TOP", 45, -5}},
+			},
+			{
+				type = "Text",
+				text = format(L["Download the FREE TSM desktop application which will automatically update your TSM_AuctionDB prices using Blizzard's online APIs (and does MUCH more). Visit %s for more info and never scan the AH again! This is the best way to update your AuctionDB prices."], TSMAPI.Design:GetInlineColor("link").."http://tradeskillmaster.com/app/overview".."|r"),
+				justify = {"LEFT", "TOP"},
+				size = {0, 55},
+				points = {{"TOPLEFT", 90, -30}, {"TOPRIGHT", -5, -30}},
+			},
+			{
+				type = "Frame",
+				key = "content",
+				points = {{"TOPLEFT", parent.content}, {"BOTTOMRIGHT", parent.content}},
+				children = {
+					{
+						type = "GroupTreeFrame",
+						key = "groupTree",
+						groupTreeInfo = {nil, "AuctionDB"},
+						points = {{"TOPLEFT", 5, -35}, {"BOTTOMRIGHT", -205, 5}},
+					},
+					{
+						type = "StatusBarFrame",
+						key = "statusBar",
+						name = "TSMAuctionDBStatusBar",
+						size = {0, 30},
+						points = {{"TOPLEFT"}, {"TOPRIGHT"}},
+					},
+					{
+						type = "HLine",
+						offset = -30,
+					},
+					{
+						type = "VLine",
+						points = {{"TOPRIGHT", -200, -30}, {"BOTTOMRIGHT", -200, 0}},
+					},
+					{
+						type = "Frame",
+						key = "buttonFrame",
+						points = {{"TOPLEFT", BFC.PARENT, "TOPRIGHT", -200, 0}, {"BOTTOMRIGHT"}},
+						children = {
+							-- row 1 - getall scan
+							{
+								type = "Button",
+								key = "getAllBtn",
+								text = L["Run GetAll Scan"],
+								textHeight = 18,
+								tooltip = L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, there are many possible bugs on Blizzard's end with it including the chance for it to disconnect you from the game. Also, it has a 15 minute cooldown."],
+								size = {0, 22},
+								points = {{"TOPLEFT", 6, -50}, {"TOPRIGHT", -6, -50}},
+								scripts = {"OnClick"},
+							},
+							{
+								type = "Text",
+								key = "getAllStatusText",
+								text = "",
+								justify = {"CENTER", "MIDDLE"},
+								size = {0, 16},
+								points = {{"TOPLEFT", BFC.PREV, "BOTTOMLEFT", 0, -3}, {"TOPRIGHT", BFC.PREV, "BOTTOMRIGHT", 0, -3}},
+							},
+							{
+								type = "HLine",
+								offset = -110,
+							},
+							-- row 2 - full scan
+							{
+								type = "Button",
+								key = "fullBtn",
+								text = L["Run Full Scan"],
+								textHeight = 18,
+								tooltip = L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."],
+								size = {0, 22},
+								points = {{"TOPLEFT", 6, -150}, {"TOPRIGHT", -6, -150}},
+								scripts = {"OnClick"},
+							},
+							{
+								type = "HLine",
+								offset = -200,
+							},
+							-- row 3 - group scan
+							{
+								type = "Button",
+								key = "groupBtn",
+								text = L["Scan Selected Groups"],
+								textHeight = 18,
+								tooltip = L["This will do a slow auction house scan of every item in the selected groups and update their AuctionDB prices. This may take several minutes."],
+								size = {0, 22},
+								points = {{"TOPLEFT", 6, -225}, {"TOPRIGHT", -6, -225}},
+								scripts = {"OnClick"},
+							},
+						},
+					},
+				},
+			},
+		},
+		handlers = {
+			content = {
+				buttonFrame = {
+					getAllBtn = {
+						OnClick = TSM.Scan.StartGetAllScan,
+					},
+					fullBtn = {
+						OnClick = TSM.Scan.StartFullScan,
+					},
+					groupBtn = {
+						OnClick = function()
+							local items, includedItems = {}, {}
+							for _, data in pairs(private.frame.content.groupTree:GetSelectedGroupInfo()) do
+								for itemString in pairs(data.items) do
+									itemString = TSMAPI.Item:ToBaseItemString(itemString)
+									if not includedItems[itemString] then
+										includedItems[itemString] = true
+										tinsert(items, itemString)
+									end
+								end
+							end
+							if #items == 0 then
+								TSM:Print(L["You must select at least one group before starting the group scan."])
+								return
+							end
+							TSM.Scan:StartGroupScan(items)
+						end,
+					},
+				},
+			},
+		},
+	}
+	private.frame = TSMAPI.GUI:BuildFrame(frameInfo)
+	TSMAPI.Design:SetFrameBackdropColor(private.frame.content)
+	private.frame.statusBar = private.frame.content.statusBar
 
-	local bar = TSMAPI.GUI:CreateVerticalLine(frame, 0, nil, true)
-	bar:ClearAllPoints()
-	bar:SetPoint("TOPLEFT", 415, -30)
-	bar:SetHeight(200)
-	
-	
-	-- first row (getall scan)
-	local text = TSMAPI.GUI:CreateLabel(frame)
-	text:SetPoint("TOPLEFT", 10, -35)
-	text:SetHeight(50)
-	text:SetWidth(400)
-	text:SetJustifyH("LEFT")
-	text:SetJustifyV("CENTER")
-	text:SetText(L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, it may disconnect you from the game and has a 15 minute cooldown."])
-	
-	local btn = TSMAPI.GUI:CreateButton(frame, 18)
-	btn:SetPoint("TOPLEFT", 425, -45)
-	btn:SetHeight(22)
-	btn:SetWidth(205)
-	btn:SetScript("OnClick", TSM.Scan.StartGetAllScan)
-	btn:SetText(L["Run GetAll Scan"])
-	frame.startGetAllButton = btn
-	
-	local text = TSMAPI.GUI:CreateLabel(frame)
-	text:SetPoint("TOPLEFT", 425, -70)
-	text:SetHeight(16)
-	text:SetWidth(205)
-	text:SetJustifyH("CENTER")
-	text:SetJustifyV("CENTER")
-	frame.getAllStatusText = text
-	
-	TSMAPI.GUI:CreateHorizontalLine(frame, -95, nil, true)
-	
-	
-	-- second row (full scan)
-	local text = TSMAPI.GUI:CreateLabel(frame)
-	text:SetPoint("TOPLEFT", 10, -100)
-	text:SetHeight(50)
-	text:SetWidth(400)
-	text:SetJustifyH("LEFT")
-	text:SetJustifyV("CENTER")
-	text:SetText(L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."])
-	
-	local btn = TSMAPI.GUI:CreateButton(frame, 18)
-	btn:SetPoint("TOPLEFT", 425, -120)
-	btn:SetHeight(22)
-	btn:SetWidth(205)
-	btn:SetScript("OnClick", TSM.Scan.StartFullScan)
-	btn:SetText(L["Run Full Scan"])
-	frame.startFullScanButton = btn
-	
-	TSMAPI.GUI:CreateHorizontalLine(frame, -160, nil, true)
-	
-	
-	-- third row (profession scan)
-	local text = TSMAPI.GUI:CreateLabel(frame)
-	text:SetPoint("TOPLEFT", 10, -165)
-	text:SetHeight(50)
-	text:SetWidth(170)
-	text:SetJustifyH("LEFT")
-	text:SetJustifyV("CENTER")
-	text:SetText(L["A profession scan will scan items required/made by a certain profession."])
-	
-	local bar = TSMAPI.GUI:CreateVerticalLine(frame, 0, nil, true)
-	bar:ClearAllPoints()
-	bar:SetPoint("TOPLEFT", 185, -160)
-	bar:SetHeight(65)
+	-- create animation for app ad
+	local ag = private.frame.appAd:CreateAnimationGroup()
+	local a1 = ag:CreateAnimation("Alpha")
+	a1:SetChange(-0.4)
+	a1:SetDuration(.5)
+	ag:SetLooping("BOUNCE")
+	ag:Play()
 
-	local dd = GUIUtil:CreateDropdown(frame, L["Professions:"], 200, professions, {"TOPLEFT", 200, -172}, L["Select professions to include in the profession scan."])	dd:SetMultiselect(true)
-	for key in pairs(professions) do
-		dd:SetItemValue(key, TSM.db.profile.scanSelections[key])
+--	local helpPlateInfo = {
+--		FramePos = {x=5, y=-100},
+--		FrameSize = {width=private.frame:GetWidth(), height=private.frame:GetHeight()},
+--		{
+--			ButtonPos = {x = 380, y = -75},
+--			HighLightBox = {x = 2, y = -12, width = 615, height = 295},
+--			ToolTipDir = "DOWN",
+--			ToolTipText = L["If you have created TSM groups, they will be listed here for selection."]
+--		},
+--		{
+--			ButtonPos = {x = 800, y = -20},
+--			HighLightBox = {x = 622, y = -12, width = 200, height = 80},
+--			ToolTipDir = "RIGHT",
+--			ToolTipText = L["A 'GetAll' scan is an extremely fast way to manually scan the entire AH, but may run into bugs on Blizzard's end such as disconnection issues. It also has a 15 minute cooldown."]
+--		},
+--		{
+--			ButtonPos = {x = 800, y = -120},
+--			HighLightBox = {x = 622, y = -100, width = 200, height = 80},
+--			ToolTipDir = "RIGHT",
+--			ToolTipText = L["A full scan is a slow, manual scan of the entire auction house."]
+--		},
+--		{
+--			ButtonPos = {x = 800, y = -190},
+--			HighLightBox = {x = 622, y = -190, width = 200, height = 50},
+--			ToolTipDir = "RIGHT",
+--			ToolTipText = L["This button will scan just the items in the groups you have selected."]
+--		},
+--	}
+--
+--	local mainHelpBtn = CreateFrame("Button", nil, private.frame, "MainHelpPlateButton")
+--	mainHelpBtn:SetPoint("TOPLEFT", private.frame, 70, 25)
+--	mainHelpBtn:SetScript("OnClick", function() private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, true) end)
+--	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false) end end)
+--
+--	if not TSM.db.global.helpPlatesShown.auction then
+--		TSM.db.global.helpPlatesShown.auction = true
+--		private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false)
+--	end
+end
+
+--function private:ToggleHelpPlate(frame, info, btn, isUser)
+--	if not HelpPlate_IsShowing(info) then
+--		HelpPlate:SetParent(frame)
+--		HelpPlate:SetFrameStrata("DIALOG")
+--		HelpPlate_Show(info, frame, btn, isUser)
+--	else
+--		HelpPlate:SetParent(UIParent)
+--		HelpPlate:SetFrameStrata("DIALOG")
+--		HelpPlate_Hide(isUser)
+--	end
+--end
+
+
+
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
+
+function private:UpdateGetAllStatus()
+	if TSM.Scan:IsScanning() then
+		private.frame.content.buttonFrame.getAllBtn:Disable()
+		private.frame.content.buttonFrame.fullBtn:Disable()
+		private.frame.content.buttonFrame.groupBtn:Disable()
+	elseif not select(2, CanSendAuctionQuery()) or GetNumAuctionItems("list") > NUM_AUCTION_ITEMS_PER_PAGE then
+		private.frame.content.buttonFrame.getAllStatusText:SetText("|cff990000"..L["Not Ready"])
+		private.frame.content.buttonFrame.getAllBtn:Disable()
+		private.frame.content.buttonFrame.fullBtn:Enable()
+		private.frame.content.buttonFrame.groupBtn:Enable()
+	else
+		private.frame.content.buttonFrame.getAllBtn:Enable()
+		private.frame.content.buttonFrame.fullBtn:Enable()
+		private.frame.content.buttonFrame.groupBtn:Enable()
+		private.frame.content.buttonFrame.getAllStatusText:SetText("|cff009900"..L["Ready"])
 	end
-	dd:SetCallback("OnValueChanged", function(_,_,key,value) TSM.db.profile.scanSelections[key] = value end)
-	
-	local btn = TSMAPI.GUI:CreateButton(frame, 18)
-	btn:SetPoint("TOPLEFT", 425, -185)
-	btn:SetHeight(22)
-	btn:SetWidth(205)
-	btn:SetScript("OnClick", TSM.Scan.StartProfessionScan)
-	btn:SetText(L["Run Profession Scan"])
-	frame.startProfessionScanButton = btn
-	
-	TSMAPI.GUI:CreateHorizontalLine(frame, -225, nil, true)
-	
-	-- 4th row (auto updater)
-	local text = TSMAPI.GUI:CreateLabel(frame)
-	text:SetPoint("TOPLEFT", 10, -235)
-	text:SetPoint("TOPRIGHT", -10, -235)
-	text:SetHeight(60)
-	text:SetJustifyH("LEFT")
-	text:SetJustifyV("CENTER")
-	text:SetText(format(TSMAPI.Design:GetInlineColor("link")..L["Never scan the auction house again!"].."|r "..L["The author of TradeSkillMaster has created an application which uses blizzard's online auction house APIs to update your AuctionDB data automatically. Check it out at the link in TSM_AuctionDB's description on curse or at: %s"], TSMAPI.Design:GetInlineColor("link").."http://bit.ly/uuiiNL|r"))
-	return frame
 end

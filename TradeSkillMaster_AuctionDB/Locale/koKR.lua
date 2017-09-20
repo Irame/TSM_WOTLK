@@ -1,12 +1,10 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_AuctionDB - AddOn by Sapu94							 	  	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctiondb.aspx   --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
+-- ------------------------------------------------------------------------------ --
+--                           TradeSkillMaster_AuctionDB                           --
+--           http://www.curse.com/addons/wow/tradeskillmaster_auctiondb           --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 -- TradeSkillMaster_AuctionDB Locale - koKR
 -- Please use the localization app on CurseForge to update this
@@ -15,81 +13,103 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("TradeSkillMaster_AuctionDB", "koKR")
 if not L then return end
 
--- L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."] = ""
--- L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, it may disconnect you from the game and has a 15 minute cooldown."] = ""
--- L["Alchemy"] = ""
--- L["Any items in the AuctionDB database that contain the search phrase in their names will be displayed."] = ""
--- L["A profession scan will scan items required/made by a certain profession."] = ""
--- L["Are you sure you want to clear your AuctionDB data?"] = ""
--- L["Ascending"] = ""
--- L["AuctionDB - Market Value"] = ""
--- L["AuctionDB Market Value:"] = ""
--- L["AuctionDB Min Buyout:"] = ""
--- L["AuctionDB - Minimum Buyout"] = ""
--- L["AuctionDB Seen Count:"] = ""
--- L["Blacksmithing"] = ""
--- L["|cffff0000WARNING:|r As of 4.0.1 there is a bug with GetAll scans only scanning a maximum of 42554 auctions from the AH which is less than your auction house currently contains. As a result, thousands of items may have been missed. Please use regular scans until blizzard fixes this bug."] = ""
--- L["Cooking"] = ""
--- L["Descending"] = ""
--- L["Done Scanning"] = ""
--- L["Enable display of AuctionDB data in tooltip."] = ""
--- L["Enchanting"] = ""
--- L["Engineering"] = ""
--- L["General Options"] = ""
--- L["Hide poor quality items"] = ""
--- L["If checked, poor quality items won't be shown in the search results."] = ""
--- L["Inscription"] = ""
--- L["Invalid value entered. You must enter a number between 5 and 500 inclusive."] = ""
--- L["Item Link"] = ""
--- L["Item MinLevel"] = ""
--- L["Items per page"] = ""
--- L["Items %s - %s (%s total)"] = ""
--- L["Item SubType Filter"] = ""
--- L["Item Type Filter"] = ""
--- L["It is strongly recommended that you reload your ui (type '/reload') after running a GetAll scan. Otherwise, any other scans (Post/Cancel/Search/etc) will be much slower than normal."] = ""
--- L["Jewelcrafting"] = ""
--- L["Last Scanned"] = ""
--- L["Leatherworking"] = ""
--- L["Market Value"] = ""
--- L["Minimum Buyout"] = ""
--- L["Never scan the auction house again!"] = ""
--- L["Next Page"] = ""
--- L["No items found"] = ""
--- L["Not Ready"] = ""
--- L["Num(Yours)"] = ""
--- L["Options"] = ""
--- L["Previous Page"] = ""
--- L["Professions:"] = ""
--- L["Ready"] = ""
--- L["Ready in %s min and %s sec"] = ""
--- L["Refresh"] = ""
--- L["Refreshes the current search results."] = ""
--- L["Removed %s from AuctionDB."] = ""
--- L["Reset Data"] = ""
--- L["Resets AuctionDB's scan data"] = ""
--- L["Run Full Scan"] = ""
--- L["Run GetAll Scan"] = ""
--- L["Run Profession Scan"] = ""
--- L["Run Scan"] = ""
--- L["%s ago"] = ""
--- L["Scan interrupted."] = ""
--- L["Scanning..."] = ""
--- L["Scan the auction house with AuctionDB to update its market value and min buyout data."] = ""
--- L["Search"] = ""
--- L["Search Options"] = ""
--- L["Select how you would like the search results to be sorted. After changing this option, you may need to refresh your search results by hitting the \"Refresh\" button."] = ""
--- L["Select professions to include in the profession scan."] = ""
--- L["Shift-Right-Click to clear all data for this item from AuctionDB."] = ""
--- L["Sort items by"] = ""
--- L["Sort search results in ascending order."] = ""
--- L["Sort search results in descending order."] = ""
--- L["%s - Scanning page %s/%s of filter %s/%s"] = ""
--- L["Tailoring"] = ""
--- L["The author of TradeSkillMaster has created an application which uses blizzard's online auction house APIs to update your AuctionDB data automatically. Check it out at the link in TSM_AuctionDB's description on curse or at: %s"] = ""
--- L["This determines how many items are shown per page in results area of the \"Search\" tab of the AuctionDB page in the main TSM window. You may enter a number between 5 and 500 inclusive. If the page lags, you may want to decrease this number."] = ""
--- L["Use the search box and category filters above to search the AuctionDB data."] = ""
--- L["Waiting for data..."] = ""
--- L["You can filter the results by item subtype by using this dropdown. For example, if you want to search for all herbs, you would select \"Trade Goods\" in the item type dropdown and \"Herbs\" in this dropdown."] = ""
--- L["You can filter the results by item type by using this dropdown. For example, if you want to search for all herbs, you would select \"Trade Goods\" in this dropdown and \"Herbs\" as the subtype filter."] = ""
--- L["You can use this page to lookup an item or group of items in the AuctionDB database. Note that this does not perform a live search of the AH."] = ""
+L["A full auction house scan will scan every item on the auction house but is far slower than a GetAll scan. Expect this scan to take several minutes or longer."] = "전체 검색은 경매장 내의 모든 아이템을 검색하지만 GetAll 검색보다는 훨씬 느립니다. 이 검색은 몇 분 정도 또는 그 이상의 시간이 소요됩니다."
+-- L["A full scan is a slow, manual scan of the entire auction house."] = ""
+-- L["A 'GetAll' scan is an extremely fast way to manually scan the entire AH, but may run into bugs on Blizzard's end such as disconnection issues. It also has a 15 minute cooldown."] = ""
+L["A GetAll scan is the fastest in-game method for scanning every item on the auction house. However, there are many possible bugs on Blizzard's end with it including the chance for it to disconnect you from the game. Also, it has a 15 minute cooldown."] = "GetAll 검색은 게임 내에서 경매장의 모든 아이템을 검색하기 위한 가장 빠른 검색 방법입니다. 하지만 블리자드 쪽에 많은 버그가 존재하며 게임의 접속이 끊길 가능성도 있습니다. 또한, 15분의 쿨다운이 존재합니다." -- Needs review
+-- L["AuctionDB - Global Historical Price (via TSM App)"] = ""
+-- L["AuctionDB - Global Market Value Average (via TSM App)"] = ""
+-- L["AuctionDB - Global Minimum Buyout Average (via TSM App)"] = ""
+-- L["AuctionDB - Global Sale Average (via TSM App)"] = ""
+-- L["AuctionDB - Historical Price (via TSM App)"] = ""
+L["AuctionDB - Market Value"] = "AuctionDB - 시장 가격"
+L["AuctionDB - Minimum Buyout"] = "AuctionDB - 최소 구매가격"
+-- L["AuctionDB - Region Historical Price (via TSM App)"] = ""
+-- L["AuctionDB - Region Market Value Average (via TSM App)"] = ""
+-- L["AuctionDB - Region Minimum Buyout Average (via TSM App)"] = ""
+-- L["AuctionDB - Region Sale Average (via TSM App)"] = ""
+L["Can't run a GetAll scan right now."] = "지금은 GetAll 검색을 실행할 수 없습니다." -- Needs review
+-- L["|cffff0000WARNING:|r TSM_AuctionDB doesn't currently have any pricing data for your realm. Either download the TSM Desktop Application from |cff99ffffhttp://tradeskillmaster.com|r to automatically update TSM_AuctionDB's data, or run a manual scan in-game."] = ""
+-- L["%d auctions"] = ""
+-- L["Display global historical price (via TSM Application) in the tooltip."] = ""
+-- L["Display global market value avg (via TSM Application) in the tooltip."] = ""
+-- L["Display global min buyout avg (via TSM Application) in the tooltip."] = ""
+-- L["Display global sale avg (via TSM Application) in the tooltip."] = ""
+-- L["Display historical price (via TSM Application) in the tooltip."] = ""
+L["Display market value in tooltip."] = "시장 가격을 툴팁에 표시합니다." -- Needs review
+-- L["Display min buyout in tooltip."] = ""
+-- L["Display region average daily sold quantity (via TSM Application) in the tooltip."] = ""
+-- L["Display region historical price (via TSM Application) in the tooltip."] = ""
+-- L["Display region market value avg (via TSM Application) in the tooltip."] = ""
+-- L["Display region min buyout avg (via TSM Application) in the tooltip."] = ""
+-- L["Display region sale avg (via TSM Application) in the tooltip."] = ""
+-- L["Display region sale rate (via TSM Application) in the tooltip."] = ""
+L["Done Scanning"] = "검색 완료"
+L["Download the FREE TSM desktop application which will automatically update your TSM_AuctionDB prices using Blizzard's online APIs (and does MUCH more). Visit %s for more info and never scan the AH again! This is the best way to update your AuctionDB prices."] = "무료 TSM 데스크톱 애플리케이션을 다운로드하면 TSM_AuctionDB 가격을 블리자드의 온라인 API를 이용해 자동으로 업데이트합니다. %s을 방문하여 더 많은 정보를 얻고 더 이상은 경매장 검색을 하지 마세요! 이것은 AuctionDB 가격을 업데이트하는 최고의 방법입니다." -- Needs review
+L["General Options"] = "일반 옵션"
+-- L["Global Historical Price:"] = ""
+-- L["Global Historical Price x%s:"] = ""
+-- L["Global Market Value Avg:"] = ""
+-- L["Global Market Value Avg x%s:"] = ""
+-- L["Global Min Buyout Avg:"] = ""
+-- L["Global Min Buyout Avg x%s:"] = ""
+-- L["Global Sale Avg:"] = ""
+-- L["Global Sale Avg x%s:"] = ""
+-- L["Historical Price:"] = ""
+-- L["Historical Price x%s:"] = ""
+-- L["If checked, AuctionDB will add a tab to the AH to allow for in-game scans. If you are using the TSM app exclusively for your scans, you may want to hide it by unchecking this option. This option requires a reload to take effect."] = ""
+-- L["If checked, the global historical price of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the global market value average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the global minimum buyout average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the global sale average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the historical price of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+L["If checked, the lowest buyout value seen in the last scan of the item will be displayed."] = "선택하면, 최근 검색에서 본 아이템의 최소 구매 가격을 표시합니다." -- Needs review
+L["If checked, the market value of the item will be displayed"] = "선택하면, 아이템의 시장 가격을 표시합니다." -- Needs review
+-- L["If checked, the region average daily sold quantity of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the region historical price of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the region market value average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the region minimum buyout average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the region sale average of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If checked, the region sale rate of the item will be displayed. This is provided exclusively via the TradeSkillMaster Application."] = ""
+-- L["If you have created TSM groups, they will be listed here for selection."] = ""
+L["Last updated from in-game scan %s ago."] = "게임 내 검색의 최근 업데이트 %s 전." -- Needs review
+L["Last updated from the TSM Application %s ago."] = "TSM 애플리케이션의 최근 업데이트 %s 전." -- Needs review
+-- L["Last Update Time"] = ""
+L["Market Value:"] = "시장가격:"
+L["Market Value x%s:"] = "시장 가격  x%s:" -- Needs review
+L["Min Buyout:"] = "최소 구매가격:"
+L["Min Buyout x%s:"] = "최소 구매가 x%s:" -- Needs review
+L["No scans found."] = "검색을 찾을 수 없습니다." -- Needs review
+L["Not Ready"] = "준비 안 됨" -- Needs review
+L["Not Scanned"] = "검색 안 됨" -- Needs review
+-- L["Preparing Filters..."] = ""
+L["Processing data..."] = "데이터 처리 중..." -- Needs review
+L["Ready"] = "준비 됨"
+-- L["Region Avg Daily Sold:"] = ""
+-- L["Region Avg Daily Sold x%s:"] = ""
+-- L["Region Historical Price:"] = ""
+-- L["Region Historical Price x%s:"] = ""
+-- L["Region Market Value Avg:"] = ""
+-- L["Region Market Value Avg x%s:"] = ""
+-- L["Region Min Buyout Avg:"] = ""
+-- L["Region Min Buyout Avg x%s:"] = ""
+-- L["Region Sale Avg:"] = ""
+-- L["Region Sale Avg x%s:"] = ""
+-- L["Region Sale Rate:"] = ""
+-- L["Region Sale Rate x%s:"] = ""
+L["Run Full Scan"] = "전체 검색"
+L["Run GetAll Scan"] = "GetAll 검색"
+L["Running query..."] = "쿼리 실행 중..." -- Needs review
+L["%s ago"] = "%s 전"
+-- L["Scanning %d / %d (Page %d / %d)"] = ""
+L["Scanning page %s/%s"] = "페이지 검색 %s/%s" -- Needs review
+-- L["Scanning page %s/%s - Approximately %s remaining"] = ""
+-- L["Scanning results..."] = ""
+L["Scanning the auction house in game is no longer necessary!"] = "이제는 게임 내에서 경매장을 검색할 필요가 없습니다!" -- Needs review
+-- L["Scan Selected Groups"] = ""
+-- L["Show AuctionDB AH Tab (Requires Reload)"] = ""
+-- L["The scan did not run successfully due to issues on Blizzard's end. Using the TSM desktop application for your scans is recommended."] = ""
+-- L["This button will scan just the items in the groups you have selected."] = ""
+-- L["This will do a slow auction house scan of every item in the selected groups and update their AuctionDB prices. This may take several minutes."] = ""
+-- L["You must select at least one group before starting the group scan."] = ""
  
