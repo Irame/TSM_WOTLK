@@ -29,6 +29,7 @@ Libs\LibCompress\lib.xml
 Libs\LibGraph-2.0\LibGraph-2.0.lua
 Libs\AccurateTime\AccurateTime.lua
 Libs\LibRealmInfo\LibRealmInfo.lua
+Libs\HelpPlate\HelpPlate.xml
 #@end-no-lib-strip@
 
 ## Embedded libraries not on CurseForge

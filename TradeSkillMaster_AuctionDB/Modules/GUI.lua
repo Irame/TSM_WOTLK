@@ -202,57 +202,57 @@ function private:Create(parent)
 	ag:SetLooping("BOUNCE")
 	ag:Play()
 
---	local helpPlateInfo = {
---		FramePos = {x=5, y=-100},
---		FrameSize = {width=private.frame:GetWidth(), height=private.frame:GetHeight()},
---		{
---			ButtonPos = {x = 380, y = -75},
---			HighLightBox = {x = 2, y = -12, width = 615, height = 295},
---			ToolTipDir = "DOWN",
---			ToolTipText = L["If you have created TSM groups, they will be listed here for selection."]
---		},
---		{
---			ButtonPos = {x = 800, y = -20},
---			HighLightBox = {x = 622, y = -12, width = 200, height = 80},
---			ToolTipDir = "RIGHT",
---			ToolTipText = L["A 'GetAll' scan is an extremely fast way to manually scan the entire AH, but may run into bugs on Blizzard's end such as disconnection issues. It also has a 15 minute cooldown."]
---		},
---		{
---			ButtonPos = {x = 800, y = -120},
---			HighLightBox = {x = 622, y = -100, width = 200, height = 80},
---			ToolTipDir = "RIGHT",
---			ToolTipText = L["A full scan is a slow, manual scan of the entire auction house."]
---		},
---		{
---			ButtonPos = {x = 800, y = -190},
---			HighLightBox = {x = 622, y = -190, width = 200, height = 50},
---			ToolTipDir = "RIGHT",
---			ToolTipText = L["This button will scan just the items in the groups you have selected."]
---		},
---	}
---
---	local mainHelpBtn = CreateFrame("Button", nil, private.frame, "MainHelpPlateButton")
---	mainHelpBtn:SetPoint("TOPLEFT", private.frame, 70, 25)
---	mainHelpBtn:SetScript("OnClick", function() private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, true) end)
---	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false) end end)
---
---	if not TSM.db.global.helpPlatesShown.auction then
---		TSM.db.global.helpPlatesShown.auction = true
---		private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false)
---	end
+	local helpPlateInfo = {
+		FramePos = {x=5, y=-100},
+		FrameSize = {width=private.frame:GetWidth(), height=private.frame:GetHeight()},
+		{
+			ButtonPos = {x = 380, y = -75},
+			HighLightBox = {x = 2, y = -12, width = 615, height = 295},
+			ToolTipDir = "DOWN",
+			ToolTipText = L["If you have created TSM groups, they will be listed here for selection."]
+		},
+		{
+			ButtonPos = {x = 800, y = -20},
+			HighLightBox = {x = 622, y = -12, width = 200, height = 80},
+			ToolTipDir = "RIGHT",
+			ToolTipText = L["A 'GetAll' scan is an extremely fast way to manually scan the entire AH, but may run into bugs on Blizzard's end such as disconnection issues. It also has a 15 minute cooldown."]
+		},
+		{
+			ButtonPos = {x = 800, y = -120},
+			HighLightBox = {x = 622, y = -100, width = 200, height = 80},
+			ToolTipDir = "RIGHT",
+			ToolTipText = L["A full scan is a slow, manual scan of the entire auction house."]
+		},
+		{
+			ButtonPos = {x = 800, y = -190},
+			HighLightBox = {x = 622, y = -190, width = 200, height = 50},
+			ToolTipDir = "RIGHT",
+			ToolTipText = L["This button will scan just the items in the groups you have selected."]
+		},
+	}
+
+	local mainHelpBtn = CreateFrame("Button", nil, private.frame, "MainHelpPlateButton")
+	mainHelpBtn:SetPoint("TOPLEFT", private.frame, 70, 25)
+	mainHelpBtn:SetScript("OnClick", function() private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, true) end)
+	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false) end end)
+
+	if not TSM.db.global.helpPlatesShown.auction then
+		TSM.db.global.helpPlatesShown.auction = true
+		private:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false)
+	end
 end
 
---function private:ToggleHelpPlate(frame, info, btn, isUser)
---	if not HelpPlate_IsShowing(info) then
---		HelpPlate:SetParent(frame)
---		HelpPlate:SetFrameStrata("DIALOG")
---		HelpPlate_Show(info, frame, btn, isUser)
---	else
---		HelpPlate:SetParent(UIParent)
---		HelpPlate:SetFrameStrata("DIALOG")
---		HelpPlate_Hide(isUser)
---	end
---end
+function private:ToggleHelpPlate(frame, info, btn, isUser)
+	if not HelpPlate_IsShowing(info) then
+		HelpPlate:SetParent(frame)
+		HelpPlate:SetFrameStrata("DIALOG")
+		HelpPlate_Show(info, frame, btn, isUser)
+	else
+		HelpPlate:SetParent(UIParent)
+		HelpPlate:SetFrameStrata("DIALOG")
+		HelpPlate_Hide(isUser)
+	end
+end
 
 
 
