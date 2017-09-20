@@ -451,19 +451,20 @@ function Scan:ProcessScanData(scanData)
 	
 	for _, obj in pairs(scanData) do
 		local itemID = obj:GetItemID()
-		local quantity, minBuyout, records = 0, 0
+		local quantity, recordsQuantity, minBuyout = 0, 0, 0
 		local records = {}
 		for _, record in ipairs(obj.records) do
 			local itemBuyout = record:GetItemBuyout()
 			if itemBuyout and (itemBuyout < minBuyout or minBuyout == 0) then
 				minBuyout = itemBuyout
 			end
-			quantity = quantity + record.count
-			for i=1, record.count do
-				tinsert(records, itemBuyout)
+			if itemBuyout then
+				recordsQuantity = recordsQuantity + record.count
+				tinsert(records, {buyout = itemBuyout, count = record.count})
 			end
+			quantity = quantity + record.count
 		end
-		data[itemID] = {records=records, minBuyout=minBuyout, quantity=quantity}
+		data[itemID] = {records=records, minBuyout=minBuyout, quantity=quantity, recordsQuantity=recordsQuantity}
 		test = test + 1
 	end
 	
@@ -481,18 +482,19 @@ end
 function Scan:ProcessImportedData(auctionData)
 	local data = {}
 	for itemID, auctions in pairs(auctionData) do
-		local quantity, minBuyout, records = 0, 0, {}
+		local quantity, recordsQuantity, minBuyout, records = 0, 0, 0, {}
 		for _, auction in ipairs(auctions) do
 			local itemBuyout, count = unpack(auction)
 			if itemBuyout and (itemBuyout < minBuyout or minBuyout == 0) then
 				minBuyout = itemBuyout
 			end
-			quantity = quantity + count
-			for i=1, count do
-				tinsert(records, itemBuyout)
+			if itemBuyout then
+				recordsQuantity = recordsQuantity + count
+				tinsert(records, {buyout = itemBuyout, count = count})
 			end
+			quantity = quantity + record.count
 		end
-		data[itemID] = {records=records, minBuyout=minBuyout, quantity=quantity}
+		data[itemID] = {records=records, minBuyout=minBuyout, quantity=quantity, recordsQuantity=recordsQuantity}
 	end
 	TSM.db.factionrealm.lastCompleteScan = time()
 	TSM.Data:ProcessData(data)

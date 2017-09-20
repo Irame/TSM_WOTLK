@@ -121,7 +121,7 @@ function Data:ProcessData(scanData, queue)
 	-- go through each item and figure out the market value / update the data table
 	for itemID, data in pairs(scanData) do
 		TSM.data[itemID] = TSM.data[itemID] or {scans={}, seen=0}
-		local marketValue = Data:CalculateMarketValue(data.records)
+		local marketValue = Data:CalculateMarketValue(data.records, data.recordsQuantity)
 		
 		if type(TSM.data[itemID].scans[day]) == "number" then
 			TSM.data[itemID].scans[day] = {TSM.data[itemID].scans[day]}
@@ -137,36 +137,40 @@ function Data:ProcessData(scanData, queue)
 	end
 end
 
-function Data:CalculateMarketValue(records)
+function Data:CalculateMarketValue(records, quantity)
 	local totalNum, totalBuyout = 0, 0
 	
 	for i=1, #records do
-		totalNum = i - 1
-		if not (i == 1 or i < (#records)*0.3 or (i < (#records)*0.5 and records[i] < 1.2*records[i-1])) then
-			break
-		end
-		
-		totalBuyout = totalBuyout + records[i]
-		if i == #records then
-			totalNum = i
+		for j=1, records[i].count do
+			local gi = totalNum + 1
+			if not (gi == 1 or gi < (quantity)*0.3 or (gi < (quantity)*0.5 and records[i].buyout < 1.2*records[max(i-1, 1)].buyout)) then
+				break
+			end
+
+			totalBuyout = totalBuyout + records[i].buyout
+			totalNum = totalNum + 1;
 		end
 	end
 	
 	local uncorrectedMean = TSMAPI:SafeDivide(totalBuyout, totalNum)
 	local varience = 0
 	
-	for i=1, totalNum do
-		varience = varience + (records[i]-uncorrectedMean)^2
+	for i=1, #records do
+		varience = varience + records[i].count * (records[i].buyout-uncorrectedMean)^2
 	end
 	
 	local stdDev = sqrt(TSMAPI:SafeDivide(varience, totalNum))
 	local correctedTotalNum, correctedTotalBuyout = 1, uncorrectedMean
-	
-	for i=1, totalNum do
-		if abs(uncorrectedMean - records[i]) < 1.5*stdDev then
-			correctedTotalNum = correctedTotalNum + 1
-			correctedTotalBuyout = correctedTotalBuyout + records[i]
+
+	local totalLeft = totalNum;
+	for i = 1, #records do
+		local count = min(records[i].count, totalLeft)
+		if abs(uncorrectedMean - records[i].buyout) < 1.5*stdDev then
+			correctedTotalNum = correctedTotalNum + count
+			correctedTotalBuyout = correctedTotalBuyout + records[i].buyout * count
 		end
+		totalLeft = totalLeft - records[i].count
+		if totalLeft <= 0 then break end
 	end
 	
 	local correctedMean = floor(TSMAPI:SafeDivide(correctedTotalBuyout, correctedTotalNum) + 0.5)
