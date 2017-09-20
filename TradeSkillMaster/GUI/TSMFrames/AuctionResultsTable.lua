@@ -80,7 +80,6 @@ local methods = {
 	end,
 
 	OnIconLeave = function(self)
-		BattlePetTooltip:Hide()
 		GameTooltip:ClearLines()
 		GameTooltip:Hide()
 		self:GetParent().row.rt.isShowingItemTooltip = nil

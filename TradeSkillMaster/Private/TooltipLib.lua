@@ -8,7 +8,7 @@
 
 local TSM = select(2, ...)
 local TooltipLib = TSM:NewModule("TooltipLib")
-local private = {tooltipRegistry={}, callback=nil, hookedBattlepetGlobal=nil, tooltipMethodPrehooks=nil, tooltipMethodPosthooks=nil, numExtraTips=0}
+local private = {tooltipRegistry={}, callback=nil, tooltipMethodPrehooks=nil, tooltipMethodPosthooks=nil, numExtraTips=0}
 
 
 
@@ -23,7 +23,7 @@ function TooltipLib:Initialize(callback)
 end
 
 function TooltipLib:AddLine(tooltip, text, r, g, b)
-	if TSM.db.profile.embeddedTooltip and not private.IsBattlePetTooltip(tooltip) then
+	if TSM.db.profile.embeddedTooltip then
 		tooltip:AddLine(text, r, g, b)
 	else
 		local reg = private.tooltipRegistry[tooltip]
@@ -33,7 +33,7 @@ function TooltipLib:AddLine(tooltip, text, r, g, b)
 end
 
 function TooltipLib:AddDoubleLine(tooltip, textLeft, textRight, lr, lg, lb, rr, rg, rb)
-	if TSM.db.profile.embeddedTooltip and not private.IsBattlePetTooltip(tooltip) then
+	if TSM.db.profile.embeddedTooltip then
 		tooltip:AddDoubleLine(textLeft, textRight, lr, lg, lb, rr, rg, rb)
 	else
 		local reg = private.tooltipRegistry[tooltip]
@@ -53,53 +53,30 @@ function private.RegisterTooltip(tooltip)
 	reg.extraTip:Attach(tooltip)
 	private.tooltipRegistry[tooltip] = reg
 
-	if private.IsBattlePetTooltip(tooltip) then
-		local scriptHooks = {
-			OnHide = private.OnTooltipCleared
-		}
-		for script, prehook in pairs(scriptHooks) do
-			local orig = tooltip:GetScript(script)
-			tooltip:SetScript(script, function(...)
-				prehook(...)
-				if orig then
-					orig(...)
-				end
-			end)
-		end
-		if not private.hookedBattlepetGlobal then
-			private.hookedBattlepetGlobal = true
-			hooksecurefunc("BattlePetTooltipTemplate_SetBattlePet", private.OnTooltipSetBattlePet)
-		end
-	else
-		local scriptHooks = {
-			OnTooltipSetItem = private.OnTooltipSetItem,
-			OnTooltipCleared = private.OnTooltipCleared
-		}
-		for script, prehook in pairs(scriptHooks) do
-			local orig = tooltip:GetScript(script)
-			tooltip:SetScript(script, function(...)
-				prehook(...)
-				if orig then
-					orig(...)
-				end
-			end)
-		end
-
-		for method, prehook in pairs(private.tooltipMethodPrehooks) do
-			local posthook = private.tooltipMethodPosthooks[method]
-			local orig = tooltip[method]
-			tooltip[method] = function(...)
-				prehook(...)
-				local a, b, c, d, e, f, g, h, i, j, k = orig(...)
-				posthook(...)
-				return a, b, c, d, e, f, g, h, i, j, k
+	local scriptHooks = {
+		OnTooltipSetItem = private.OnTooltipSetItem,
+		OnTooltipCleared = private.OnTooltipCleared
+	}
+	for script, prehook in pairs(scriptHooks) do
+		local orig = tooltip:GetScript(script)
+		tooltip:SetScript(script, function(...)
+			prehook(...)
+			if orig then
+				orig(...)
 			end
+		end)
+	end
+
+	for method, prehook in pairs(private.tooltipMethodPrehooks) do
+		local posthook = private.tooltipMethodPosthooks[method]
+		local orig = tooltip[method]
+		tooltip[method] = function(...)
+			prehook(...)
+			local a, b, c, d, e, f, g, h, i, j, k = orig(...)
+			posthook(...)
+			return a, b, c, d, e, f, g, h, i, j, k
 		end
 	end
-end
-
-function private.IsBattlePetTooltip(tooltip)
-	return tooltip == BattlePetTooltip or tooltip == FloatingBattlePetTooltip
 end
 
 function private.GetLibExtraTipFrame(tooltip, ...)
@@ -159,49 +136,6 @@ function private.OnTooltipCleared(tooltip)
 	reg.extraTip.minWidth = 0
 	reg.extraTip:SetHeight(0)
 end
-
-function private.OnTooltipSetBattlePet(tooltip, data)
-	local reg = private.tooltipRegistry[tooltip]
-	if reg.hasItem then
-		private.OnTooltipCleared(tooltip)
-	end
-	-- extract values from data
-	local speciesID = data.speciesID
-	local level = data.level
-	local breedQuality = data.breedQuality
-	local maxHealth = data.maxHealth
-	local power = data.power
-	local speed = data.speed
-	local battlePetID = data.battlePetID or "0x0000000000000000"
-	local name = data.name
-	local customName = data.customName
-	local colcode, r, g, b
-	if breedQuality == -1 then
-		colcode = NORMAL_FONT_COLOR_CODE
-		r, g, b = NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b
-	else
-		local coltable = ITEM_QUALITY_COLORS[breedQuality] or ITEM_QUALITY_COLORS[0]
-		colcode = coltable.hex
-		r, g, b = coltable.r, coltable.g, coltable.b
-	end
-
-	local quantity = reg.quantity or 1
-	local link = reg.item
-	if not link then
-		link = format("%s|Hbattlepet:%d:%d:%d:%d:%d:%d:%s|h[%s]|h|r", colcode, speciesID, level, breedQuality, maxHealth, power, speed, battlePetID, customName or name)
-	end
-
-	reg.hasItem = true
-	reg.extraTip:Attach(tooltip)
-	reg.extraTip:AddLine(name, r, g, b)
-
-	private.callback(tooltip, link, reg.quantity or 1)
-	if reg.extraTipUsed then
-		reg.extraTip:Show()
-	end
-end
-
-
 
 -- ============================================================================
 -- Hook Setup Code

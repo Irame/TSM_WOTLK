@@ -215,11 +215,6 @@ function TSMAPI.Item:IsSoulbound(...)
 end
 
 function TSMAPI.Item:IsCraftingReagent(itemLink)
-	if strmatch(itemLink, "battlepet:") or strmatch(itemLink, "^p:") then
-		-- ignore battle pets
-		return false
-	end
-
 	-- workaround for recipes having the item info and crafting reagent in the tooltip
 	if TSMAPI.Item:GetClassId(itemLink) == LE_ITEM_CLASS_RECIPE then
 		return false
