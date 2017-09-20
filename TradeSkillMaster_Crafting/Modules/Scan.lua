@@ -50,8 +50,13 @@ function Scan:ScanProfession(mode)
 						end
 					elseif event == "TRADE_SKILL_SHOW" then
 						Scan:ShowScanningFrame()
-						if TradeSkillFilterBarExitButton and TradeSkillFilterBarExitButton:IsVisible() then
-							TradeSkillFilterBarExitButton:Click()
+						SetTradeSkillSubClassFilter(0, 1, 1)
+						SetTradeSkillInvSlotFilter(0, 1, 1)
+						if TradeSkillFrameEditBox then
+							TradeSkillFrameEditBox:SetText("")
+						end
+						if TradeSkillFrameAvailableFilterCheckButton:GetChecked() then
+							TradeSkillFrameAvailableFilterCheckButton:Click()
 						end
 						for i=GetNumTradeSkills(), 1, -1 do
 							local _, lineType, _, isExpanded = GetTradeSkillInfo(i)

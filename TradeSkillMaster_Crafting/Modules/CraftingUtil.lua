@@ -164,11 +164,13 @@ end
 
 -- removes all filters from the current tradeskill
 function Crafting:RemoveAllFilters()
-	if TradeSkillFilterBarExitButton then
-		TradeSkillFilterBarExitButton:Click()
+	SetTradeSkillSubClassFilter(0, 1, 1)
+	SetTradeSkillInvSlotFilter(0, 1, 1)
+	if TradeSkillFrameEditBox then
+		TradeSkillFrameEditBox:SetText("")
 	end
-	if TradeSkillFrameSearchBox then
-		TradeSkillFrameSearchBox:SetText("")
+	if TradeSkillFrameAvailableFilterCheckButton:GetChecked() then
+		TradeSkillFrameAvailableFilterCheckButton:Click()
 	end
 	for i=GetNumTradeSkills(), 1, -1 do
 		local _, sType, _, isExpanded = GetTradeSkillInfo(i)
@@ -179,12 +181,12 @@ function Crafting:RemoveAllFilters()
 end
 
 function Crafting:IsFilterSet()
-	if TradeSkillFilterBarExitButton and TradeSkillFilterBarExitButton:IsVisible() then
+	if not GetTradeSkillSubClassFilter(0) or not GetTradeSkillInvSlotFilter(0) or TradeSkillFrameAvailableFilterCheckButton:GetChecked() then
 		return true
 	end
-	
-	local searchText = TradeSkillFrameSearchBox:GetText():trim()
-	if searchText ~= "" and searchText ~= SEARCH then
+
+	local searchText = TradeSkillFrameEditBox:GetText()
+	if searchText ~= "" and searchText ~= " " and searchText ~= SEARCH then
 		return true
 	end
 	
