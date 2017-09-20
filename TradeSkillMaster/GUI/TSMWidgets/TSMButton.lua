@@ -19,7 +19,7 @@ local pairs = pairs
 
 -- WoW APIs
 local _G = _G
-local PlaySound, CreateFrame, UIParent, SOUNDKIT = PlaySound, CreateFrame, UIParent, SOUNDKIT
+local PlaySound, CreateFrame, UIParent = PlaySound, CreateFrame, UIParent
 
 
 --[[-----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ Scripts
 
 local function Button_OnClick(frame, ...)
 	AceGUI:ClearFocus()
-	PlaySound(SOUNDKIT["IG_MAINMENU_OPTION"])
+	PlaySound("igMainMenuOption")
 	frame.obj:Fire("OnClick", ...)
 end
 

@@ -19,7 +19,7 @@ local select, pairs, ipairs, type = select, pairs, ipairs, type
 local tsort = table.sort
 
 -- WoW APIs
-local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
+local PlaySound = PlaySound
 local UIParent, CreateFrame = UIParent, CreateFrame
 local _G = _G
 

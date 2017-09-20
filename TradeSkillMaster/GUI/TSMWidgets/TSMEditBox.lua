@@ -18,7 +18,7 @@ if not AceGUI or (AceGUI:GetWidgetVersion(Type) or 0) >= Version then return end
 local tostring, pairs = tostring, pairs
 
 -- WoW APIs
-local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
+local PlaySound = PlaySound
 local GetCursorInfo, ClearCursor, GetSpellInfo = GetCursorInfo, ClearCursor, GetSpellInfo
 local CreateFrame, UIParent = CreateFrame, UIParent
 local _G = _G
@@ -99,7 +99,7 @@ local function EditBox_OnEnterPressed(frame)
 	self:ClearFocus()
 	local cancel = self:Fire("OnEnterPressed", value)
 	if not cancel then
-		PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"])
+		PlaySound("igMainMenuOptionCheckBoxOn")
 		HideButton(self)
 	end
 end

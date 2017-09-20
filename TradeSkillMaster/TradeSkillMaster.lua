@@ -277,7 +277,7 @@ function TSM:OnInitialize()
 	-- create / register the minimap button
 	TSM.LDBIcon = LibStub("LibDataBroker-1.1", true) and LibStub("LibDBIcon-1.0", true)
 	local TradeSkillMasterLauncher = LibStub("LibDataBroker-1.1", true):NewDataObject("TradeSkillMasterMinimapIcon", {
-		icon = "Interface\\Addons\\TradeSkillMaster\\Media\\TSM_Icon",
+		icon = "Interface\\Addons\\TradeSkillMaster\\Media\\TSM_Icon2",
 		OnClick = function(_, button) -- fires when a user clicks on the minimap icon
 			if button == "LeftButton" then
 				-- does the same thing as typing '/tsm'

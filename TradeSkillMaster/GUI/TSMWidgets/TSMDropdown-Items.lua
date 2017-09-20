@@ -15,7 +15,7 @@ local AceGUI = LibStub and LibStub("AceGUI-3.0", true)
 local select, assert = select, assert
 
 -- WoW APIs
-local PlaySound, SOUNDKIT = PlaySound, SOUNDKIT
+local PlaySound = PlaySound
 local CreateFrame = CreateFrame
 
 
@@ -222,9 +222,9 @@ do
 		if self.disabled then return end
 		self.value = not self.value
 		if self.value then
-			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_ON"])
+			PlaySound("igMainMenuOptionCheckBoxOn")
 		else
-			PlaySound(SOUNDKIT["IG_MAINMENU_OPTION_CHECKBOX_OFF"])
+			PlaySound("igMainMenuOptionCheckBoxOff")
 		end
 		self:UpdateToggle()
 		self:Fire("OnValueChanged", self.value)

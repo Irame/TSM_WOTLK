@@ -726,7 +726,7 @@ function Lib_UIDropDownMenuButton_OnClick(self)
 	end
 
 	if ( playSound ) then
-		PlaySound(SOUNDKIT["U_CHAT_SCROLL_BUTTON"]);
+		PlaySound("igChatScrollDown");
 	end
 end
 
