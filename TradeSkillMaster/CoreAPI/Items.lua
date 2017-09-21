@@ -23,12 +23,15 @@ for classId, class in pairs({GetAuctionItemClasses()}) do
 	end
 end
 
-local ITEM_INVENTORY_SLOT_NAMES = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot" }
-for _, invType in pairs(ITEM_INVENTORY_SLOT_NAMES) do
-	local id = GetInventorySlotInfo(invType)
-	local slotName = _G[strupper(invType)]
-	if id and slotName then
-		STATIC_DATA.inventorySlotIdLookup[strlower(slotName)] = id
+do
+	local id = 1;
+	for _, invType in pairs({GetAuctionInvTypes(2,0)}) do
+		if type(invType) == "string" then
+			local slotName = _G[strupper(invType)]
+			if id and slotName then
+				STATIC_DATA.inventorySlotIdLookup[strlower(slotName)] = id
+			end
+		end
 	end
 end
 
@@ -217,7 +220,7 @@ end
 
 function TSMAPI.Item:IsCraftingReagent(itemLink)
 	-- workaround for recipes having the item info and crafting reagent in the tooltip
-	if TSMAPI.Item:GetClassId(itemLink) == LE_ITEM_CLASS_RECIPE then
+	if TSMAPI.Item:GetClassId(itemLink) == TSMAPI.Item.CLASS_RECIPE then
 		return false
 	end
 
