@@ -390,7 +390,7 @@ function TSMAPI.Item:GeneralizeLink(itemLink)
 end
 
 function TSMAPI.Item:GetName(itemString)
-	return private.GetItemInfoKey(itemString, "link")
+	return private.GetItemInfoKey(itemString, "name")
 end
 
 function TSMAPI.Item:GetLink(itemString)
