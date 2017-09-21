@@ -332,16 +332,14 @@ function private.ScanThreadDoQuery(self, query)
 	-- wait for the AH to be ready
 	while not CanSendAuctionQuery() do self:Yield(true) end
 
-	-- send the query
-	if not query.filterInfoCache and (query.class or query.subClass or query.invType) then
-		if query.invType == LE_INVENTORY_TYPE_CHEST_TYPE or query.invType == LE_INVENTORY_TYPE_ROBE_TYPE then
-			-- default AH sends in queries for both chest types, we need to mimic this when using a chest filter
-			query.filterInfoCache = {{classID=query.class, subClassID=query.subClass, inventoryType=LE_INVENTORY_TYPE_CHEST_TYPE}, {classID=query.class, subClassID=query.subClass, inventoryType=LE_INVENTORY_TYPE_ROBE_TYPE}}
-		else
-			query.filterInfoCache = {{classID=query.class, subClassID=query.subClass, inventoryType=query.invType}}
-		end		
+	if query.filterInfoCache then
+		query.class = query.class or query.filterInfoCache.classID
+		query.subClass = query.subClass or query.filterInfoCache.subClassID
+		query.invType = query.invType or query.filterInfoCache.inventoryType
 	end
-	QueryAuctionItems(query.name, query.minLevel, query.maxLevel, query.page, query.usable, query.quality, nil, query.exact, query.filterInfoCache)
+	-- TODO: class and subClass are numbers and must be strings
+	-- TODO: query.exact cant be passed in QueryAuctionItems os it has to be implemented elsewhere
+	QueryAuctionItems(query.name, query.minLevel, query.maxLevel, query.invType, query.class, query.subClass, query.page, query.usable, query.quality)
 
 	-- wait for the update event
 	self:WaitForEvent("AUCTION_ITEM_LIST_UPDATE")
@@ -625,7 +623,7 @@ function private.GetAllScanThread(self)
 	end
 
 	private:DoCallback("GETALL_QUERY_START")
-	QueryAuctionItems("", 0, 0, 0, false, 0, true, false, nil)
+	QueryAuctionItems("", "", "", nil, nil, nil, nil, nil, nil, true)
 	self:WaitForEvent("AUCTION_ITEM_LIST_UPDATE")
 	self:WaitForFunction(CanSendAuctionQuery)
 
@@ -653,6 +651,7 @@ function private.GetAllScanThread(self)
 				scanData[itemString].minBuyout = itemBuyout
 			end
 			for i=1, stackSize do
+				-- TODO: eliminate that for loop (see commit 76c52198973f5030a37fcb7ed2f25645b3487f6e)
 				tinsert(scanData[itemString].buyouts, itemBuyout)
 			end
 		end
