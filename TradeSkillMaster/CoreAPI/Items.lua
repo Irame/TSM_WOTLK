@@ -446,6 +446,10 @@ function private.GetScanTooltip()
 	TSMScanTooltip:Show()
 	TSMScanTooltip:SetClampedToScreen(false)
 	TSMScanTooltip:SetOwner(UIParent, "ANCHOR_BOTTOMRIGHT", 1000000, 100000)
+	TSMScanTooltip.SetItemByID = function(self, id)
+		if type(id) ~= "number" then return end
+		self:SetHyperlink("item:"..tostring(id))
+	end
 	return TSMScanTooltip
 end
 
