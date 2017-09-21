@@ -337,7 +337,6 @@ function private.ScanThreadDoQuery(self, query)
 		query.subClass = query.subClass or query.filterInfoCache.subClassID
 		query.invType = query.invType or query.filterInfoCache.inventoryType
 	end
-	-- TODO: class and subClass are numbers and must be strings
 	-- TODO: query.exact cant be passed in QueryAuctionItems os it has to be implemented elsewhere
 	QueryAuctionItems(query.name, query.minLevel, query.maxLevel, query.invType, query.class, query.subClass, query.page, query.usable, query.quality)
 
