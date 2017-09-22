@@ -214,57 +214,57 @@ function private:CreateSelectionFrame(parent)
 	TSMAPI.Design:SetFrameColor(frame.customScanFrame)
 	private.selectionFrame = frame
 
-	local helpPlateInfo = {
-		FramePos = {x=0, y=0},
-		FrameSize = {width=frame:GetWidth(), height=frame:GetHeight()},
-		{
-			ButtonPos = {x = 380, y = -75},
-			HighLightBox = {x = 5, y = -5, width = 594, height = 292},
-			ToolTipDir = "UP",
-			ToolTipText = L["If you have created TSM groups and assigned Auctioning operations, they will be listed here for selection."]
-		},
-		{
-			ButtonPos = {x = 380, y = -290},
-			HighLightBox = {x = 5, y = -297, width = 594, height = 30},
-			ToolTipDir = "UP",
-			ToolTipText = L["These buttons will start a Post, Cancel, or Reset scan for the groups you have selected."]
-		},
-		{
-			ButtonPos = {x = 800, y = -100},
-			HighLightBox = {x = 605, y = 0, width = 220, height = 200},
-			ToolTipDir = "RIGHT",
-			ToolTipText = L["These buttons allow you to quickly cancel auctions regardless of having TSM groups with Auctioning operations."]
-		},
-		{
-			ButtonPos = {x = 800, y = -200},
-			HighLightBox = {x = 605, y = -200, width = 220, height = 50},
-			ToolTipDir = "RIGHT",
-			ToolTipText = L["This button lets you quickly post items from your bags without setting up groups / operations for them."]
-		},
-	}
-
-	local mainHelpBtn = CreateFrame("Button", nil, frame, "MainHelpPlateButton")
-	mainHelpBtn:SetPoint("TOP", frame, -300, 70)
-	mainHelpBtn:SetScript("OnClick", function() private:ToggleHelpPlate(frame, helpPlateInfo, mainHelpBtn, true) end)
-	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then private:ToggleHelpPlate(frame, helpPlateInfo, mainHelpBtn, false) end end)
-
-	if not TSM.db.global.helpPlatesShown.selection then
-		TSM.db.global.helpPlatesShown.selection = true
-		private:ToggleHelpPlate(frame, helpPlateInfo, mainHelpBtn, false)
-	end
+--	local helpPlateInfo = {
+--		FramePos = {x=0, y=0},
+--		FrameSize = {width=frame:GetWidth(), height=frame:GetHeight()},
+--		{
+--			ButtonPos = {x = 380, y = -75},
+--			HighLightBox = {x = 5, y = -5, width = 594, height = 292},
+--			ToolTipDir = "UP",
+--			ToolTipText = L["If you have created TSM groups and assigned Auctioning operations, they will be listed here for selection."]
+--		},
+--		{
+--			ButtonPos = {x = 380, y = -290},
+--			HighLightBox = {x = 5, y = -297, width = 594, height = 30},
+--			ToolTipDir = "UP",
+--			ToolTipText = L["These buttons will start a Post, Cancel, or Reset scan for the groups you have selected."]
+--		},
+--		{
+--			ButtonPos = {x = 800, y = -100},
+--			HighLightBox = {x = 605, y = 0, width = 220, height = 200},
+--			ToolTipDir = "RIGHT",
+--			ToolTipText = L["These buttons allow you to quickly cancel auctions regardless of having TSM groups with Auctioning operations."]
+--		},
+--		{
+--			ButtonPos = {x = 800, y = -200},
+--			HighLightBox = {x = 605, y = -200, width = 220, height = 50},
+--			ToolTipDir = "RIGHT",
+--			ToolTipText = L["This button lets you quickly post items from your bags without setting up groups / operations for them."]
+--		},
+--	}
+--
+--	local mainHelpBtn = CreateFrame("Button", nil, frame, "MainHelpPlateButton")
+--	mainHelpBtn:SetPoint("TOP", frame, -300, 70)
+--	mainHelpBtn:SetScript("OnClick", function() private:ToggleHelpPlate(frame, helpPlateInfo, mainHelpBtn, true) end)
+--	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then private:ToggleHelpPlate(frame, helpPlateInfo, mainHelpBtn, false) end end)
+--
+--	if not TSM.db.global.helpPlatesShown.selection then
+--		TSM.db.global.helpPlatesShown.selection = true
+--		private:ToggleHelpPlate(frame, helpPlateInfo, mainHelpBtn, false)
+--	end
 end
 
-function private:ToggleHelpPlate(frame, info, btn, isUser)
-	if not HelpPlate_IsShowing(info) then
-		HelpPlate:SetParent(frame)
-		HelpPlate:SetFrameStrata("DIALOG")
-		HelpPlate_Show(info, frame, btn, isUser)
-	else
-		HelpPlate:SetParent(UIParent)
-		HelpPlate:SetFrameStrata("DIALOG")
-		HelpPlate_Hide(isUser)
-	end
-end
+--function private:ToggleHelpPlate(frame, info, btn, isUser)
+--	if not HelpPlate_IsShowing(info) then
+--		HelpPlate:SetParent(frame)
+--		HelpPlate:SetFrameStrata("DIALOG")
+--		HelpPlate_Show(info, frame, btn, isUser)
+--	else
+--		HelpPlate:SetParent(UIParent)
+--		HelpPlate:SetFrameStrata("DIALOG")
+--		HelpPlate_Hide(isUser)
+--	end
+--end
 
 
 function private:CreateScanFrame(parent)
