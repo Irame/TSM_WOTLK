@@ -338,6 +338,7 @@ function private.ScanThreadDoQuery(self, query)
 		query.invType = query.invType or query.filterInfoCache.inventoryType
 	end
 	-- TODO: query.exact cant be passed in QueryAuctionItems os it has to be implemented elsewhere
+	if query.exact then TSM:LOG_WARN("QueryAuctionItems was called with 'query.exact = %s'.", tostring(query.exact)) end
 	QueryAuctionItems(query.name, query.minLevel, query.maxLevel, query.invType, query.class, query.subClass, query.page, query.usable and 1 or nil, query.quality)
 
 	-- wait for the update event
