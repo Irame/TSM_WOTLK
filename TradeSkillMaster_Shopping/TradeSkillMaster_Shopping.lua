@@ -1,478 +1,146 @@
+-- ------------------------------------------------------------------------------ --
+--                            TradeSkillMaster_Shopping                           --
+--            http://www.curse.com/addons/wow/tradeskillmaster_shopping           --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
+
 local TSM = select(2, ...)
-TSM = LibStub("AceAddon-3.0"):NewAddon(TSM, "TradeSkillMaster_Shopping", "AceEvent-3.0", "AceConsole-3.0")
+TSM = LibStub("AceAddon-3.0"):NewAddon(TSM, "TSM_Shopping", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Shopping") -- loads the localization table
 local AceGUI = LibStub("AceGUI-3.0")
 
-local savedDBDefaults = {
+local settingsInfo = {
+	version = 3,
 	global = {
-		previousSearches = {},
-		automaticDestroyingModes = {mill=true, prospect=true, disenchant=true, transform=true},
-		treeGroupStatus = {},
-	},
-	profile = {
-		version = 0,
-		fullStacksOnly = true,
-		tradeInks = true,
-		evenStacks = true,
-		dealfinding = {},
-		shopping = {},
-		postDuration = 1,
-		postUndercut = 1,
-		postPriceSource = "DBMarket",
-		postPriceSourcePercent = 1.5,
-		postBidPercent = 0.95,
-		searchDefaultSort = 8,
-		destroyingDefaultSort = 5,
-		autoExpandSingleResult = true,
-		dealfindingShowAboveMaxPrice = false,
-        searchMarketValue = "DBMarket",
+		sniperVendorPrice = { type = "boolean", default = true, lastModifiedVersion = 2 },
+		postBidPercent = { type = "number", default = 0.95, lastModifiedVersion = 1 },
+		minDeSearchLvl = { type = "number", default = 1, lastModifiedVersion = 1 },
+		maxDeSearchLvl = { type = "number", default = 735, lastModifiedVersion = 1 },
+		maxDeSearchPercent = { type = "number", default = 1, lastModifiedVersion = 1 },
+		postUndercut = { type = "string", default = "1c", lastModifiedVersion = 3 },
+		normalPostPrice = { type = "string", default = "150% dbmarket", lastModifiedVersion = 1 },
+		marketValueSource = { type = "string", default = "dbmarket", lastModifiedVersion = 1 },
+		sniperCustomPrice = { type = "string", default = "0c", lastModifiedVersion = 1 },
+		sniperSound = { type = "string", default = TSMAPI:GetNoSoundKey(), lastModifiedVersion = 1 },
+		savedSearches = { type = "table", default = {}, lastModifiedVersion = 1 },
+		helpPlatesShown = { type = "table", default = { auction = nil }, lastModifiedVersion = 1 },
 	},
 }
-
-TSM.sortTemp = {}
+local tooltipDefaults = {
+	maxPrice = false,
+}
+local operationDefaults = {
+	restockQuantity = 0,
+	maxPrice = 1,
+	evenStacks = nil,
+	showAboveMaxPrice = nil,
+	includeInSniper = nil,
+	restockSources = {},
+}
 
 function TSM:OnInitialize()
-	TSM.db = LibStub("AceDB-3.0"):New("TradeSkillMaster_ShoppingDB", savedDBDefaults)
-	TSM:UpdateDB()
-	
-	local version = GetAddOnMetadata("TradeSkillMaster_Shopping", "version")
-	TSMAPI:RegisterReleasedModule("TradeSkillMaster_Shopping", version, GetAddOnMetadata("TradeSkillMaster_Shopping", "author"), GetAddOnMetadata("TradeSkillMaster_Shopping", "notes"), 1)
-	TSMAPI:RegisterIcon(L["Shopping Options"], "Interface\\Icons\\Inv_Misc_Token_ArgentDawn2", function(...) TSM.Config:Load(...) end, "TradeSkillMaster_Shopping", "options")
-	TSMAPI:RegisterAuctionSTRightClickFunction(L["Add item to shopping list"], TSM.AuctionSTRightClickCallbackShopping)
-	TSMAPI:RegisterAuctionSTRightClickFunction(L["Add item to dealfinding list"], TSM.AuctionSTRightClickCallbackDealfinding)
-	TSMAPI:RegisterData("newShoppingList", TSM.NewShoppingList)
-	
+	if TradeSkillMasterModulesDB then
+		TradeSkillMasterModulesDB.Shopping = TradeSkillMaster_ShoppingDB
+	end
+
+	-- load settings
+	TSM.db = TSMAPI.Settings:Init("TradeSkillMaster_ShoppingDB", settingsInfo)
+
 	for name, module in pairs(TSM.modules) do
 		TSM[name] = module
 	end
-	if TSMAPI.GetItemInfoCache then
-		local itemIDs = {}
-		for name, data in pairs(TSM.db.profile.shopping) do
-			for itemID in pairs(data) do
-				if itemID ~= "searchTerms" then
-					itemIDs[itemID] = true
-				end
-			end
-		end
-		for name, data in pairs(TSM.db.profile.dealfinding) do
-			for itemID in pairs(data) do
-				itemIDs[itemID] = true
-			end
-		end
-		TSMAPI:GetItemInfoCache(itemIDs, true)
-	end
-	
-	local function FixListNames()
-		local numLeft = 0
-		for listName, data in pairs(TSM.db.profile.shopping) do
-			if listName ~= "searchTerms" then
-				for itemID, itemData in pairs(data) do
-					if type(itemData.name) == "number" then
-						local name = GetItemInfo(itemID)
-						if name then
-							itemData.name = name
-						else
-							numLeft = numLeft + 1
-						end
-					end
-				end
-			end
-		end
-		for _, data in pairs(TSM.db.profile.dealfinding) do
-			for itemID, itemData in pairs(data) do
-				if type(itemData.name) == "number" then
-					local name = GetItemInfo(itemID)
-					if name then
-						itemData.name = name
-					else
-						numLeft = numLeft + 1
-					end
-				end
-			end
-		end
-	
-		if numLeft == 0 then
-			TSMAPI:CancelFrame("shoppingItemIDNames")
-		end
-	end
-	TSMAPI:CreateTimeDelay("shoppingItemIDNames", 5, FixListNames, 5)
-end
 
-function TSM:UpdateDB()
-	-- for new shopping functions in new AH tab
-	TSM.db.global.itemNames = nil
-	
-	-- to adjust for change to "Dealfinding Lists"
-	if not TSM.db.profile.version or TSM.db.profile.version < 1 then
-		-- for changes to how dealfinding things are stored
-		local toRemove = {}
-		for itemID, data in pairs(TSM.db.profile.dealfinding) do
-			if not data.maxPrice or data.maxPrice <= 0 then
-				tinsert(toRemove, itemID)
-			end
+	-- register with TSM
+	TSM:RegisterModule()
+
+	-- TSM3 changes
+	for _ in TSMAPI:GetTSMProfileIterator() do
+		for _, operation in pairs(TSM.operations) do
+			operation.restockQuantity = operation.restockQuantity or operationDefaults.restockQuantity
+			operation.restockSources = operation.restockSources or operationDefaults.restockSources
 		end
-		for _, itemID in ipairs(toRemove) do
-			TSM.db.profile.dealfinding[itemID] = nil
-			for name, items in pairs(TSM.db.profile.folders or {}) do
-				items[itemID] = nil
-			end
-		end
-		toRemove = {}
-		for folderName, items in pairs(TSM.db.profile.folders or {}) do
-			local isValid = false
-			for _ in pairs(items) do
-				isValid = true
-				break
-			end
-			if not isValid then
-				tinsert(toRemove, folderName)
-			end
-		end
-		for _, name in ipairs(toRemove) do
-			TSM.db.profile.folders[name] = nil
-		end
-	
-		TSM.db.profile.version = 1
-		local dealfinding, allItems = {}, {}
-		for itemID in pairs(TSM.db.profile.dealfinding) do
-			allItems[itemID] = true
-		end
-		
-		for folderName, items in pairs(TSM.db.profile.folders or {}) do
-			dealfinding[folderName] = {}
-			for itemID in pairs(items) do
-				allItems[itemID] = nil
-				if TSM.db.profile.dealfinding[itemID] then
-					dealfinding[folderName][itemID] = CopyTable(TSM.db.profile.dealfinding[itemID])
-				end
-			end
-		end
-		
-		local name = "DealfindingList"
-		for i = 1, 1000 do
-			if not dealfinding[name] then break end
-			name = "DealfindingList"..i
-		end
-		
-		dealfinding[name] = {}
-		for itemID in pairs(allItems) do
-			dealfinding[name][itemID] = CopyTable(TSM.db.profile.dealfinding[itemID])
-		end
-		
-		TSM.db.profile.dealfinding = dealfinding
-		TSM.db.profile.folders = nil
 	end
 	
-	-- for new shopping lists
-	if TSM.db.global.favoriteSearches then
-		for _, searchTerm in ipairs(TSM.db.global.favoriteSearches) do
-			local name
-			for i = 1, 1000 do
-				name = "Favorite Search "..i
-				if not TSM.db.profile.shopping[name] and not TSM.db.profile.dealfinding[name] then break end
-			end
-			
-			TSM.db.profile.shopping[name] = {searchTerms={}}
-			local newTerms = {}
-			
-			for _, term in ipairs({(";"):split(searchTerm)}) do
-				term = strlower(term:trim())
-				if term and term ~= "" then
-					tinsert(TSM.db.profile.shopping[name].searchTerms, term)
-				end
-			end
-			
-			if #TSM.db.profile.shopping[name].searchTerms == 0 then
-				TSM.db.profile.shopping[name] = nil
-			end
-		end
-		
-		TSM.db.global.favoriteSearches = nil
+	-- fix patch 7.3 sound changes
+	local sounds = TSMAPI:GetSounds()
+	if not sounds[TSM.db.global.sniperSound] then
+		TSM.db.global.sniperSound = TSM.NO_SOUND_KEY
 	end
 end
 
-function TSM:UnformatTextMoney(value)
-	value = gsub(value, "|cffffd700g|r", "g")
-	value = gsub(value, "|cffc7c7cfs|r", "s")
-	value = gsub(value, "|cffeda55fc|r", "c")
-	local gold = tonumber(string.match(value, "([0-9]+)g"))
-	local silver = tonumber(string.match(value, "([0-9]+)s"))
-	local copper = tonumber(string.match(value, "([0-9]+)c"))
-	
-	if not gold and not silver and not copper then
-		return
-	else
-		-- Convert it all into copper
-		return (copper or 0) + ((gold or 0) * COPPER_PER_GOLD) + ((silver or 0) * COPPER_PER_SILVER)
-	end
-end
-
-function TSM:StartScan(filters, obj, ShouldStop)
-	obj.searchST:SetData({})
-	obj.isScanning = #filters or true
-	
-	TSM.AuctionControl:SetCurrentAuction()
-	TSMAPI:StartScan(filters, function(...) obj:OnScanCallback(...) end, {sellerResolution=true, useItemStrings=true, missingSellerName="---", maxRetries=2, ShouldStop=ShouldStop})
-end
-
-local function getIndex(t, value)
-	for i, v in pairs(t) do
-		if v == value then
-			return i
-		end
-	end
-end
-
-local OpenRightClickWindow
-function TSM:GetAuctionSTRightClickWindow(parent, title)
-	if OpenRightClickWindow then OpenRightClickWindow:Hide() end
-	
-	local x, y = GetCursorPosition()
-	x = x / UIParent:GetEffectiveScale()
-	y = y / UIParent:GetEffectiveScale()
-	
-	local window = AceGUI:Create("TSMWindow")
-	window.frame:SetParent(parent)
-	window.frame:SetFrameStrata("FULLSCREEN_DIALOG")
-	window:SetWidth(500)
-	window:SetHeight(200)
-	window:SetTitle(title)
-	window:SetLayout("Flow")
-	window.frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
-	window:SetCallback("OnClose", function(self)
-			self:ReleaseChildren()
-			OpenRightClickWindow = nil
-			window.frame:Hide()
-		end)
-	OpenRightClickWindow = window
-	return window
-end
-
-function TSM.AuctionSTRightClickCallbackShopping(parent, itemLink)
-	if OpenRightClickWindow then OpenRightClickWindow:Hide() end
-	
-	local listSelection, newListName
-	local itemID = TSMAPI:GetItemID(itemLink)
-	local window = TSM:GetAuctionSTRightClickWindow(parent, L["Add Item to Shopping List"])
-	
-	local shoppingLists = {}
-	for listName in pairs(TSM.db.profile.shopping) do
-		shoppingLists[listName] = listName
-	end
-
-	local page = {
-		{
-			type = "InteractiveLabel",
-			text = itemLink,
-			fontObject = GameFontHighlight,
-			relativeWidth = 1,
-			callback = function() SetItemRef("item:".. itemID, itemID) end,
-			tooltip = itemID,
-		},
-		{
-			type = "HeadingLine"
-		},
-		{
-			type = "Dropdown",
-			label = L["List to Add Item to:"],
-			list = shoppingLists,
-			value = 1,
-			relativeWidth = 0.49,
-			callback = function(self, _, value)
-					value = value:trim()
-					listSelection = value
-					local i = getIndex(self.parent.children, self)
-					self.parent.children[i+2]:SetDisabled(not value or value == "")
-				end,
-			tooltip = L["Which list to add this item to."],
-		},
-		{
-			type = "Label",
-			text = "",
-			relativeWidth = 0.02,
-		},
-		{
-			type = "Button",
-			text = L["Add Item to Selected List"],
-			relativeWidth = 0.49,
-			disabled = true,
-			callback = function(self)
-					if listSelection then
-						TSM.db.profile.shopping[listSelection][itemID] = {name=(GetItemInfo(itemID) or itemID)}
-						window.frame:Hide()
-					end
-				end,
-		},
-		{
-			type = "Spacer"
-		},
-		{
-			type = "EditBox",
-			label = L["Name of New List to Add Item to:"],
-			relativeWidth = 0.49,
-			callback = function(self, _, value)
-					value = value:trim()
-					if TSM.db.profile.shopping[value] then return end
-					local i = getIndex(self.parent.children, self)
-					self.parent.children[i+2]:SetDisabled(not value or value == "")
-					newListName = value
-				end,
-		},
-		{
-			type = "Label",
-			text = "",
-			relativeWidth = 0.02,
-		},
-		{
-			type = "Button",
-			text = L["Add Item to New List"],
-			relativeWidth = 0.49,
-			disabled = true,
-			callback = function(self)
-					if newListName then
-						TSM.db.profile.shopping[newListName] = {searchTerms={}, [itemID]={name=(GetItemInfo(itemID) or itemID)}}
-						window.frame:Hide()
-					end
-				end,
-		},
+-- registers this module with TSM by first setting all fields and then calling TSMAPI:NewModule().
+function TSM:RegisterModule()
+	TSM.operations = { maxOperations = 1, callbackOptions = "Options:GetOperationOptionsInfo", callbackInfo = "GetOperationInfo", defaults = operationDefaults }
+	TSM.auctionTab = { callbackShow = "AuctionTab:Show", callbackHide = "AuctionTab:Hide" }
+	TSM.moduleOptions = { callback = "Options:Load" }
+	TSM.moduleAPIs = {
+		{ key = "startSearchGathering", callback = "StartSearchGathering" },
+		{ key = "startSearchAuctioning", callback = "StartSearchAuctioning" },
 	}
+	TSM.tooltip = { callbackLoad = "LoadTooltip", callbackOptions = "Options:LoadTooltipOptions", defaults = tooltipDefaults }
 
-	TSMAPI:BuildPage(window, page)
+	TSMAPI:NewModule(TSM)
 end
 
-function TSM.AuctionSTRightClickCallbackDealfinding(parent, itemLink)
-	if OpenRightClickWindow then OpenRightClickWindow:Hide() end
-	
-	local listSelection, newListName, inDealfindingList
-	local itemID = TSMAPI:GetItemID(itemLink)
-	local window = TSM:GetAuctionSTRightClickWindow(parent, L["Add Item to Dealfinding List"])
-	
-	for listName, items in pairs(TSM.db.profile.dealfinding) do
-		if items[itemID] then
-			inDealfindingList = listName
-			break
-		end
-	end
+function TSM:GetOperationInfo(operationName)
+	TSMAPI.Operations:Update("Shopping", operationName)
+	local operation = TSM.operations[operationName]
+	if not operation then return end
 
-	local page = {}
-	
-	if inDealfindingList then
-		page = {
-			{
-				type = "InteractiveLabel",
-				text = itemLink,
-				fontObject = GameFontHighlight,
-				relativeWidth = 1,
-				callback = function() SetItemRef("item:".. itemID, itemID) end,
-				tooltip = itemID,
-			},
-			{
-				type = "HeadingLine"
-			},
-			{
-				type = "Label",
-				text = format(L["This item is already in the \"%s\" Dealfinding List."], inDealfindingList),
-				relativeWidth = 1,
-			}
-		}
+	if operation.showAboveMaxPrice and operation.evenStacks then
+		return format(L["Shopping for even stacks including those above the max price"])
+	elseif operation.showAboveMaxPrice then
+		return format(L["Shopping for auctions including those above the max price."])
+	elseif operation.evenStacks then
+		return format(L["Shopping for even stacks with a max price set."])
 	else
-		local dealfindingList = {}
-		for listName in pairs(TSM.db.profile.dealfinding) do
-			dealfindingList[listName] = listName
-		end
-	
-		page = {
-			{
-				type = "InteractiveLabel",
-				text = itemLink,
-				fontObject = GameFontHighlight,
-				relativeWidth = 1,
-				callback = function() SetItemRef("item:".. itemID, itemID) end,
-				tooltip = itemID,
-			},
-			{
-				type = "HeadingLine"
-			},
-			{
-				type = "Dropdown",
-				label = L["List to Add Item to:"],
-				list = dealfindingList,
-				value = 1,
-				relativeWidth = 0.49,
-				callback = function(self, _, value)
-						value = value:trim()
-						listSelection = value
-						local i = getIndex(self.parent.children, self)
-						self.parent.children[i+2]:SetDisabled(not value or value == "")
-					end,
-				tooltip = L["Which list to add this item to."],
-			},
-			{
-				type = "Label",
-				text = "",
-				relativeWidth = 0.02,
-			},
-			{
-				type = "Button",
-				text = L["Add Item to Selected List"],
-				relativeWidth = 0.49,
-				disabled = true,
-				callback = function(self)
-					if listSelection then
-						TSM.db.profile.dealfinding[listSelection][itemID] = {name=(GetItemInfo(itemID) or itemID), maxPrice=1}
-						window.frame:Hide()
-					end
-				end,
-			},
-			{
-				type = "Spacer"
-			},
-			{
-				type = "EditBox",
-				label = L["Name of New List to Add Item to:"],
-				relativeWidth = 0.49,
-				callback = function(self, _, value)
-						value = value:trim()
-						if TSM.db.profile.dealfinding[value] then return end
-						local i = getIndex(self.parent.children, self)
-						self.parent.children[i+2]:SetDisabled(not value or value == "")
-						newListName = value
-					end,
-			},
-			{
-				type = "Label",
-				text = "",
-				relativeWidth = 0.02,
-			},
-			{
-				type = "Button",
-				text = L["Add Item to New List"],
-				relativeWidth = 0.49,
-				disabled = true,
-				callback = function(self)
-						if newListName then
-							TSM.db.profile.dealfinding[newListName] = {[itemID]={name=(GetItemInfo(itemID) or itemID), maxPrice=1}}
-							window.frame:Hide()
-						end
-					end,
-			},
-		}
+		return format(L["Shopping for auctions with a max price set."])
 	end
-
-	TSMAPI:BuildPage(window, page)
 end
 
-function TSM:NewShoppingList(name, data)
-	local newListName = name
-	for i = 1, 1000 do
-		if not TSM.db.profile.shopping[newListName] then break end
-		newListName = name..i
+function TSM:LoadTooltip(itemString, quantity, options, moneyCoins, lines)
+	if not options.maxPrice then return end -- only 1 tooltip option
+	itemString = TSMAPI.Item:ToBaseItemString(itemString, true)
+	local numStartingLines = #lines
+
+	local operationName = TSMAPI.Operations:GetFirstByItem(itemString, "Shopping")
+	if not operationName or not TSM.operations[operationName] then return end
+	TSMAPI.Operations:Update("Shopping", operationName)
+
+	local maxPrice = TSMAPI:GetCustomPriceValue(TSM.operations[operationName].maxPrice, itemString)
+	if maxPrice then
+		local priceText = (TSMAPI:MoneyToString(maxPrice, "|cffffffff", "OPT_PAD", moneyCoins and "OPT_ICON" or nil) or "|cffffffff---|r")
+		tinsert(lines, { left = "  " .. L["Max Shopping Price:"], right = format("%s", priceText) })
 	end
-	
-	TSM.db.profile.shopping[newListName] = {searchTerms={}}
-	for itemID in pairs(data) do
-		TSM.db.profile.shopping[newListName][itemID] = {name=(GetItemInfo(itemID) or itemID)}
+
+	if #lines > numStartingLines then
+		tinsert(lines, numStartingLines + 1, "|cffffff00TSM Shopping:|r")
 	end
-	
-	return newListName
+end
+
+function TSM:StartSearchGathering(itemString, quantity, callback, disableCrafting, ignoreDE, even)
+	TSMAPI:Assert(itemString and quantity and callback)
+	local searchInfo = { item = itemString, extraInfo = { searchType = "apiGathering", maxQuantity = quantity, buyCallback = callback }, searchBoxText = "~"..L["gathering"].."~" }
+	if even then
+		searchInfo.extraInfo.evenOnly = true
+	end
+	if not disableCrafting and TSMAPI.Conversions:GetSourceItems(itemString) then
+		-- do crafting mode search
+		searchInfo.searchMode = "crafting"
+		if ignoreDE then
+			searchInfo.extraInfo.ignoreDisenchant = true
+		end
+	else
+		-- do normal mode search
+		searchInfo.searchMode = "normal"
+	end
+	return TSM.AuctionTab:StartSearch(searchInfo)
+end
+
+function TSM:StartSearchAuctioning(itemString, database, callback, filterFunc)
+	TSMAPI:Assert(itemString and database and callback)
+	local searchInfo = { item = itemString, searchMode = "normal", extraInfo = { searchType = "apiAuctioning", database = database, filterFunc = filterFunc, buyCallback = callback }, searchBoxText = "~"..L["auctioning"].."~" }
+	return TSM.AuctionTab:StartSearch(searchInfo)
 end
