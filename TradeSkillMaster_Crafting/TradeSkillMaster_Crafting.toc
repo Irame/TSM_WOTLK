@@ -1,11 +1,11 @@
-﻿## Interface: 50000
+﻿## Interface: 70300
 ## Title: |cff00ff00TradeSkillMaster_Crafting|r
-## Notes: Computes the profits of making various tradeskill crafts.
-## Author: Sapu94
-## Version: v1.1.5
+## Notes: Provides a rich profession interface complete with a powerful crafting queue.
+## Author: Sapu94, Bart39
+## Version: v3.2.5
 ## SavedVariables: TradeSkillMaster_CraftingDB
 ## Dependency: TradeSkillMaster
-## X-Curse-Packaged-Version: v1.1.5
+## X-Curse-Packaged-Version: v3.2.5
 ## X-Curse-Project-Name: TradeSkillMaster_Crafting
 ## X-Curse-Project-ID: tradeskillmaster_crafting
 ## X-Curse-Repository-ID: wow/tradeskillmaster_crafting/mainline
@@ -22,23 +22,15 @@ Locale\zhTW.lua
 Locale\ptBR.lua
 
 TradeSkillMaster_Crafting.lua
-Modules\Data.lua
-Modules\Scan.lua
-Modules\ProfessionConfig.lua
-Modules\Options.lua
-Modules\Crafting.lua
-Modules\CraftingUtil.lua
-Modules\Queue.lua
-Modules\Vendor.lua
-Modules\CraftingAPI.lua
-Modules\Comm.lua
 
-Tradeskills\enchanting.lua
-Tradeskills\inscription.lua
-Tradeskills\jewelcrafting.lua
-Tradeskills\alchemy.lua
-Tradeskills\blacksmithing.lua
-Tradeskills\leatherworking.lua
-Tradeskills\tailoring.lua
-Tradeskills\engineering.lua
-Tradeskills\cooking.lua
+Modules\TradeSkill.lua
+Modules\TradeSkill_Professions.lua
+Modules\TradeSkill_Groups.lua
+Modules\TradeSkill_Queue.lua
+Modules\TradeSkill_Gather.lua
+Modules\Cost.lua
+Modules\Queue.lua
+Modules\Options.lua
+Modules\EnchantingInfo.lua
+Modules\Gather.lua
+Modules\TradeSkillScanner.lua

@@ -1,3 +1,291 @@
+v3.2.5
+*Updated TOC version for patch 7.3.
+
+v3.2.4
+*Fixed bug with estimated craft cost being incorrect in some situations
+*Fixed bug with intermediate crafting in Gathering
+
+v3.2.3
+*Updated TOC version for patch 7.2.
+
+v3.2.2
+*Fixed gathering error when items don't have a mat cost.
+*Fixed issue with duplicate headers in gathering UI.
+
+v3.2.1
+*Fixed bug with gathering tables going blank and producing an error.
+
+v3.2
+*Re-implemented intermediate crafting within gathering.
+*Added new enchants in 7.1.5
+
+v3.1.18
+*Fixed bug with buying vendor items with random suffixes via gathering.
+
+v3.1.17
+*Updated TOC version for patch 7.1.
+
+v3.1.16
+*Fixed bug with removing lower ranked recipes.
+*Added mouseover tooltip for rank info to recipe list.
+
+v3.1.15
+*Fixed bug with smart crafts and ranked recipes.
+*Fixed bug with changing professions in the default UI
+
+v3.1.14
+*Fixed issue with mapping for legion permanent enchants.
+
+v3.1.13
+*Fixed issues with ranked recipes.
+
+v3.1.12
+*Added mapping for legion permanent enchants.
+
+v3.1.11
+*Fixed bug with filtered recipes in the craft queue being removed if you close the profession.
+
+v3.1.10
+*Fixed bug with gathering mats list still being clickable - source options are now set on the selection screen.
+
+v3.1.9
+*Fixed bug with cooldowns frame for ruRU players.
+*Fixed bug with materials not showing for selected craft.
+
+v3.1.8
+*Using new APIs added to core TSM addon to workaround Blizzard's item caching issues.
+
+v3.1.7
+*Fixed bug with buyout from crafting search.
+
+v3.1.6
+*Fixed bug with the profession frame not opening.
+
+v3.1.5
+*Fixed bug with profession searching.
+
+v3.1.4
+*Removed some debug prints.
+
+v3.1.3
+*Fixed bug caused by Blizzard's item cache issue.
+
+v3.1.2
+*Fixed bug with not being able to craft items via the "Create" / "Create All" buttons.
+
+v3.1.1
+*Fixed bug in patch 7.0.3.
+
+v3.1
+*Updated for patch 7.0.3.
+
+v3.0.1
+*Fix issue with gathering not appearing if no queue for the current player.
+
+v3.0
+*Initial 3.0 version!
+\\
+
+v2.6.19
+*Updated to 6.2.
+*Fixed bug with material links not showing up.
+
+v2.6.18
+*Fixing interface version.
+
+v2.6.17
+*Updated for patch 6.1.
+
+v2.6.16
+*Added TradeSkillMaster_ItemTracker as a required dependency.
+
+v2.6.15
+*Fixed an issue where the cost per mat was displayed incorrectly if more than one item was made per craft.
+
+v2.6.14
+*Fixed an issue with restock queue and crafts that produce multiple items.
+*Fixed an issue where crafting tab would show negative amount queued.
+
+v2.6.13
+*Ink must be in your bags to use for vendor trade so gather from bank if needed.
+
+v2.6.12
+*Fixed an issue with gathering and soulbound mats.
+*Added an option for gathering to ignore ink vendor trading (until blizzard fix the vendor).
+
+v2.6.11
+*Change the workaround for the blizzard bug in GetTradeSkillInfo to avoid localization issues - ticket #511
+
+v2.6.10
+*Fixed bug with enchanting not allowing the queue'ing / grouping / viewing of enchanting scrolls.
+
+v2.6.9
+*Updated hard-coded enchanting scroll data to allow queue'ing of WoD enchants.
+
+v2.6.8
+*Workaround for learnt professions disappearing.
+
+v2.6.7
+*Temporarily disable clear-up of unlearned professions due to blizzard bug.
+
+v2.6.6
+*Fixed issues with sorting on crafting > crafts tab when adding or removing queue.
+*Fixed issues with queuing intermediate crafts.
+*Fixed available source quantities in gathering.
+
+v2.6.5
+*Fix issues with gathering counts and alts reagent bank.
+
+v2.6.4
+*Bank bag contents are not updated correctly when crafting from bank (reagent bank is fine) so gathering from bank has been re-added.
+
+v2.6.3
+*Fixed another issue with crafting from bank/reagent bank.
+
+v2.6.2
+*Fixed various issues with crafting from bank/reagent bank.
+
+v2.6.1
+*Don't add gathering tasks for items in the crafter's reagent bank.
+
+v2.6
+*Updated for patch 6.0.2
+
+v2.5.2
+*Cleaned up some code
+*The rows in the materials list in the queue will now respond to clicks like normal item links.
+*The quantity box in the profession frame will now highlight all of the text when you click into it.
+*Changed how subclasses are programmatically expanded to fix various issues with crafting costs disappearing when they are collapsed.
+
+v2.5.1
+*Added new "/tsm restock_help" slash command which will tell you why an item is not being queued.
+
+v2.5
+*Added mats require to craft an item to Crafting's tooltip.
+*Removed some old, unnecessary ItemTracker checks.
+*Added module API for getting Crafting frame status.
+*Fixed the frame strata of the queue frame to match the main profession frame.
+*Added events to the restock queue.
+*Added code to clean up crafts which are no longer known.
+*Added some extra checks to profession window code to prevent lua errors.
+
+v2.4.6
+*Changed tooltip description for min profit.
+
+v2.4.5
+*Fixed quantity display issue with gathering mail items.
+*Added module APIs for addQueue,removeQueue,getQueue,getCDCrafts
+
+v2.4.4
+*Fixed bug with invalid craft value method warning.
+
+v2.4.3
+*Rearranged the materials section in the profession frame.
+*Added TradeSkillMaster_ItemTracker as a dependency.
+
+v2.4.2
+*Fixed race condition between the queue and profession scanning code.
+
+v2.4.1
+*Updating group tree creation API call.
+
+v2.4
+*Button for switching between Crafting and default profession UI's is now more obvious.
+*Improved how the current craft reagent list is populated.
+*Fixed error from special characters being used in the crafts/mats tab filters.
+*Using new movable frame TSMAPI function for gather and profession frames.
+*Removed '/tsm gatherreset' and '/tsm profreset' as they are now combined with '/tsm freset'.
+*Added mail tasks for destroyable items bought from the AH.
+*Added an option to enable even stacks when searching for millable / prospectable items with gathering.
+
+v2.3.1
+*Added /tsm gatherreset to reset gathering frame position
+
+v2.3
+*Added caching to the retrieval of mat item links to greatly speed up opening of professions.
+*Fixed gathering shopping search if no auctions found for item (prints to chat).
+*Fixed an error with manually clicking gathering item for shopping search and no auctions found.
+*Fixed incorrect mailing task quantiies.
+*Added checkbox to gathering window to disable destroying search at AH
+
+v2.2.3
+*Fixed bug with localization.
+
+v2.2.2
+*Fixed a bug with syncing professions as a result of the 5.4 changes to tradeskill links.
+
+v2.2.1
+*Fixed bug with enchants incorrectly showing more than 1 being made per craft due to Blizzard bug.
+
+v2.2
+*Gathering will now provide additional options for vendor-bought items besides the vendor.
+*Changed how gathering sources show quantity.
+*Vendor tasks will now exclude what the crafter already has in their inventory.
+*Fixed various bugs related to gathering.
+*Fixed bug with tracking soulbound items
+*Added soulbound mats to gathering tasks on crafter only.
+*Fixed bug with enchant vellum button.
+*Gathering from the AH will now automatically switch to the next item when the current one is finished.
+*Added destroying tasks to gathering.
+*The position of the gathering frame is now saved.
+*Updated TOC for patch 5.4.
+
+v2.1.2
+*Moved operation management to new tab.
+
+v2.1.1
+*Fixed error with leveling untracked professions.
+*Reverted change to how professions are scanned.
+*Fixed bug with gathering from the AH.
+
+v2.1
+*Operations will now be properly sorted alphabetically.
+*Changed "Materials" icon in /tsm window to "Crafting" and added new "Crafts" tab within.
+*Added visual indicator for crafts which make more than one item.
+*Added Pandaren cooking skill info.
+*Sped up the inventory lookup code which will result in significantly less laggy Crafting interfaces.
+*Updated scrolling tables.
+*Added option for setting the scale of the Crafting window.
+*Made the Crafting window resizable.
+*The Crafting window will now remember its status including position, size, and queue opened/closed.
+*Redid the layout of the gathering frame.
+*Made the selection frame for gathering smarter and more automatic.
+*Fixed some 5.4 PTR errors with dividing by zero.
+*Crafting will no longer allow using "crafting" as part of a craft value price source (mat prices unaffected).
+*Added "TSM" button to the top of the profession window for toggling between Crafting and default profession windows.
+*Added "All" row to the top of the list of crafts for the current profession.
+*Added icons next to material links in the profession frame.
+*Daily cooldowns will now be displayed as hours/min remaining.
+*Crafting will now ignore guild professions.
+*Gathering will now count down when buying from the AH in destroy mode.
+*Many other minor bug fixes and improvements.
+
+v2.0.4
+*Fixed bug with spirit of harmonies in bags not being counted.
+
+v2.0.3
+*Bug fix with clearing all custom mat prices.
+
+v2.0.2
+*Gather will display a warning when the user tries to use it without TSM_ItemTracker active.
+
+v2.0.1
+*Removed max price for AH searches through gathering.
+
+v2.0
+*First 2.0 Version!
+\\
+
+v1.2
+*Updated for patch 5.2.
+*Crafting can now use mail tracking data from ItemTracker.
+*Fixed a bug with TSM not showing MoP professions.
+*Added new MoP enchants.
+*Updated vendor trades and vendor items for MoP.
+*Fixed double-click queuing to be more intuitive.
+*Fixed a bug with estimated total cost / profit with crafts which make more than 1 item.
+*Many other minor bug fixes and improvements.
+
 v1.1
 *Added options for a secondary price source and for using the lower of two price sources.
 *Added more vendor items.

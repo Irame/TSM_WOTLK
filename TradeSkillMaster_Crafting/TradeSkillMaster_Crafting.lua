@@ -1,311 +1,366 @@
-﻿-- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_Crafting - AddOn by Sapu94							 	  	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_crafting.aspx    --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
-
+-- ------------------------------------------------------------------------------ --
+--                            TradeSkillMaster_Crafting                           --
+--            http://www.curse.com/addons/wow/tradeskillmaster_crafting           --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 -- register this file with Ace Libraries
 local TSM = select(2, ...)
-TSM = LibStub("AceAddon-3.0"):NewAddon(TSM, "TradeSkillMaster_Crafting", "AceEvent-3.0", "AceConsole-3.0")
-
+TSM = LibStub("AceAddon-3.0"):NewAddon(TSM, "TSM_Crafting", "AceEvent-3.0", "AceConsole-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Crafting") -- loads the localization table
-TSM.version = GetAddOnMetadata("TradeSkillMaster_Crafting","X-Curse-Packaged-Version") or GetAddOnMetadata("TradeSkillMaster_Crafting", "Version") -- current version of the addon
 
-TSM.tradeSkills = {{name="Enchanting", spellID=7411}, {name="Inscription", spellID=45357},
-	{name="Jewelcrafting", spellID=25229}, {name="Alchemy", spellID=2259},
-	{name="Blacksmithing", spellID=2018}, {name="Leatherworking", spellID=2108},
-	{name="Tailoring", spellID=3908}, {name="Engineering", spellID=4036},
-	{name="Cooking", spellID=2550}}--, {name="Smelting", spellID=2656}}
-
-local GOLD_TEXT = "|cffffd70fg|r"
-local SILVER_TEXT = "|cffb7b7bfs|r"
-local COPPER_TEXT = "|cffeda55fc|r"
-
--- default values for the savedDB
-local savedDBDefaults = {
-	global = {
-		treeStatus = {[2] = true, [5] = true},
-		queueSort = "profit",
-		queueSortDescending = true,
-		crossAccountCraftingCosts = {},
-	},
-	-- data that is stored per user profile
-	profile = {
-		profitPercent = 0, -- percentage to subtract from buyout when calculating profit (5% = AH cut)
-		matCostSource = "DBMarket", -- how to calculate the cost of materials
-		craftCostSource = "DBMinBuyout",
-		craftHistory = {}, -- stores a history of what crafts were crafted
-		queueMinProfitGold = {default = 50},
-		queueMinProfitPercent = {default = 0.5},
-		restockAH = true,
-		altAddon = "ItemTracker",
-		altGuilds = {},
-		altCharacters = {},
-		queueProfitMethod = {default = "gold"},
-		doubleClick = 2,
-		maxRestockQuantity = {default = 3},
-		seenCountFilterSource = "",
-		seenCountFilter = 0,
-		ignoreSeenCountFilter = {},
-		minRestockQuantity = {default = 1},
-		limitIlvl = {default = false},
- 		minilvlToCraft = {default = 1},
-		dontQueue = {},
-		craftManagementWindowScale = 1,
-		inscriptionGrouping = 2,
-		lastScan = {},
-		alwaysQueue = {},
-		unknownProfitMethod = {default = "unknown"},
-		enableNewTradeskills = false,
-		showPercentProfit = true,
-		tooltip = true,
-		playerProfessionInfo = {},
-		playerProfessionInfo = {},
- 		assumeVendorInBags = false,
- 		limitVendorItemPrice = false,
- 		maxVendorPrice = 1000,
-		craftingCostSources = {},
-		craftingCostTarget = "",
-		secondaryPriceSource = "none",
-		lowestPriceSource = false,
-	},
+TSM.MINING_SPELLID = 2575
+TSM.SMELTING_SPELLID = 2656
+TSM.MASS_MILLING_RECIPES = {
+	[190381] = "i:114931",  -- Frostweed
+	[190382] = "i:114931",  -- Fireweed
+	[190383] = "i:114931",  -- Gorgrond Flytrap
+	[190384] = "i:114931",  -- Starflower
+	[190385] = "i:114931",  -- Nargrand Arrowbloom
+	[190386] = "i:114931",  -- Talador Orchid
 }
 
+
+-- default values for the savedDB
+local settingsInfo = {
+	version = 7,
+	global = {
+		ignoreCDCraftCost = { type = "boolean", default = true, lastModifiedVersion = 1 },
+		questSmartCrafting = { type = "boolean", default = true, lastModifiedVersion = 1 },
+		showingDefaultFrame = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		frameQueueOpen = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		profitPercent = { type = "number", default = 0, lastModifiedVersion = 1 },
+		priceColumn = { type = "number", default = 1, lastModifiedVersion = 1 },
+		queueSort = { type = "number", default = 1, lastModifiedVersion = 1 },
+		defaultMatCostMethod = { type = "string", default = "min(dbmarket, crafting, vendorbuy, convert(dbmarket))", lastModifiedVersion = 1 },
+		defaultCraftPriceMethod = { type = "string", default = "first(dbminbuyout, dbmarket)", lastModifiedVersion = 1 },
+		ignoreCharacters = { type = "table", default = {}, lastModifiedVersion = 1 },
+		ignoreGuilds = { type = "table", default = {}, lastModifiedVersion = 1 },
+		helpPlatesShown = { type = "table", default = { profession = nil, groups = nil, gatherSelection = nil, gatheringFrame = nil }, lastModifiedVersion = 1 },
+	},
+	factionrealm = {
+		ignoreAlts = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		ignoreIntermediate = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		disableCheckBox = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		ignoreDECheckBox = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		evenStacks = { type = "boolean", default = false, lastModifiedVersion = 1 },
+		playerProfessions = { type = "table", default = {}, lastModifiedVersion = 1 },
+		professionScanCache = { type = "table", default = {}, lastModifiedVersion = 1 },
+		crafts = { type = "table", default = {}, lastModifiedVersion = 1 },
+		mats = { type = "table", default = {}, lastModifiedVersion = 1 },
+		gathering = { type = "table", default = { crafter = nil, professions = {}, neededMats = {}, shortItems = {}, availableMats = {}, extraMats = {}, selectedSources = {}, selectedSourceStatus = {}, gatheredMats = false, destroyingMats = {}, sessionOptions = {} }, lastModifiedVersion = 2 },
+		queueStatus = { type = "table", default = { collapsed = {} }, lastModifiedVersion = 1 },
+		inkTrade = { type = "boolean", default = false, lastModifiedVersion = 3 },
+		buyAH = { type = "boolean", default = false, lastModifiedVersion = 5 },
+	},
+}
+TSM.defaultMatCostMethod = settingsInfo.global.defaultMatCostMethod.default
+TSM.defaultCraftPriceMethod = settingsInfo.global.defaultCraftPriceMethod.default
+
+local tooltipDefaults = {
+	craftingCost = true,
+	matPrice = false,
+	detailedMats = false,
+}
+local operationDefaults = {
+	minRestock = 1, -- min of 1
+	maxRestock = 3, -- max of 3
+	minProfit = 1000000,
+	craftPriceMethod = nil,
+}
+TSM.operationDefaults = operationDefaults
+
 -- Called once the player has loaded WOW.
-function TSM:OnEnable()
+function TSM:OnInitialize()
+	if TradeSkillMasterModulesDB then
+		TradeSkillMasterModulesDB.Crafting = TradeSkillMaster_CraftingDB
+	end
+
+	-- load settings
+	TSM.db = TSMAPI.Settings:Init("TradeSkillMaster_CraftingDB", settingsInfo)
+
 	-- create shortcuts to TradeSkillMaster_Crafting's modules
 	for moduleName, module in pairs(TSM.modules) do
 		TSM[moduleName] = module
 	end
-	
-	-- load the savedDB into TSM.db
-	TSM.db = LibStub:GetLibrary("AceDB-3.0"):New("TradeSkillMaster_CraftingDB", savedDBDefaults, true)
-	TSM.Data:Initialize() -- setup TradeSkillMaster_Crafting's internal data table using some savedDB data
-	
-	TSMAPI:RegisterReleasedModule("TradeSkillMaster_Crafting", TSM.version, GetAddOnMetadata("TradeSkillMaster_Crafting", "Author"),
-		GetAddOnMetadata("TradeSkillMaster_Crafting", "Notes"))
-	TSMAPI:RegisterData("shopping", TSM.Queue.GetMatsForQueue)
-	TSMAPI:RegisterData("craftingcost", TSM.GetCraftingCost)
-	TSMAPI:RegisterData("professionitems", TSM.GetProfessionItems)
-	TSMAPI:AddPriceSource("Crafting", L["Crafting Cost"], function(itemLink, itemID) return TSMAPI:GetData("craftingcost", itemID) end)
-	
-	if TSM.db.profile.tooltip then
-		TSMAPI:RegisterTooltip("TradeSkillMaster_Crafting", function(...) return TSM:LoadTooltip(...) end)
-	end
-	
-	-- Gathering was renamed to "ItemTracker" with the release of TSM
-	if TSM.db.profile.altAddon == "Gathering" then
-		TSM.db.profile.altAddon = "ItemTracker"
-	end
-end
 
-function TSM:LoadTooltip(itemID)
-	for _, profession in pairs(TSM.tradeSkills) do
-		if TSM.Data[profession.name].crafts[itemID] then
-			local cost, _, profit = TSM.Data:GetCraftPrices(itemID, profession.name)
-			
-			local preProfitText = ""
-			if profit and profit <= 0 then
-				preProfitText = "-"
-				profit = abs(profit)
+	-- update for TSM3
+	for spellId, craft in pairs(TSM.db.factionrealm.crafts) do
+		if craft.itemID then
+			craft.itemString = craft.itemID
+			craft.itemID = nil
+			craft.queued = 0
+			local newMats = {}
+			for itemString, quantity in pairs(craft.mats) do
+				itemString = TSMAPI.Item:ToItemString(itemString)
+				if itemString then
+					newMats[itemString] = quantity
+				end
 			end
-			local costText = TSM:FormatTextMoney(cost, nil, true, true) or "|cffffffff---|r"
-			local profitText = preProfitText..(TSM:FormatTextMoney(profit, nil, true, true) or "|cffffffff---|r")
-			local text1 = format(L["Crafting Cost: %s (%s profit)"], costText, profitText)
-			
-			return {text1}
+			craft.mats = newMats
+		end
+	end
+	local newMatData = {}
+	for itemString, data in pairs(TSM.db.factionrealm.mats) do
+		itemString = TSMAPI.Item:ToItemString(itemString)
+		if itemString then
+			newMatData[itemString] = data
+		end
+	end
+	TSM.db.factionrealm.mats = newMatData
+
+	TSM:UpdateCraftReverseLookup()
+
+	-- apparently we used the queueSort key in the distant past, so just fix it
+	if TSM.db.global.queueSort < 1 or TSM.db.global.queueSort > 3 then
+		TSM.db.global.queueSort = 1
+	end
+
+	-- register this module with TSM
+	TSM:RegisterModule()
+
+	-- sync player professions data
+	TSMAPI.Sync:Mirror(TSM.db.factionrealm.playerProfessions, "CRAFTING_PROFESSIONS")
+
+	-- register 1:1 crafting conversions
+	for spell, data in pairs(TSM.db.factionrealm.crafts) do
+		local sourceItem, rate = nil, nil
+		local numMats = 0
+		for itemString, num in pairs(data.mats) do
+			numMats = numMats + 1
+			if numMats > 1 then break end -- skip crafts which involve more than one mat
+			if not TSMAPI.Item:ToItemString(itemString) then
+				-- this is not a valid itemString so remove it and bail out for this craft
+				data.mats[itemString] = nil
+				sourceItem = nil
+				numMats = 2
+				TSM:LOG_INFO("Found bad material itemString: %s", itemString)
+				break
+			end
+			sourceItem = itemString
+			rate = data.numResult / num
+		end
+		if numMats == 1 and not data.hasCD and not TSM.MASS_MILLING_RECIPES[spell] then
+			TSMAPI.Conversions:Add(data.itemString, sourceItem, rate, "craft")
 		end
 	end
 end
 
-function TSM:IsEnchant(link)
-	if not link then return end
-	return strfind(link, "enchant:") and true
-end
-
-function TSM:GetDBValue(key, profession, itemID)
-	return (itemID and TSM.db.profile[key][itemID]) or (profession and TSM.db.profile[key][profession]) or TSM.db.profile[key].default
-end
-
-local equivItems = {
-	{lower=10938, upper=10939, ratio=3}, -- Lesser/Greater Magic Essence
-	{lower=10998, upper=11082, ratio=3}, -- Lesser/Greater Astral Essence
-	{lower=11134, upper=11135, ratio=3}, -- Lesser/Greater Mystic Essence
-	{lower=11174, upper=11175, ratio=3}, -- Lesser/Greater Nether Essence
-	{lower=16202, upper=16203, ratio=3}, -- Lesser/Greater Eternal Essence
-	{lower=22447, upper=22446, ratio=3}, -- Lesser/Greater Planar Essence
-	{lower=34056, upper=34055, ratio=3}, -- Lesser/Greater Cosmic Essence
-	{lower=52718, upper=52719, ratio=3}, -- Lesser/Greater Celestial Essence
-	{lower=37700, upper=36523, ratio=10}, -- Crystallized/Eternal Air
-	{lower=37701, upper=35624, ratio=10}, -- Crystallized/Eternal Earth
-	{lower=37702, upper=36860, ratio=10}, -- Crystallized/Eternal Fire
-	{lower=37703, upper=35627, ratio=10}, -- Crystallized/Eternal Shadow
-	{lower=37704, upper=35625, ratio=10}, -- Crystallized/Eternal Life
-	{lower=37705, upper=35622, ratio=10}, -- Crystallized/Eternal Water
-}
-function TSM:GetEquivItem(itemID)
-	for _, itemPair in ipairs(equivItems) do
-		if itemID == itemPair.lower then
-			return itemPair.upper, TSMAPI:SafeDivide(1, itemPair.ratio)
-		elseif itemID == itemPair.upper then
-			return itemPair.lower, itemPair.ratio
-		end
+function TSM:OnEnable()
+	local isValid, err = TSMAPI:ValidateCustomPrice(TSM.db.global.defaultCraftPriceMethod, "crafting")
+	if not isValid then
+		TSM:Printf(L["Your default craft value method was invalid so it has been returned to the default. Details: %s"], err)
+		TSM.db.global.defaultCraftPriceMethod = TSM.defaultCraftPriceMethod
 	end
-end
-
-local BIG_NUMBER = 100000000000 -- 10 million gold
-function TSM:FormatTextMoney(copper, textColor, noCopper, noSilver, noColor)
-	if not copper then return end
-	if copper == 0 or copper > BIG_NUMBER then return end
-	
-	local gold = floor(copper / COPPER_PER_GOLD)
-	local silver = floor((copper - (gold * COPPER_PER_GOLD)) / COPPER_PER_SILVER)
-	local copper = floor(math.fmod(copper, COPPER_PER_SILVER))
-	local text = ""
-	
-	-- Add gold
-	if gold > 0 then
-		if noColor then
-			text = format("%s", gold.."g")
-		elseif textColor then
-			text = format("%s%s", textColor..gold.."|r", (noColor and "g" or GOLD_TEXT).." ")
-		else
-			text = format("%s%s", gold, (noColor and "g" or GOLD_TEXT).." ")
-		end
-	end
-	
-	-- Add silver
-	if (not noSilver or gold == 0) and (silver > 0 or copper > 0) then
-		if noColor then
-			text = format("%s%s", text, silver.."s")
-		elseif textColor then
-			text = format("%s%s%s", text, textColor..silver.."|r", (noColor and "s" or SILVER_TEXT).." ")
-		else
-			text = format("%s%s%s", text, silver, (noColor and "s" or SILVER_TEXT).." ")
-		end
-	end
-	
-	-- Add copper if we have no silver/gold found, or if we actually have copper
-	if (not noCopper or (silver == 0 and gold==0)) and (text == "" or copper > 0) then
-		if noColor then
-			text = format("%s%s", text, copper.."c")
-		elseif textColor then
-			text = format("%s%s%s", text, textColor..copper.."|r", (noColor and "c" or COPPER_TEXT))
-		else
-			text = format("%s%s%s", text, copper, (noColor and "c" or COPPER_TEXT))
-		end
-	end
-	
-	return text:trim()
-end
-
-function TSM:GetMoneyValue(value)
-	local gold = tonumber(string.match(value, "([0-9]+)|c([0-9a-fA-F]+)g|r") or string.match(value, "([0-9]+)g")) or 0
-	local silver = tonumber(string.match(value, "([0-9]+)|c([0-9a-fA-F]+)s|r") or string.match(value, "([0-9]+)s")) or 0
-	local copper = tonumber(string.match(value, "([0-9]+)|c([0-9a-fA-F]+)c|r") or string.match(value, "([0-9]+)c")) or 0
-	
-	return (gold or silver or copper) and (gold*COPPER_PER_GOLD + silver*SILVER_PER_GOLD + copper)
-end
-
-
-
-function TSM:GetItemMarketPrice(itemID, itemType)
-	if not itemID then return end
-	local itemLink = select(2, GetItemInfo(itemID)) or itemID
-	local source = (itemType == "mat" and TSM.db.profile.matCostSource) or (itemType == "craft" and TSM.db.profile.craftCostSource)
-	local itemValue = TSMAPI:GetItemValue(itemLink, source)
-	
-	if TSM.db.profile.secondaryPriceSource ~= "none" then
-		local secondaryItemValue = TSMAPI:GetItemValue(itemLink, TSM.db.profile.secondaryPriceSource)
-		if not itemValue then
-			itemValue = secondaryItemValue
-		elseif TSM.db.profile.lowestPriceSource then
-			if secondaryItemValue then
-				itemValue = min(itemValue, secondaryItemValue)
+	for name, operation in pairs(TSM.operations) do
+		if operation.craftPriceMethod then
+			local isValid, err = TSMAPI:ValidateCustomPrice(operation.craftPriceMethod, "crafting")
+			if not isValid then
+				TSM:Printf(L["Your craft value method for '%s' was invalid so it has been returned to the default. Details: %s"], name, err)
+				operation.craftPriceMethod = operationDefaults.craftPriceMethod
 			end
 		end
 	end
-	
-	return itemValue
 end
 
-function TSM:GetSeenCount(itemID)
-	if AucAdvanced and TSM.db.profile.seenCountFilterSource == "Auctioneer" then
-		local link = select(2, GetItemInfo(itemID)) or itemID
-		return select(2, AucAdvanced.API.GetMarketValue(link))
-	elseif TSM.db.profile.seenCountFilterSource == "AuctionDB" then
-		return TSMAPI:GetData("seenCount", itemID)
+-- registers this module with TSM by first setting all fields and then calling TSMAPI:NewModule().
+function TSM:RegisterModule()
+	TSM.icons = { { side = "module", desc = "Crafting", slashCommand = "crafting", callback = "Options:LoadCrafting", icon = "Interface\\Icons\\INV_Misc_Gear_08" } }
+	TSM.operations = { maxOperations = 1, callbackOptions = "Options:GetOperationOptionsInfo", callbackInfo = "GetOperationInfo", defaults = operationDefaults }
+	TSM.moduleOptions = { callback = "Options:Load" }
+	TSM.priceSources = {
+		{ key = "Crafting", label = L["Crafting Cost"], callback = "GetCraftingCost", takeItemString = true },
+		{ key = "matPrice", label = L["Crafting Material Cost"], callback = "GetCraftingMatCost", takeItemString = true },
+	}
+	TSM.slashCommands = {
+		{ key = "profession", label = L["Opens the Crafting window to the first profession."], callback = TSM.TradeSkill.OpenFirstProfession },
+		{ key = "restock_help", label = L["Tells you why a specific item is not being restocked and added to the queue."], callback = "RestockHelp" },
+	}
+	TSM.tooltip = { callbackLoad = "LoadTooltip", callbackOptions = "Options:LoadTooltipOptions", defaults = tooltipDefaults }
+
+	TSMAPI:NewModule(TSM)
+end
+
+function TSM:GetOperationInfo(name)
+	TSMAPI.Operations:Update("Crafting", name)
+	local operation = TSM.operations[name]
+	if not operation then return end
+	if operation.minProfit then
+		return format(L["Restocking to a max of %d (min of %d) with a min profit."], operation.maxRestock, operation.minRestock)
+	else
+		return format(L["Restocking to a max of %d (min of %d) with no min profit."], operation.maxRestock, operation.minRestock)
 	end
 end
 
--- returns a table containing a list of all itemIDs of mats for this profession
-function TSM:GetMats(mode)
-	local matTemp, returnTbl = {}, {}
-	
-	for _, chant in pairs(TSM.Data[mode].crafts) do
-		for matID in pairs(chant.mats) do
-			if not matTemp[matID] then
-				tinsert(returnTbl, matID)
-			end
-			matTemp[matID] = true 
-		end
-	end
-	
-	sort(returnTbl)
-	return returnTbl
-end
+function TSM:LoadTooltip(itemString, quantity, options, moneyCoins, lines)
+	TSM:UpdateCraftReverseLookup()
+	itemString = TSMAPI.Item:ToBaseItemString(itemString)
+	local numStartingLines = #lines
 
--- takes a non-integer-indexed table and returns a sorted integer-indexed table
-function TSM:GetSortedData(oTable, sortFunc)
-	local temp = {}
-	for index, data in pairs(oTable) do
-		local tTemp = {}
-		for i, v in pairs(data) do tTemp[i] = v end
-		tTemp.originalIndex = index
-		tinsert(temp, tTemp)
-	end
-	
-	sort(temp, sortFunc)
-	
-	return temp
-end
+	if TSM.craftReverseLookup[itemString] and options.craftingCost then
+		local spellID, cost, buyout, profit = TSM.Cost:GetItemCraftPrices(itemString)
+		if cost then
+			local costText = (TSMAPI:MoneyToString(cost, "|cffffffff", "OPT_PAD", moneyCoins and "OPT_ICON" or nil) or "|cffffffff---|r")
+			local profitColor = (profit or 0) < 0 and "|cffff0000" or "|cff00ff00"
+			local profitText = (TSMAPI:MoneyToString(profit, profitColor, "OPT_PAD", moneyCoins and "OPT_ICON" or nil) or "|cffffffff---|r")
+			tinsert(lines, { left = "  " .. L["Crafting Cost"], right = format(L["%s (%s profit)"], costText, profitText) })
 
--- returns a list of all items associated with a profession
-function TSM:GetProfessionItems(profession, list)
-	local items = list or {}
-	if not TSM.Data[profession] or type(items) ~= "table" then return end
-	
-	for itemID in pairs(TSM.Data[profession].crafts) do
-		items[itemID] = true
-	end
-	
-	for itemID in pairs(TSM.Data[profession].mats) do
-		items[itemID] = true
-	end
-	
-	return items
-end
-
-function TSM:GetCraftingCost(itemID, isMat)
-	if not isMat then
-		for _, skill in pairs(TSM.tradeSkills) do
-			local mode = skill.name
-			if TSM.Data[mode].crafts[itemID] then
-				return TSM.Data:GetCraftCost(itemID, mode)
+			local craftInfo = TSM.db.factionrealm.crafts[spellID]
+			if options.detailedMats and craftInfo then
+				for matItemString, matQuantity in pairs(craftInfo.mats) do
+					local name = TSMAPI.Item:GetName(matItemString)
+					local mat = TSM.db.factionrealm.mats[matItemString]
+					if name and mat then
+						local cost = TSMAPI:GetCustomPriceValue(mat.customValue or TSM.db.global.defaultMatCostMethod, matItemString)
+						if cost then
+							local quality = TSMAPI.Item:GetQuality(matItemString)
+							local colorName = format("|c%s%s%s%s|r", select(4, GetItemQualityColor(quality)), name, " x ", TSMAPI.Util:Round(matQuantity / craftInfo.numResult, 0.01))
+							tinsert(lines, { left = "    " .. colorName, right = TSMAPI:MoneyToString((cost * matQuantity) / craftInfo.numResult, "|cffffffff", "OPT_PAD", moneyCoins and "OPT_ICON" or nil) })
+						end
+					end
+				end
 			end
 		end
 	end
-	for _, skill in pairs(TSM.tradeSkills) do
-		local mode = skill.name
-		if TSM.Data[mode].mats[itemID] then
-			return TSM.Data:GetMatCost(mode, itemID)
+
+	-- add mat price
+	if options.matPrice then
+		local matInfo = TSM.db.factionrealm.mats[itemString]
+		local cost = matInfo and TSMAPI:GetCustomPriceValue(matInfo.customValue or TSM.db.global.defaultMatCostMethod, itemString) or nil
+		if cost then
+			tinsert(lines, { left = "  " .. L["Mat Cost"], right = TSMAPI:MoneyToString(cost, "|cffffffff", "OPT_PAD", moneyCoins and "OPT_ICON" or nil) })
 		end
 	end
-	
-	return TSM.db.global.crossAccountCraftingCosts[itemID]
+
+	if #lines > numStartingLines then
+		tinsert(lines, numStartingLines + 1, "|cffffff00TSM Crafting:|r")
+	end
+end
+
+function TSM:GetCraftingCost(itemString)
+	itemString = TSMAPI.Item:ToBaseItemString(TSMAPI.Item:ToItemString(itemString))
+	if not itemString then return end
+
+	TSM:UpdateCraftReverseLookup()
+	local _, cost = TSM.Cost:GetItemCraftPrices(itemString)
+	return cost
+end
+
+function TSM:GetCraftingMatCost(itemString)
+	itemString = TSMAPI.Item:ToBaseItemString(TSMAPI.Item:ToItemString(itemString))
+	if not itemString then return end
+
+	TSM:UpdateCraftReverseLookup()
+	return TSM.Cost:GetMatCost(itemString)
+end
+
+local reverseLookupUpdate = 0
+function TSM:UpdateCraftReverseLookup()
+	if reverseLookupUpdate >= time() - 30 then return end
+	reverseLookupUpdate = time()
+	TSM.craftReverseLookup = {}
+
+	for spellID, data in pairs(TSM.db.factionrealm.crafts) do
+		TSM.craftReverseLookup[data.itemString] = TSM.craftReverseLookup[data.itemString] or {}
+		tinsert(TSM.craftReverseLookup[data.itemString], spellID)
+	end
+end
+
+function TSM:RestockHelp(link)
+	local itemString = TSMAPI.Item:ToItemString(link)
+	if not itemString then
+		return print(L["No item specified. Usage: /tsm restock_help [ITEM_LINK]"])
+	end
+
+	TSM:Printf(L["Restock help for %s:"], link)
+
+	-- check if the item is in a group
+	local groupPath = TSMAPI.Groups:GetPath(itemString)
+	if not groupPath then
+		return print(L["This item is not in a TSM group."])
+	end
+
+	-- check that there's a crafting operation applied
+	local opName = TSMAPI.Operations:GetFirstByItem(itemString, "Crafting")
+	local opSettings = opName and TSM.operations[opName]
+	if not opSettings then
+		return print(format(L["There is no TSM_Crafting operation applied to this item's TSM group (%s)."], TSMAPI.Groups:FormatPath(groupPath)))
+	end
+
+	-- check if it's an invalid operation
+	if opSettings.minRestock > opSettings.maxRestock then
+		return print(format(L["The operation applied to this item is invalid! Min restock of %d is higher than max restock of %d."], opSettings.minRestock, opSettings.maxRestock))
+	end
+
+	-- check that this item is craftable
+	TSM:UpdateCraftReverseLookup()
+	local spellID = TSM.craftReverseLookup[itemString] and TSM.craftReverseLookup[itemString][1]
+	if not spellID or not TSM.db.factionrealm.crafts[spellID] then
+		return print(L["You don't know how to craft this item."])
+	end
+
+	-- check the restock quantity
+	local numHave = TSMAPI.Inventory:GetTotalQuantity(itemString)
+	if numHave >= opSettings.maxRestock then
+		return print(format(L["You already have at least your max restock quantity of this item. You have %d and the max restock quantity is %d"], numHave, opSettings.maxRestock))
+	elseif (opSettings.maxRestock - numHave) < opSettings.minRestock then
+		return print(format(L["The number which would be queued (%d) is less than the min restock quantity (%d)."], (opSettings.maxRestock - numHave), opSettings.minRestock))
+	end
+
+	-- check the prices on the item and the min profit
+	if opSettings.minProfit then
+		local cheapestSpellID, cost, craftedValue, profit = TSM.Cost:GetItemCraftPrices(itemString)
+
+		-- check that there's a crafted value
+		if not craftedValue then
+			local craftPriceMethod = opSettings and opSettings.craftPriceMethod or TSM.db.global.defaultCraftPriceMethod
+			return print(format(L["The 'Craft Value Method' (%s) did not return a value for this item. If it is based on some price database (AuctionDB, TSM_WoWuction, TUJ, etc), then ensure that you have scanned for or downloaded the data as appropriate."], craftPriceMethod))
+		end
+
+		-- check that there's a crafted cost
+		if not cost then
+			return print(L["This item does not have a crafting cost. Check that all of its mats have mat prices. If the mat prices are based on some price database (AuctionDB, TSM_WoWuction, TUJ, etc), then ensure that you have scanned for or downloaded the data as appropriate."])
+		end
+
+		-- check that there's a profit
+		if not profit then
+			return print(L["There is a crafting cost and crafted item value, but TSM_Crafting wasn't able to calculate a profit. This shouldn't happen!"])
+		end
+
+		local minProfit = TSMAPI:GetCustomPriceValue(opSettings.minProfit, itemString)
+		if not minProfit then
+			return print(format(L["The min profit (%s) did not evalulate to a valid value for this item."], opSettings.minProfit))
+		end
+
+		if profit < minProfit then
+			return print(format(L["The profit of this item (%s) is below the min profit (%s)."], TSMAPI:MoneyToString(profit), TSMAPI:MoneyToString(minProfit)))
+		end
+	end
+
+	print(L["This item will be added to the queue when you restock its group. If this isn't happening, make a post on the TSM forums with a screenshot of the item's tooltip, operation settings, and your general TSM_Crafting options."])
+end
+
+function TSM:GetSpellId(link)
+	TSMAPI:Assert(type(linkOrIndex) == "string")
+	return tonumber(strmatch(linkOrIndex, ":(%d+)\124h"))
+end
+
+function TSM:GetCurrentProfessionName()
+	local _, name = C_TradeSkillUI.GetTradeSkillLine()
+	if name and C_TradeSkillUI.IsNPCCrafting() then
+		return name .. " (" .. GARRISON_LOCATION_TOOLTIP..")"
+	end
+	return name or "UNKNOWN"
+end
+
+function TSM:IsCurrentProfessionEnchanting()
+	return select(2, C_TradeSkillUI.GetTradeSkillLine()) == GetSpellInfo(7411)
+end
+
+function TSM:GetInventoryTotals()
+	local ignoreCharacters = CopyTable(TSM.db.global.ignoreCharacters)
+	ignoreCharacters[UnitName("player")] = nil
+	return TSMAPI.Inventory:GetCraftingTotals(ignoreCharacters, { [TSM.VELLUM_ITEM_STRING] = true })
 end

@@ -1,340 +1,181 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_Crafting - AddOn by Sapu94							 	  	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_crafting.aspx    --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
-
+-- ------------------------------------------------------------------------------ --
+--                            TradeSkillMaster_Crafting                           --
+--            http://www.curse.com/addons/wow/tradeskillmaster_crafting           --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 -- load the parent file (TSM) into a local variable and register this file as a module
 local TSM = select(2, ...)
 local Queue = TSM:NewModule("Queue")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Crafting") -- loads the localization table
+local private = { isQueued = {}, notified = {} }
 
-Queue.queueInTotal = 0
-Queue.queueList = {}
-Queue.matList = {}
 
-local inventoryCache = {}
-local function FillSubCrafts(mode, mats, numQueued, level)
-	if level > 10 then return {} end
-	
-	local result = {}
-	for itemID, quantity in pairs(mats) do
-		local subCraft = TSM.Data[mode].crafts[itemID]
-		local matPriceSource = TSM.Data[mode].mats[itemID].source
-		if subCraft and subCraft.enabled and not subCraft.hasCD and (matPriceSource == "craft") then
-			local numHave = TSM.Data:GetTotalQuantity(itemID) - (inventoryCache[itemID] or (TSM.Data[mode].crafts[itemID] and TSM.Data[mode].crafts[itemID].queued) or 0)
-			local numNeeded = numQueued * quantity
-			
-			if numHave > 0 then
-				if numHave > numNeeded then
-					inventoryCache[itemID] = (inventoryCache[itemID] or 0) + numNeeded
-					numNeeded = 0
-				else
-					numNeeded = numNeeded - numHave
-					inventoryCache[itemID] = numHave
-				end
-			end
-			
-			local numToCraft = ceil(numNeeded / subCraft.numMade)
-			if numToCraft > 0 then
-				subCraft.name = subCraft.name or GetSpellInfo(subCraft.spellID)
-				local temp = {name=subCraft.name, quantity=numToCraft, spellID=subCraft.spellID, itemID=itemID}
-				temp.subCrafts = FillSubCrafts(mode, subCraft.mats, numToCraft, level + 1)
-				tinsert(result, temp)
-			end
-		end
-	end
-	
-	return result
-end
 
-local function FillSubStages(resultTable, level, subCrafts)
-	if #subCrafts == 0 then return end
-	
-	for _, craft in ipairs(subCrafts) do
-		local temp = CopyTable(craft)
-		temp.subCrafts = nil
-		if not resultTable[temp.itemID] then
-			resultTable[temp.itemID] = temp
-			resultTable[temp.itemID].level = level
-		else
-			resultTable[temp.itemID].quantity = resultTable[temp.itemID].quantity + temp.quantity
-			resultTable[temp.itemID].level = max(resultTable[temp.itemID].level, level)
-		end
-		resultTable.maxLevel = max(resultTable.maxLevel, level)
-		FillSubStages(resultTable, level + 1, craft.subCrafts)
+function Queue:OnEnable()
+	for spellID, data in pairs(TSM.db.factionrealm.crafts) do
+		Queue:SetNumQueued(spellID, data.queued) -- sanitize / cache the number queued
 	end
 end
 
-local function FillMatList(mode, craft)
-	if not craft then return end
-	
-	local isSubCrafting = {}
-	for _, subCraft in ipairs(craft.subCrafts) do
-		isSubCrafting[subCraft.itemID] = true
-	end
-	
-	for itemID, quantity in pairs(TSM.Data[mode].crafts[craft.itemID].mats) do
-		if not isSubCrafting[itemID] then
-			Queue.matList[mode][itemID] = (Queue.matList[mode][itemID] or 0) + (quantity * craft.quantity)
-		end
-	end
-	
-	for _, subCraft in ipairs(craft.subCrafts) do
-		FillMatList(mode, subCraft)
-	end
-end
-
-local orderCache = {}
-local function QueueSortFunction(a, b)
-	local orderA = orderCache[a.spellID] or 0
-	local orderB = orderCache[b.spellID] or 0
-	if Queue.lastCraft == a.spellID then
-		return true
-	elseif Queue.lastCraft == b.spellID then
-		return false
+function Queue:SetNumQueued(spellID, numQueued)
+	local prevQueued = TSM.db.factionrealm.crafts[spellID].queued
+	TSM.db.factionrealm.crafts[spellID].queued = max(floor(numQueued or 0), 0)
+	if TSM.db.factionrealm.crafts[spellID].queued > 0 then
+		private.isQueued[spellID] = true
 	else
-		if orderA == orderB then
-			if a.quantity == b.quantity then
-				return a.spellID > b.spellID
-			else
-				return a.quantity > b.quantity
-			end
-		else
-			return orderA > orderB
-		end
+		private.isQueued[spellID] = nil
 	end
+	return prevQueued ~= TSM.db.factionrealm.crafts[spellID].queued
 end
 
--- updates the craft queue
-function Queue:UpdateQueue(mode)
-	if not mode then return end
-	
-	Queue.queueInTotal = 0
-	Queue.queueList[mode] = {}
-	Queue.matList[mode] = {}
-	
-	if not TSM.Data[mode] then return end
-	
-	orderCache = {}
-	inventoryCache = {}
-	
-	local temp = {}
-	for itemID, data in pairs(TSM.Data[mode].crafts) do
-		if data.queued > 0 then
-			data.name = data.name or GetSpellInfo(data.spellID)
-			local subCrafts = FillSubCrafts(mode, data.mats, data.queued, 1)
-			tinsert(temp, {name=data.name, quantity=data.queued, spellID=data.spellID, itemID=itemID, subCrafts=subCrafts})
-		end
-	end
-	
-	local items = {maxLevel = 0}
-	for _, craft in ipairs(temp) do
-		FillMatList(mode, craft)
-		FillSubStages(items, 1, craft.subCrafts)
-	end
-	
-	local maxStage = items.maxLevel
-	items.maxLevel = nil
-	local stages = {}
-	for _, data in pairs(items) do
-		local order, _, _, partial = TSM.Crafting:GetOrderIndex(mode, data)
-		if partial and order ~= 3 then
-			orderCache[data.spellID] = 2.5
-		else
-			orderCache[data.spellID] = order
-		end
-	
-		local index = maxStage - data.level + 1
-		stages[index] = stages[index] or {}
-		data.subCrafts = nil
-		tinsert(stages[index], data)
-		Queue.queueInTotal = Queue.queueInTotal + 1
-	end
-	
-	for _, data in ipairs(temp) do
-		local order, _, _, partial = TSM.Crafting:GetOrderIndex(mode, data)
-		if partial and order ~= 3 then
-			orderCache[data.spellID] = 2.5
-		else
-			orderCache[data.spellID] = order
-		end
-	
-		data.subCrafts = nil
-		stages[maxStage+1] = stages[maxStage+1] or {}
-		tinsert(stages[maxStage+1], data)
-		Queue.queueInTotal = Queue.queueInTotal + 1
-	end
-	
-	for i=1, #stages do
-		sort(stages[i], QueueSortFunction)
-	end
-	Queue.queueList[mode] = stages
+function Queue:Add(spellID, quantity)
+	local craft = TSM.db.factionrealm.crafts[spellID]
+	if not craft then return end
+	quantity = quantity or 1
+	TSMAPI:Assert(quantity > 0)
+	return Queue:SetNumQueued(spellID, craft.queued + quantity)
 end
 
-function Queue:ClearQueue()
-	for _, data in pairs(TSM.Data[TSM.Crafting.mode].crafts) do
+function Queue:Remove(spellID, quantity)
+	local craft = TSM.db.factionrealm.crafts[spellID]
+	if not craft then return end
+	quantity = quantity or 1
+	TSMAPI:Assert(quantity > 0)
+	return Queue:SetNumQueued(spellID, craft.queued - quantity)
+end
+
+function Queue:Get(spellID)
+	local craft = TSM.db.factionrealm.crafts[spellID]
+	return craft and craft.queued or 0
+end
+
+function Queue:Clear()
+	wipe(private.isQueued)
+	for spellID, data in pairs(TSM.db.factionrealm.crafts) do
 		data.queued = 0
 	end
-
-	Queue.queueList[TSM.Crafting.mode] = {} -- clear the craft queue so we start fresh
-	Queue.queueInTotal = 0 -- integer representing the number of different items in the craft queueend
 end
 
-
-local function GetProfessionMats(mode, total, need, countNoneNeeded)
-	if not Queue.matList[mode] then
-		Queue:UpdateQueue(mode)
+function Queue:GetNumItems()
+	private:PruneQueue()
+	local num = 0
+	for _ in pairs(private.isQueued) do
+		num = num + 1
 	end
+	return num
+end
 
-	for itemID, quantity in pairs(Queue.matList[mode]) do
-		tinsert(total, {itemID, quantity})
-		local needed = max(quantity - TSM.Data:GetTotalQuantity(itemID), 0)
-		if needed > 0 or countNoneNeeded then
-			local inkID, pigPerInk
-			if mode == "Inscription" then
-				inkID, pigPerInk = TSM.Inscription:GetInk(itemID)
-			end
-			tinsert(need, {itemID, needed, TSM.Vendor:GetVendorPrice(itemID) and true, inkID, pigPerInk})
+function private:PruneQueue()
+	-- remove any items from the queue which we don't have data for
+	local toRemove = {}
+	for spellID in pairs(private.isQueued) do
+		if not TSM.db.factionrealm.crafts[spellID] then
+			tinsert(toRemove, spellID)
 		end
+	end
+	for _, spellID in ipairs(toRemove) do
+		private.isQueued[spellID] = nil
 	end
 end
 
-function Queue:GetMatsForQueue(modes, countNoneNeeded)
-	local total, need = {}, {}
-	
-	if type(modes) == "table" then -- specific modes
-		for _, mode in ipairs(modes) do
-			GetProfessionMats(mode, total, need, countNoneNeeded)
+function private:IsOperationValid(operation, opName)
+	if not operation then return end
+	if operation.minRestock > operation.maxRestock then
+		-- invalid cause min > max restock quantity (shouldn't happen)
+		if not private.notified[opName] then
+			private.notified[opName] = true
+			TSM:Printf(L["'%s' is an invalid operation! Min restock of %d is higher than max restock of %d."], opName, operation.minRestock, operation.maxRestock)
 		end
-	elseif modes == "shopping" or not modes then -- all modes
-		for _, profession in ipairs(TSM.tradeSkills) do
-			GetProfessionMats(profession.name, total, need, countNoneNeeded)
-		end
-	elseif modes then -- single mode
-		GetProfessionMats(modes, total, need, countNoneNeeded)
+		return
 	end
-	
-	return total, need
+	return true
 end
 
+function Queue:DoRestock(groupInfo)
+	TSM:UpdateCraftReverseLookup()
+	private:PruneQueue()
 
--- returns the max number of an item that can be queued
-function Queue:GetMaxQueueCount(mode, itemID)
-	local maxQueueCount = TSM:GetDBValue("maxRestockQuantity", mode, itemID) - TSM.Data:GetTotalQuantity(itemID)
-	local link, _, ilvl = select(2, GetItemInfo(itemID))
-	local seenCount = TSM:GetSeenCount(itemID)
-	
-	if TSM.db.profile.dontQueue[itemID] or (seenCount and not TSM.db.profile.ignoreSeenCountFilter[itemID] and seenCount < TSM.db.profile.seenCountFilter) then
-		maxQueueCount = 0
-	end
-	
-	if TSM.db.profile.limitIlvl[mode] then
-		if TSM.db.profile.minilvlToCraft[mode] and (ilvl < TSM.db.profile.minilvlToCraft[mode]) then
-			maxQueueCount = 0
-		end
-	end
-	
-	return maxQueueCount
-end
-
-function Queue:CreateRestockQueue()
-	local mode = TSM.Crafting.mode
-	
-	for itemID, data in pairs(TSM.Data[mode].crafts) do
-		if data.enabled and not data.hasCD then
-			local minRestock, maxRestock = TSM:GetDBValue("minRestockQuantity", mode, itemID), TSM:GetDBValue("maxRestockQuantity", mode, itemID)
-			local maxQueueCount = Queue:GetMaxQueueCount(mode, itemID)
-			local profitMethod = TSM:GetDBValue("queueProfitMethod", mode, itemID)
-			data.queued = 0
-			
-			if minRestock > maxRestock then
-				local link = select(2, GetItemInfo(itemID)) or data.name
-				TSM:Printf(L["%s not queued! Min restock of %s is higher than max restock of %s"], link, minRestock, maxRestock)
-			elseif profitMethod == "none" or TSM.db.profile.alwaysQueue[itemID] then
-				data.queued = floor(maxQueueCount / data.numMade)
-			else
-				local cost, buyout, profit = TSM.Data:GetCraftPrices(itemID, mode)
-				local minProfit
-				if profitMethod == "percent" then
-					minProfit = cost and cost*TSM:GetDBValue("queueMinProfitPercent", mode, itemID)
-				elseif profitMethod == "gold" then
-					minProfit = (TSM:GetDBValue("queueMinProfitGold", mode, itemID) or 0)*COPPER_PER_GOLD
-				elseif profitMethod == "both" then
-					minProfit = cost and max((TSM:GetDBValue("queueMinProfitGold", mode, itemID) or 0)*COPPER_PER_GOLD, cost*TSM:GetDBValue("queueMinProfitPercent", mode, itemID))
-				end
-				
-				if minProfit and profit and profit >= minProfit then
-					data.queued = floor(maxQueueCount / data.numMade)
-				elseif cost and not buyout and TSM:GetDBValue("unknownProfitMethod") == "fallback" and TSMAPI:GetData("auctioningFallback", itemID) then
-					profit = TSMAPI:GetData("auctioningFallback", itemID) - cost
-					if profit and profit >= minProfit then
-						data.queued = floor(maxQueueCount / data.numMade)
+	for _, data in pairs(groupInfo) do
+		for _, opName in ipairs(data.operations) do
+			TSMAPI.Operations:Update("Crafting", opName)
+			local operation = TSM.operations[opName]
+			if private:IsOperationValid(operation, opName) then
+				-- it's a valid operation
+				for itemString in pairs(data.items) do
+					itemString = TSMAPI.Item:ToItemString(itemString)
+					local spellID = TSM.craftReverseLookup[itemString] and TSM.craftReverseLookup[itemString][1]
+					if spellID and TSM.db.factionrealm.crafts[spellID] then
+						local cheapestSpellID, _, _, profit = TSM.Cost:GetItemCraftPrices(itemString)
+						spellID = cheapestSpellID or spellID
+						local ignoredQty = 0
+						for guild, ignored in pairs(TSM.db.global.ignoreGuilds) do
+							if ignored then
+								ignoredQty = ignoredQty + TSMAPI.Inventory:GetGuildQuantity(itemString, guild)
+							end
+						end
+						for player, ignored in pairs(TSM.db.global.ignoreCharacters) do
+							if ignored then
+								ignoredQty = ignoredQty + TSMAPI.Inventory:GetBagQuantity(itemString, player)
+								ignoredQty = ignoredQty + TSMAPI.Inventory:GetBankQuantity(itemString, player)
+								ignoredQty = ignoredQty + TSMAPI.Inventory:GetReagentBankQuantity(itemString, player)
+								ignoredQty = ignoredQty + TSMAPI.Inventory:GetAuctionQuantity(itemString, player)
+								ignoredQty = ignoredQty + TSMAPI.Inventory:GetMailQuantity(itemString, player)
+							end
+						end
+						local numToQueue = max(operation.maxRestock - (TSMAPI.Inventory:GetTotalQuantity(itemString) - ignoredQty), 0)
+						local minProfit = operation.minProfit and TSMAPI:GetCustomPriceValue(operation.minProfit, itemString) or nil
+						-- queue only if it satisfies all operation criteria
+						if numToQueue >= operation.minRestock and (not operation.minProfit or (minProfit and profit and profit >= minProfit)) then
+							Queue:SetNumQueued(spellID, floor(numToQueue / TSM.db.factionrealm.crafts[spellID].numResult))
+						end
 					end
 				end
 			end
-			
-			if data.queued < 0 or data.queued < minRestock then
-				data.queued = 0
-			end
 		end
 	end
 end
 
-function Queue:CreateOnHandQueue()
-	local mode = TSM.Crafting.mode
-	-- get a list of itemIDs of crafts sorted by profit
-	local sortedData = {}
-	for itemID, craft in pairs(TSM.Data[mode].crafts) do
-		local profit = TSM.Data:GetCraftProfit(itemID, mode)
-		if not profit then
-			profit = TSM:GetDBValue("unknownProfitMethod") == "fallback" and TSMAPI:GetData("auctioningFallback", itemID) or math.huge
+function Queue:GetStatus()
+	private:PruneQueue()
+	local queueCrafts, queueMats = {}, {}
+	local totalCost, totalProfit
+	for spellID in pairs(private.isQueued) do
+		local data = TSM.db.factionrealm.crafts[spellID]
+		local cost, _, profit = TSM.Cost:GetSpellCraftPrices(spellID)
+		if cost then
+			totalCost = (totalCost or 0) + (cost * data.queued) * data.numResult
 		end
-		tinsert(sortedData, {itemID=itemID, profit=profit})
-	end
-	sort(sortedData, function(a, b) return a.profit > b.profit end)
-	for i=1, #sortedData do
-		sortedData[i] = sortedData[i].itemID
-	end
-	
-	-- queue stuff up until we run out of mats
-	local usedMats = {}
-	for _, itemID in ipairs(sortedData) do
-		local data = TSM.Data[mode].crafts[itemID]
-		local profit = data and TSM.Data:GetCraftProfit(itemID, mode)
-		
-		if profit and profit >= 0 and data.enabled and not data.hasCD then
-			local quantity = 0
-			local maxQueueCount = Queue:GetMaxQueueCount(mode, itemID)
-			data.queued = 0
-			
-			for matID, mQuantity in pairs(data.mats) do
-				if TSM.Data[mode].mats[matID].source == "vendor" and TSM.db.profile.assumeVendorInBags then
-					if not TSM.db.profile.limitVendorItemPrice or TSM.Data:GetMatCost(mode, matID) <= TSM.db.profile.maxVendorPrice then
-						usedMats[matID] = -1
-					end
-				end
-			end
-		
-			while(true) do
-				local t = TSM.Crafting:GetOrderIndex(mode, {spellID=data.spellID, quantity=quantity+1}, usedMats)
-				if t ~= 3 or quantity >= maxQueueCount then
-					break
-				else
-					quantity = quantity + 1
-				end
-			end
-			
-			for matID, mQuantity in pairs(data.mats) do
-				usedMats[matID] = (usedMats[matID] or 0) + quantity*mQuantity
-			end
-			
-			data.queued = floor(quantity / data.numMade)
+		if profit then
+			totalProfit = (totalProfit or 0) + profit * data.queued * data.numResult
+		end
+
+		local trueProfession = gsub(data.profession, TSMAPI.Util:StrEscape(" (" .. GARRISON_LOCATION_TOOLTIP..")"), "")
+
+		queueCrafts[trueProfession] = queueCrafts[trueProfession] or {}
+		queueCrafts[trueProfession][spellID] = data.queued
+		for itemString, quantity in pairs(data.mats) do
+			queueMats[itemString] = (queueMats[itemString] or 0) + quantity * data.queued
 		end
 	end
+
+	return queueCrafts, queueMats, totalCost, totalProfit
+end
+
+function Queue:GetMatsByProfession(professionsList)
+	private:PruneQueue()
+	local queueMats = {}
+	for spellID in pairs(private.isQueued) do
+		local data = TSM.db.factionrealm.crafts[spellID]
+		if data and professionsList and professionsList[data.profession] then
+			queueMats[data.profession] = queueMats[data.profession] or {}
+			for itemString, quantity in pairs(data.mats) do
+				queueMats[data.profession][itemString] = (queueMats[data.profession][itemString] or 0) + quantity * data.queued
+			end
+		end
+	end
+
+	return queueMats
 end
