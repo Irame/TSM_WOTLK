@@ -430,7 +430,7 @@ function TSMAPI.Item:GetClassId(itemString)
 end
 
 function TSMAPI.Item:GetSubClassId(itemString)
-	return TSMAPI.Item:GetSubClassIdFromSubClassString(private.GetItemInfoKey(itemString, "subClass"))
+	return TSMAPI.Item:GetSubClassIdFromSubClassString(private.GetItemInfoKey(itemString, "subClass"), TSMAPI.Item:GetClassId(itemString))
 end
 
 
