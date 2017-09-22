@@ -784,57 +784,57 @@ function AuctionTabFrame:Create(parent)
 		private.frame[key] = func
 	end
 
-	local helpPlateInfo = {
-		FramePos = {x = 5, y = -5},
-		FrameSize = {width = private.frame:GetWidth(), height = private.frame:GetHeight()},
-		{
-			ButtonPos = {x = 200, y = 5},
-			HighLightBox = {x = 80, y = 5, width = 260, height = 40},
-			ToolTipDir = "DOWN",
-			ToolTipText = L["You can change the search mode here. Crafting mode will include items which can be crafted into the specific items (through professions, milling, prospecting, disenchanting, and more) in the search."]
-		},
-		{
-			ButtonPos = {x = 480, y = 5},
-			HighLightBox = {x = 340, y = 2, width = 485, height = 35},
-			ToolTipDir = "DOWN",
-			ToolTipText = L["You can type search filters into the search bar and click on the 'SEARCH' button to quickly search the auction house. Refer to the tooltip of the search bar for details on more advanced filters."]
-		},
-		{
-			ButtonPos = {x = 350, y = -35},
-			HighLightBox = {x = 80, y = -35, width = 745, height = 40},
-			ToolTipDir = "DOWN",
-			ToolTipText = L["Use these buttons to change what is shown below."]
-		},
-		{
-			ButtonPos = {x = 400, y = -200},
-			HighLightBox = {x = 0, y = -75, width = 825, height = 330},
-			ToolTipDir = "RIGHT",
-			ToolTipText = L["This is the main content area which will change depending on which button is selected above."]
-		},
-	}
-
-	local mainHelpBtn = CreateFrame("Button", nil, private.frame, "MainHelpPlateButton")
-	mainHelpBtn:SetPoint("TOPLEFT", private.frame, 50, 35)
-	mainHelpBtn:SetScript("OnClick", function() frameFunctions:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, true) end)
-	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then frameFunctions:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false) end end)
-
-	if not TSM.db.global.helpPlatesShown.auction then
-		TSM.db.global.helpPlatesShown.auction = true
-		frameFunctions:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false)
-	end
+--	local helpPlateInfo = {
+--		FramePos = {x = 5, y = -5},
+--		FrameSize = {width = private.frame:GetWidth(), height = private.frame:GetHeight()},
+--		{
+--			ButtonPos = {x = 200, y = 5},
+--			HighLightBox = {x = 80, y = 5, width = 260, height = 40},
+--			ToolTipDir = "DOWN",
+--			ToolTipText = L["You can change the search mode here. Crafting mode will include items which can be crafted into the specific items (through professions, milling, prospecting, disenchanting, and more) in the search."]
+--		},
+--		{
+--			ButtonPos = {x = 480, y = 5},
+--			HighLightBox = {x = 340, y = 2, width = 485, height = 35},
+--			ToolTipDir = "DOWN",
+--			ToolTipText = L["You can type search filters into the search bar and click on the 'SEARCH' button to quickly search the auction house. Refer to the tooltip of the search bar for details on more advanced filters."]
+--		},
+--		{
+--			ButtonPos = {x = 350, y = -35},
+--			HighLightBox = {x = 80, y = -35, width = 745, height = 40},
+--			ToolTipDir = "DOWN",
+--			ToolTipText = L["Use these buttons to change what is shown below."]
+--		},
+--		{
+--			ButtonPos = {x = 400, y = -200},
+--			HighLightBox = {x = 0, y = -75, width = 825, height = 330},
+--			ToolTipDir = "RIGHT",
+--			ToolTipText = L["This is the main content area which will change depending on which button is selected above."]
+--		},
+--	}
+--
+--	local mainHelpBtn = CreateFrame("Button", nil, private.frame, "MainHelpPlateButton")
+--	mainHelpBtn:SetPoint("TOPLEFT", private.frame, 50, 35)
+--	mainHelpBtn:SetScript("OnClick", function() frameFunctions:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, true) end)
+--	mainHelpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then frameFunctions:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false) end end)
+--
+--	if not TSM.db.global.helpPlatesShown.auction then
+--		TSM.db.global.helpPlatesShown.auction = true
+--		frameFunctions:ToggleHelpPlate(private.frame, helpPlateInfo, mainHelpBtn, false)
+--	end
 end
 
-function frameFunctions:ToggleHelpPlate(frame, info, btn, isUser)
-	if not HelpPlate_IsShowing(info) then
-		HelpPlate:SetParent(frame)
-		HelpPlate:SetFrameStrata("DIALOG")
-		HelpPlate_Show(info, frame, btn, isUser)
-	else
-		HelpPlate:SetParent(UIParent)
-		HelpPlate:SetFrameStrata("DIALOG")
-		HelpPlate_Hide(isUser)
-	end
-end
+--function frameFunctions:ToggleHelpPlate(frame, info, btn, isUser)
+--	if not HelpPlate_IsShowing(info) then
+--		HelpPlate:SetParent(frame)
+--		HelpPlate:SetFrameStrata("DIALOG")
+--		HelpPlate_Show(info, frame, btn, isUser)
+--	else
+--		HelpPlate:SetParent(UIParent)
+--		HelpPlate:SetFrameStrata("DIALOG")
+--		HelpPlate_Hide(isUser)
+--	end
+--end
 
 
 
