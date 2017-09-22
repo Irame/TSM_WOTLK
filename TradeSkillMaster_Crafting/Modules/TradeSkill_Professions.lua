@@ -120,14 +120,6 @@ function private.InitializeDropdown(self, level)
 			Lib_UIDropDownMenu_AddButton(info, level)
 
 			info.notCheckable = false
-			for i = 1, C_PetJournal.GetNumPetSources() do
-				if C_TradeSkillUI.IsAnyRecipeFromSource(i) then
-					info.text = _G["BATTLE_PET_SOURCE_" .. i]
-					info.func = function(_, _, _, value) C_TradeSkillUI.SetRecipeSourceTypeFilter(i, not value) end
-					info.checked = function() return not C_TradeSkillUI.IsRecipeSourceTypeFiltered(i) end
-					Lib_UIDropDownMenu_AddButton(info, level)
-				end
-			end
 		end
 	elseif level == 3 then
 		for _, subCategoryId in ipairs({C_TradeSkillUI.GetSubCategories(LIB_UIDROPDOWNMENU_MENU_VALUE)}) do
