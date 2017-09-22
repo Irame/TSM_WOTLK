@@ -103,10 +103,9 @@ private.AuctionRecord = setmetatable({}, {
 			local timeLeft = GetAuctionItemTimeLeft(auctionType, index)
 			local itemLink = TSMAPI.Item:GeneralizeLink(GetAuctionItemLink(auctionType, index))
 			seller = seller or "?"
-			isHighBidder = isHighBidder and true or false
 			local testAuction = {itemLink=itemLink, texture=texture, stackSize=stackSize, minBid=minBid, minIncrement=minIncrement, buyout=buyout, bid=bid, seller=seller, timeLeft=timeLeft, isHighBidder=isHighBidder, rawItemLink=self.rawItemLink}
 			for _, key in ipairs(self.dataKeys) do
-				if self[key] ~= testAuction[key] then
+				if (self[key] or testAuction[key]) and self[key] ~= testAuction[key] then
 					TSM:LOG_INFO("ValidateIndex failed: key=%s, self[key]=%s, testAuction[key]=%s", tostring(key), tostring(self[key]), tostring(testAuction[key]))
 					return
 				end
