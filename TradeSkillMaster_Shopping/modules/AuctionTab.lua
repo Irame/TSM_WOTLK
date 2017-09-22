@@ -839,6 +839,10 @@ function private.ValidateDatabaseRecord(record, auctionInfo)
 		return
 	end
 
+	if query.exact and record.name ~= query.name then
+		return
+	end
+
 	-- filter uneven stacks when evenOnly was specified
 	if query.evenOnly and record.stackSize % 5 ~= 0 then
 		return
