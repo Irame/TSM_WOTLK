@@ -217,12 +217,6 @@ function private.FilterSystemMsg(_, _, msg, ...)
 		if private.lastPurchase and msg == format(ERR_AUCTION_WON_S, private.lastPurchase.name) then
 			-- we just bought an auction
 			private.prevLineResult = format(L["You won an auction for %sx%d for %s"], private.lastPurchase.link, private.lastPurchase.stackSize, TSMAPI:MoneyToString(private.lastPurchase.buyout, "|cffffffff"))
-			local itemId = TSMAPI.Item:ToItemID(private.lastPurchase.link)
-			if C_Social.IsSocialEnabled() and itemId then
-				-- add tweet icon
-				local context = format("TSM_BUY_%s_%s_%s", itemId, private.lastPurchase.stackSize, private.lastPurchase.buyout)
-				private.prevLineResult = private.prevLineResult .. Social_GetShareItemLink(itemId, context, true)
-			end
 			return nil, private.prevLineResult, ...
 		elseif link then
 			-- we may have just sold an auction
@@ -238,12 +232,6 @@ function private.FilterSystemMsg(_, _, msg, ...)
 			end
 			private.prevLineResult = format(L["Your auction of %s has sold for %s!"], link, TSMAPI:MoneyToString(price, "|cffffffff"))
 			TSMAPI:DoPlaySound(TSM.db.global.auctionSaleSound)
-			local itemId = TSMAPI.Item:ToItemID(link)
-			if C_Social.IsSocialEnabled() and itemId then
-				-- add tweet icon
-				local context = format("TSM_SELL_%s_1_%s", itemId, price)
-				private.prevLineResult = private.prevLineResult .. Social_GetShareItemLink(itemId, context, true)
-			end
 			return nil, private.prevLineResult, ...
 		else
 			return
