@@ -435,9 +435,9 @@ function Gather:updateSelectedSource(sourceName, itemString, quantity, spellId, 
 end
 
 -- determines if an item is disenchantable, millable or prospectable
-local TRADE_GOODS = GetItemClassInfo(LE_ITEM_CLASS_TRADEGOODS)
-local METAL_AND_STONE = GetItemSubClassInfo(LE_ITEM_CLASS_TRADEGOODS, 7)
-local HERB = GetItemSubClassInfo(LE_ITEM_CLASS_TRADEGOODS, 9)
+local TRADE_GOODS = TSMAPI.Item:GetItemClassInfo(TSMAPI.Item.CLASS_TRADEGOODS)
+local METAL_AND_STONE = TSMAPI.Item:GetItemSubClassInfo(TSMAPI.Item.CLASS_TRADEGOODS, 7)
+local HERB = TSMAPI.Item:GetItemSubClassInfo(TSMAPI.Item.CLASS_TRADEGOODS, 9)
 local destroyCache = {}
 function private:IsDestroyable(itemString)
 	if destroyCache[itemString] then
@@ -452,7 +452,7 @@ function private:IsDestroyable(itemString)
 
 	local classId = TSMAPI.Item:GetClassId(itemString)
 	local subClassId = TSMAPI.Item:GetSubClassId(itemString)
-	if classId ~= LE_ITEM_CLASS_TRADEGOODS or (subClassId ~= 7 and subClassId ~= 9) then
+	if classId ~= TSMAPI.Item.CLASS_TRADEGOODS or (subClassId ~= 7 and subClassId ~= 9) then
 		destroyCache[itemString] = {}
 		return unpack(destroyCache[itemString])
 	end
