@@ -338,7 +338,7 @@ function private.ScanThreadDoQuery(self, query)
 		query.invType = query.invType or query.filterInfoCache.inventoryType
 	end
 	-- TODO: query.exact cant be passed in QueryAuctionItems os it has to be implemented elsewhere
-	QueryAuctionItems(query.name, query.minLevel, query.maxLevel, query.invType, query.class, query.subClass, query.page, query.usable, query.quality)
+	QueryAuctionItems(query.name, query.minLevel, query.maxLevel, query.invType, query.class, query.subClass, query.page, query.usable and 1 or nil, query.quality)
 
 	-- wait for the update event
 	self:WaitForEvent("AUCTION_ITEM_LIST_UPDATE")
