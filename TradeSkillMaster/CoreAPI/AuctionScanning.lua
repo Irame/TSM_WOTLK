@@ -112,16 +112,6 @@ function TSMAPI.Auction:FindAuction(module, targetInfo, callbackHandler, databas
 	private.currentModule = module
 	TSM:SetAuctionTabFlashing(private.currentModule, true)
 
-	-- sort by bid and then buyout
-	SortAuctionItems("list", "bid")
-	if IsAuctionSortReversed("list", "bid") then
-		SortAuctionItems("list", "bid")
-	end
-	SortAuctionItems("list", "buyout")
-	if IsAuctionSortReversed("list", "buyout") then
-		SortAuctionItems("list", "buyout")
-	end
-
 	private.scanThreadId = TSMAPI.Threading:Start(private.FindAuctionThread, SCAN_THREAD_PRIORITY, private.ScanThreadDone, targetInfo)
 end
 
@@ -525,78 +515,18 @@ function private.FindAuctionThread(self, targetInfo)
 		return
 	end
 
-	local searchDirection = nil
-	local estimatedPage = nil
-	local totalPages = math.huge
-	if private.database and not private.database.disableFastFind then
-		-- make an educated guess at the starting page and do a linear search from there
-		local view = private.database:CreateView()
-		local results = view:OrderBy("buyout"):OrderBy("displayedBid"):Execute()
-		-- set other orders for comparison purposes
-		for _, key in ipairs(keys) do
-			if key ~= "buyout" and key ~= "displayedBid" then
-				view:OrderBy(key)
-			end
-		end
-		local estimatedIndex = 0
-		local pageQuantities = {}
-		for _, record in ipairs(results) do
-			if record.baseItemString == targetInfo.baseItemString then
-				estimatedIndex = estimatedIndex + 1
-				local page = floor((estimatedIndex-1)/50)
-				if view:CompareRecords(record, targetInfo) == 0 then
-					pageQuantities[page] = (pageQuantities[page] or 0) + 1
-				end
-				if record == targetInfo and not estimatedPage then
-					-- just in-case the page quantities fail
-					estimatedPage = floor((estimatedIndex-1)/50)
-				end
-			end
-		end
-		-- pick the page with the highest quantity of items
-		local maxNum = 0
-		for page, num in pairs(pageQuantities) do
-			if num > maxNum then
-				estimatedPage = page
-				maxNum = num
-			end
-		end
-	end
-	if estimatedPage then
-		query.page = estimatedPage
-	else
-		query.page = 0
-		searchDirection = 1
-	end
-
-
+	local totalPages
 	while true do
 		private.ScanThreadDoQueryAndValidate(self, query)
 		totalPages = private:GetNumPages()
 		local indexList, firstAuction, lastAuction = private:SearchCurrentPageForTargetItem(targetInfo, keys)
 		-- figure out what we should search next or if we are done
-		local cmpFirst = firstAuction and private:CompareBidBuyout(targetInfo, firstAuction) or "before"
-		local cmpLast = lastAuction and private:CompareBidBuyout(targetInfo, lastAuction) or "before"
-		if (cmpFirst == "after" and cmpLast == "before") or indexList then
+		if indexList then
 			-- it should be on this page
 			private:DoCallback("FOUND_AUCTION", indexList)
 			return
-		elseif cmpFirst == "before" then
-			TSMAPI:Assert(cmpLast == "before")
-			searchDirection = -1
-		elseif cmpLast == "after" then
-			TSMAPI:Assert(cmpFirst == "after")
-			searchDirection = 1
-		elseif cmpFirst == "equal" and cmpLast == "equal" then
-			-- It could be either on the next or previous page. If we're already going in a
-			-- direction, keep going. Otherwise, start from page 0 and do a slow search.
-			if not searchDirection then
-				searchDirection = 1
-				query.page = -1
-				break
-			end
 		end
-		query.page = query.page + (searchDirection or 1)
+		query.page = query.page + 1
 		if query.page >= totalPages or query.page < 0 then
 			private:DoCallback("FOUND_AUCTION", nil)
 			return
