@@ -28,9 +28,10 @@ do
 	for _, invType in pairs({GetAuctionInvTypes(2,0)}) do
 		if type(invType) == "string" then
 			local slotName = _G[strupper(invType)]
-			if id and slotName then
+			if slotName then
 				STATIC_DATA.inventorySlotIdLookup[strlower(slotName)] = id
 			end
+			id = id + 1;
 		end
 	end
 end
