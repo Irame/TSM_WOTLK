@@ -12,44 +12,6 @@ local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Crafting") -- loa
 local private = { priceTextCache = { lastClear = 0 }, scanThreadId = nil, scanThreadCallback = nil, updateThreadId = nil }
 local MAX_SCAN_YIELDS = 20
 
--- lookup table for garrion profession building info
--- index = buildingID
--- value = profession spell id (for looking up localized name)
-private.GARRISON_PROFESSION_BUILDINGS = {
-	-- Alchemy
-	[76] = 2259,
-	[119] = 2259,
-	[120] = 2259,
-	-- Enchanting
-	[93] = 7411,
-	[125] = 7411,
-	[126] = 7411,
-	-- Engineering
-	[91] = 4036,
-	[123] = 4036,
-	[124] = 4036,
-	-- Jewelcrafting
-	[96] = 25229,
-	[131] = 25229,
-	[132] = 25229,
-	-- Inscription
-	[95] = 45357,
-	[129] = 45357,
-	[130] = 45357,
-	-- Tailoring
-	[94] = 3908,
-	[127] = 3908,
-	[128] = 3908,
-	-- Blacksmithing
-	[60] = 2018,
-	[117] = 2018,
-	[118] = 2018,
-	-- Leatherworking
-	[90] = 2108,
-	[121] = 2108,
-	[122] = 2108,
-}
-
 
 function TradeSkillScanner:OnEnable()
 	private.updateThreadId = TSMAPI.Threading:Start(private.UpdatePlayerTradeSkillsThread, 0.4, function() private.updateThreadId = nil end)
@@ -98,35 +60,8 @@ function private.ScanCurrentProfessionThread(self, args)
 	if not isLinked then
 		 -- check if this player (probably) doesn't have any professions in which case don't scan any others to avoid errors
 		if not TSM.db.factionrealm.playerProfessions[playerName] then return end
-		-- if it's a garrison profession, then add the profession against this player
-		if C_TradeSkillUI.IsNPCCrafting() then
-			-- make sure it's not Ahm, which we don't want to scan
-			for _, spellId in ipairs(C_TradeSkillUI.GetFilteredRecipeIDs()) do
-				local itemLink = C_TradeSkillUI.GetRecipeItemLink(spellId)
-				if itemLink and strmatch(itemLink, "enchant:177355") then
-					if private.scanThreadCallback then
-						private.scanThreadCallback()
-					end
-					return
-				end
-			end
-			local info = TSM.db.factionrealm.playerProfessions[playerName][professionName] or {}
-			info.isGarrison = true
-			info.isSecondary = false
-			info.level = 0
-			info.maxLevel = 0
-			info.prompted = true
-			info.garrisonBuildingID = private:GetGarrisonBuildingID()
-			if not info.garrisonBuildingID then
-				TSM:LOG_ERR("Could not lookup garrison building ID")
-				if private.scanThreadCallback then
-					private.scanThreadCallback()
-				end
-				return
-			end
-			TSM.db.factionrealm.playerProfessions[playerName][professionName] = info
-			TSMAPI.Sync:KeyUpdated(TSM.db.factionrealm.playerProfessions, playerName)
-		elseif TSM.db.factionrealm.playerProfessions[playerName][professionName] then
+
+		if TSM.db.factionrealm.playerProfessions[playerName][professionName] then
 			TSM.db.factionrealm.playerProfessions[playerName][professionName].link = C_TradeSkillUI.GetTradeSkillListLink()
 			TSMAPI.Sync:KeyUpdated(TSM.db.factionrealm.playerProfessions, playerName)
 		end
@@ -347,26 +282,9 @@ function TradeSkillScanner:GetProfessionList()
 	local playerName = UnitName("player")
 	if not TSM.db.factionrealm.playerProfessions[playerName] then return list end
 	for name, data in pairs(TSM.db.factionrealm.playerProfessions[playerName]) do
-		if data.isGarrison then
-			list[playerName .. "~" .. name] = format("%s - %s", name, playerName)
-		else
-			list[playerName .. "~" .. name] = format("%s %d/%d - %s", name, data.level or "?", data.maxLevel or "?", playerName)
-		end
+		list[playerName .. "~" .. name] = format("%s %d/%d - %s", name, data.level or "?", data.maxLevel or "?", playerName)
 	end
 	return list
-end
-
-function private:GetGarrisonBuildingID()
-	local playerGarrisonBuildings = {}
-	for _, buildingInfo in pairs(C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0)) do
-		playerGarrisonBuildings[buildingInfo.buildingID] = true
-	end
-	local professionName = select(2, C_TradeSkillUI.GetTradeSkillLine()) -- just want the raw name
-	for buildingId, spellId in pairs(private.GARRISON_PROFESSION_BUILDINGS) do
-		if GetSpellInfo(spellId) == professionName and playerGarrisonBuildings[buildingId] then
-			return buildingId
-		end
-	end
 end
 
 function private.GetProfessions()
@@ -396,33 +314,6 @@ function private.UpdatePlayerTradeSkillsThread(self)
 			newTradeSkills[skillName].isSecondary = (i > 2)
 			newTradeSkills[skillName].prompted = oldTradeSkills[skillName] and oldTradeSkills[skillName].prompted or nil
 			newTradeSkills[skillName].link = oldTradeSkills[skillName] and oldTradeSkills[skillName].link or nil
-		end
-	end
-	local garrisonTradeSkills = {}
-	for skillName, skillInfo in pairs(oldTradeSkills) do
-		if skillInfo.isGarrison then
-			garrisonTradeSkills[skillName] = skillInfo
-		end
-	end
-	if next(garrisonTradeSkills) then
-		-- wait to make sure the garrison buildings API is giving good data
-		local garrisonBuildings = nil
-		for i=1, 1000 do
-			garrisonBuildings = self:WaitForFunction(function() return C_Garrison.GetBuildings(LE_GARRISON_TYPE_6_0) end)
-			if #garrisonBuildings > 0 then
-				break
-			elseif #garrisonBuildings == 0 then
-				garrisonBuildings = nil
-			end
-			self:Sleep(0.1)
-		end
-		-- add all the garrison professions
-		for _, info in ipairs(garrisonBuildings or {}) do
-			for skillName, skillInfo in pairs(garrisonTradeSkills) do
-				if skillInfo.isGarrison and skillInfo.garrisonBuildingID == info.buildingID then
-					newTradeSkills[skillName] = skillInfo
-				end
-			end
 		end
 	end
 	TSMAPI.Sync:SetKeyValue(TSM.db.factionrealm.playerProfessions, playerName, newTradeSkills)

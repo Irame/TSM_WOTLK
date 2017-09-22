@@ -152,10 +152,8 @@ function Queue:GetStatus()
 			totalProfit = (totalProfit or 0) + profit * data.queued * data.numResult
 		end
 
-		local trueProfession = gsub(data.profession, TSMAPI.Util:StrEscape(" (" .. GARRISON_LOCATION_TOOLTIP..")"), "")
-
-		queueCrafts[trueProfession] = queueCrafts[trueProfession] or {}
-		queueCrafts[trueProfession][spellID] = data.queued
+		queueCrafts[data.profession] = queueCrafts[data.profession] or {}
+		queueCrafts[data.profession][spellID] = data.queued
 		for itemString, quantity in pairs(data.mats) do
 			queueMats[itemString] = (queueMats[itemString] or 0) + quantity * data.queued
 		end

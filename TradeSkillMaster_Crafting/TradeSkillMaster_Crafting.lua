@@ -349,9 +349,6 @@ end
 
 function TSM:GetCurrentProfessionName()
 	local _, name = C_TradeSkillUI.GetTradeSkillLine()
-	if name and C_TradeSkillUI.IsNPCCrafting() then
-		return name .. " (" .. GARRISON_LOCATION_TOOLTIP..")"
-	end
 	return name or "UNKNOWN"
 end
 

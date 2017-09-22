@@ -285,7 +285,7 @@ function Queue:Update()
 
 	local stData = {}
 	local bagTotals = TSM:GetInventoryTotals()
-	local currentProfession = gsub(TSM:GetCurrentProfessionName(), TSMAPI.Util:StrEscape(" (" .. GARRISON_LOCATION_TOOLTIP..")"), "")
+	local currentProfession = TSM:GetCurrentProfessionName()
 	local queueCrafts, queueMats, totalCost, totalProfit = TSM.Queue:GetStatus()
 
 	-- update estimated total cost / profit labels
@@ -294,19 +294,17 @@ function Queue:Update()
 	private.frame.queue.profitLabel:SetText(format(L["Estimated Cost: %s\nEstimated Profit: %s"], totalCost, totalProfit))
 
 	for profession, crafts in pairs(queueCrafts) do
-		-- get all the players with this profession or the garrison building
-		local garrisonProfession = profession .. " (" .. GARRISON_LOCATION_TOOLTIP..")"
-
+		-- get all the players with this profession
 		local players = {}
 		for player, data in pairs(TSM.db.factionrealm.playerProfessions) do
-			if data[profession] or data[garrisonProfession] then
+			if data[profession] then
 				tinsert(players, player)
 			end
 		end
 
 		-- determine what color to use for the player / profession name
 		local professionColor, playerColor
-		if TSM.db.factionrealm.playerProfessions[UnitName("player")][profession] or TSM.db.factionrealm.playerProfessions[UnitName("player")][garrisonProfession] then
+		if TSM.db.factionrealm.playerProfessions[UnitName("player")][profession] then
 			playerColor = "|cffffffff"
 			if profession == currentProfession then
 				professionColor = "|cffffffff"

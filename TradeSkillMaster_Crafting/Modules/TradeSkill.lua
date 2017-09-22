@@ -24,7 +24,6 @@ function TradeSkill:OnInitialize()
 	TradeSkill:RegisterEvent("TRADE_SKILL_SHOW", "EventHandler")
 	TradeSkill:RegisterEvent("TRADE_SKILL_DATA_SOURCE_CHANGED", "EventHandler")
 	TradeSkill:RegisterEvent("TRADE_SKILL_CLOSE", "EventHandler")
-	TradeSkill:RegisterEvent("GARRISON_TRADESKILL_NPC_CLOSED", "EventHandler")
 	TradeSkill:RegisterEvent("TRADE_SKILL_LIST_UPDATE", "EventHandler")
 	TradeSkill:RegisterEvent("TRADE_SKILL_FILTER_UPDATE", "EventHandler")
 	TradeSkill:RegisterEvent("UPDATE_TRADESKILL_RECAST", "EventHandler")
@@ -53,7 +52,7 @@ function TradeSkill:EventHandler(event, ...)
 	if event == "TRADE_SKILL_SHOW" or event == "TRADE_SKILL_DATA_SOURCE_CHANGED" then
 		TSMAPI.Threading:SendMsg(private.managerThreadId, "SHOW")
 		return
-	elseif event == "TRADE_SKILL_CLOSE" or event == "GARRISON_TRADESKILL_NPC_CLOSED" then
+	elseif event == "TRADE_SKILL_CLOSE" then
 		TSMAPI.Threading:SendMsg(private.managerThreadId, "HIDE")
 		return
 	end
@@ -589,7 +588,6 @@ end
 function private.CloseProfession()
 	if not C_TradeSkillUI.GetTradeSkillLine() then return end
 	C_TradeSkillUI.CloseTradeSkill()
-	C_Garrison.CloseGarrisonTradeskillNPC()
 end
 
 function private.ProfessionScanCompleteCallback()
