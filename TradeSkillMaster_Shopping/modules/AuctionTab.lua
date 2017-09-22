@@ -292,6 +292,7 @@ function private.BuyAuctionsThread(self, auctionInfo)
 		buyoutInfo.perBuyQuantity = auctionRecord.stackSize * rate
 	end
 	while true do
+		-- TODO: Find Auction routine
 		local indexList = TSMAPI.Auction:FindAuctionNoScan(auctionRecord)
 		if not indexList then
 			-- clear out the message queue before continuing
