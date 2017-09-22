@@ -914,7 +914,7 @@ function private:SetGoldText()
 	local total = 0
 	local incomingTotal = 0
 	for i = 1, GetNumAuctionItems("owner") do
-		local count, buyoutAmount = TSMAPI.Util:Select({3, 10}, GetAuctionItemInfo("owner", i))
+		local count, buyoutAmount = TSMAPI.Util:Select({3, 9}, GetAuctionItemInfo("owner", i))
 		total = total + buyoutAmount
 		if count == 0 then
 			incomingTotal = incomingTotal + buyoutAmount

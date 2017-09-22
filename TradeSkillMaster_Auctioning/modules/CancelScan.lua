@@ -21,7 +21,7 @@ function Cancel:StartScan(isGroup, scanInfo)
 	local processedItems, scanList = {}, {}
 
 	for i=1, GetNumAuctionItems("owner") do
-		local name, _, quantity, _, _, _, _, _, _, _, bid, _, _, _, _, isSold = GetAuctionItemInfo("owner", i)
+		local name, _, quantity, _, _, _, _, _, _, bid, _, _, isSold = GetAuctionItemInfo("owner", i)
 		local itemString
 		if isGroup then
 			itemString = TSMAPI.Item:ToBaseItemString(GetAuctionItemLink("owner", i), true)
@@ -176,7 +176,7 @@ function private.CancelScanThread(self, scanList)
 			-- figure out which index the item goes to
 			local index, backupIndex
 			for i=GetNumAuctionItems("owner"), 1, -1 do
-				local _, _, quantity, _, _, _, _, bid, _, buyout, activeBid = GetAuctionItemInfo("owner", i)
+				local _, _, quantity, _, _, _, bid, _, buyout, activeBid = GetAuctionItemInfo("owner", i)
 				local itemString
 				if private.specialScanOptions then
 					-- use regular item strings for special scans
@@ -254,7 +254,7 @@ function private:ProcessItem(self, itemString, noLog)
 	local numAddedToQueue = 0
 	if private.specialScanOptions then
 		for i=GetNumAuctionItems("owner"), 1, -1 do
-			local name, _, quantity, _, _, _, _, bid, _, buyout, activeBid, _, _, _, _, isSold = GetAuctionItemInfo("owner", i)
+			local name, _, quantity, _, _, _, bid, _, buyout, activeBid, _, _, isSold = GetAuctionItemInfo("owner", i)
 			if isSold == 0 and (TSM.db.global.cancelWithBid or activeBid == 0) then
 				if itemString == TSMAPI.Item:ToItemString(GetAuctionItemLink("owner", i)) then
 					local shouldCancel = false
@@ -286,7 +286,7 @@ function private:ProcessItem(self, itemString, noLog)
 			local toCancel, reasonToCancel, reasonNotToCancel, lowBuyout
 			local cancelAuctions = {}
 			for i=GetNumAuctionItems("owner"), 1, -1 do
-				local buyout, _, _, _, _, _, isSold = select(10, GetAuctionItemInfo("owner", i))
+				local buyout, _, _, _, isSold = select(9, GetAuctionItemInfo("owner", i))
 				if isSold == 0 and itemString == TSMAPI.Item:ToBaseItemString(GetAuctionItemLink("owner", i), true) then
 					local shouldCancel, reason = private:ShouldCancel(i, itemString, operation)
 					if shouldCancel then
@@ -329,7 +329,7 @@ function private:ProcessItem(self, itemString, noLog)
 end
 
 function private:ShouldCancel(index, itemString, operation)
-	local _, _, quantity, _, _, _, _, bid, _, buyout, activeBid, _, _, _, _, wasSold = GetAuctionItemInfo("owner", index)
+	local _, _, quantity, _, _, _, bid, _, buyout, activeBid, _, _, wasSold = GetAuctionItemInfo("owner", index)
 	local buyoutPerItem = floor(buyout / quantity)
 	local bidPerItem = floor(bid / quantity)
 	if operation.matchStackSize and quantity ~= operation.stackSize then
