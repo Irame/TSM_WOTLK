@@ -1,3 +1,163 @@
+v3.0.16
+*Updated TOC version for patch 7.3.
+*Fixed bugs with changes to how sounds are played.
+
+v3.0.15
+*Updated TOC version for patch 7.2.
+
+v3.0.14
+*Updated TOC version for patch 7.1.
+
+v3.0.13
+*Fixed issue where moving random enchant / staged items were treated as base items.
+
+v3.0.12
+*Fixed some slowness with evaluating prices.
+
+v3.0.11
+*Fixed error when starting a quick post scan.
+
+v3.0.10
+*Using new APIs added to core TSM addon to workaround Blizzard's item caching issues.
+
+v3.0.9
+*Bumped TOC version for patch 7.0.x.
+
+v3.0.8
+*Added some analytics events.
+
+v3.0.7
+*Fixed bug with internal logging message.
+
+v3.0.6
+*Added two new module APIs for third-party addons to use.
+
+v3.0.5
+*Increase max slider values to 5k for reset scan options.
+
+v3.0.4
+*Fixed issue with item auctions not properly updating.
+*Fixed visual issue with log tooltip for reset scan.
+
+v3.0.3
+*Fixed lua error when viewing auctions during special cancel scan.
+
+v3.0.2
+*Fixed bug with blacklisted players not being undercut properly.
+
+v3.0.1
+*Fixed lua error when the post scan detects an invalid configuration.
+
+v3.0
+*Initial 3.0 version!
+\\
+
+v2.4.6
+*Updated for patch 6.2
+
+v2.4.5
+*Fixing interface version.
+
+v2.4.4
+*Updated for patch 6.1.
+
+v2.4.3
+*Added reagent bank for auctioning bankui functions.
+*Ignore Soulbound items for auctioning bankui functions.
+
+v2.4.2
+*Updated for patch 6.0.2
+
+v2.4.1
+*Fixed lua error with post / cancel scan caused by new blacklist code.
+
+v2.4
+*Shortened "Ignore Auctions Below Minimum" to "Ignore Auctions Below Min" so it'd fit in the dropdown better.
+*Added a blacklist option to Auctioning operations.
+*Made the item icon at the top of the Auctioning AH tab while posting/canceling clickable.
+*Minor visual changes to Auctioning options.
+*Fixed reset scan not selecting proper row after buying an auction.
+*Scans with large filters should no longer cause interface lag while the results are beeing processed.
+
+v2.3.3
+*Fixed typo in normal price tooltip.
+*Taking advantage of TSMAPI:IsPlayer() for better connected realm support.
+
+v2.3.2
+*Fixed bug with max inventory quantity not working for reset scan.
+
+v2.3.1
+*No update. Trying to fix issue with curse.
+
+v2.3
+*Added keep quantity to Auctioning operations (including relationship support).
+*Added warning (in chat) for items with min prices below the vendor sell price.
+*Added relationship support for "Max Inventory Quantity" reset option.
+
+v2.2.7
+*The sound for when a post/cancel scan is complete is now defaulted to off.
+
+v2.2.6
+*Fixed bug with getting battle pet stack size.
+
+v2.2.5
+*Added the option to select the sound that is played when post / cancel scan is complete.
+
+v2.2.4
+*Fixed a few bugs in the post scan code.
+*Fixed bug with the cancel scan not canceling at the min price when it should to repost higher.
+
+v2.2.3
+*Auctioning will now the bid as well as the buyout of whitelisted players (when it previously just matched the buyout).
+*Fixed a bug with multiple profiles.
+
+v2.2.2
+*Fixed bug with cancel scan when player's auction was the only one and "above max" price was set to post at max.
+
+v2.2.1
+*Updating group tree creation API call.
+
+v2.2
+*Fixed bug with the post scan searching for operations which have posting disabled.
+*Fixed bug with log tooltips not displaying the lowest buyout.
+*Fixed intermittent issue with the post scan not finding an item and throwing an error.
+*Added "above max price" dropdown to post options within operations.
+
+v2.1.1
+*Fixed bug with sorting of log.
+
+v2.1
+*Added reset method to ignore all auctions below min price.
+*Enabled sorting of post / cancel log.
+*Added "Max Inventory Quantity" option to the reset options of operations.
+*Enabled sorting of post/cancel log.
+*Added custom filter support for canceling all auctions below/above a buyout price.
+*Fixed some 5.4 issues.
+*Updated TOC for patch 5.4.
+*Fixed bug with cancel scan validating repost higher threshold when not enabled.
+
+v2.0.2
+*Fixed localization related error.
+*Fixed bug related to canceling auctions which the player has undercut.
+*Moved operation management to new tab.
+
+v2.0.1
+*Fixed a bug with posting against whitelist auctions above the max price.
+*Fixed bug with cancel scan scanning operations without canceling enabled.
+
+v2.0
+*First 2.0 Version!
+\\
+
+v1.3
+*Updated for patch 5.2.
+*The cancel scan should no longer cause UI lag when requeuing items which didn't cancel correctly the first time.
+*Made the "___ as a ___" price source dropboxes slightly larger.
+*Fixed a global usage of _ which was causing taint in the glyph UI.
+*Added basic support for battle pets.
+*Added category management buttons for removing all category overrides and for removing all group overrides.
+*Many other minor bug fixes and improvements.
+
 v1.2
 *Added Auctioning group creation wizard.
 *Fixed some divide by zero issues for patch 5.0.4.

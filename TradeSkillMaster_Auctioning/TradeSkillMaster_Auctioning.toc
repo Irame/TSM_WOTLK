@@ -1,11 +1,11 @@
-## Interface: 50000
+## Interface: 70300
 ## Title: |cff00ff00TradeSkillMaster_Auctioning|r
-## Notes: Manages your auctions!
-## Author: Sapu94
-## Version: v1.2.4
+## Notes: Manages the posting, canceling, and resetting of auctions.
+## Author: Sapu94, Bart39
+## Version: v3.0.16
 ## Dependency: TradeSkillMaster
 ## SavedVariables: TradeSkillMaster_AuctioningDB
-## X-Curse-Packaged-Version: v1.2.4
+## X-Curse-Packaged-Version: v3.0.16
 ## X-Curse-Project-Name: TradeSkillMaster_Auctioning
 ## X-Curse-Project-ID: tradeskillmaster_auctioning
 ## X-Curse-Repository-ID: wow/tradeskillmaster_auctioning/mainline
@@ -22,14 +22,12 @@ Locale\zhTW.lua
 Locale\ptBR.lua
 
 TradeSkillMaster_Auctioning.lua
-modules\Config.lua
 modules\Log.lua
 modules\ScanUtil.lua
 modules\Manage.lua
 modules\CancelScan.lua
 modules\PostScan.lua
 modules\ResetScan.lua
-modules\ImportExport.lua
 modules\GUI.lua
-modules\Wizard.lua
 modules\Util.lua
+modules\Options.lua

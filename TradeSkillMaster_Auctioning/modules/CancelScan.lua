@@ -1,372 +1,423 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_Auctioning - AddOn by Sapu94							 	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctioning.aspx  --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
-
+-- ------------------------------------------------------------------------------ --
+--                           TradeSkillMaster_Auctioning                          --
+--           http://www.curse.com/addons/wow/tradeskillmaster_auctioning          --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 local TSM = select(2, ...)
 local Cancel = TSM:NewModule("Cancel", "AceEvent-3.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("TradeSkillMaster_Auctioning") -- loads the localization table
+local private = {queue={}, threadId=nil, specialScanOptions=nil}
+local CANCEL_ALL_OPERATION = {isFake=true}
 
-local cancelQueue, currentItem, tempIndexList, itemsToCancel = {}, {}, {}, {}
-local totalToCancel, totalCanceled, count = 0, 0, 0
-local isScanning, GUI, cancelError, isCancelAll
 
-function Cancel:GetScanListAndSetup(GUIRef, options)
-	-- setup stuff
-	GUI = GUIRef
-	options = options or {}
-	isScanning = true
-	isCancelAll = options.cancelAll or options.cancelDuration or options.cancelFilter
-	cancelError = nil
-	wipe(cancelQueue)
-	wipe(currentItem)
-	wipe(itemsToCancel)
-	totalToCancel, totalCanceled, count = 0, 0, 0
-	
-	local tempList, scanList, groupTemp = {}, {}, {}
-	
-	if options.cancelAll then
-		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(13, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(10, GetAuctionItemInfo("owner", i)) == 0) then
-				local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
-				itemsToCancel[itemString] = true
-				tempList[itemString] = true
-			end
+function Cancel:StartScan(isGroup, scanInfo)
+	wipe(private.queue)
+	wipe(TSM.operationLookup)
+	private.specialScanOptions = nil
+	TSM.operationNameLookup[CANCEL_ALL_OPERATION] = "|cffff0000"..L["Cancel All"].."|r"
+	local processedItems, scanList = {}, {}
+
+	for i=1, GetNumAuctionItems("owner") do
+		local name, _, quantity, _, _, _, _, _, _, _, bid, _, _, _, _, isSold = GetAuctionItemInfo("owner", i)
+		local itemString
+		if isGroup then
+			itemString = TSMAPI.Item:ToBaseItemString(GetAuctionItemLink("owner", i), true)
+		else
+			itemString = TSMAPI.Item:ToItemString(GetAuctionItemLink("owner", i))
 		end
-	elseif options.cancelDuration then
-		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(13, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(10, GetAuctionItemInfo("owner", i)) == 0) then
-				local timeLeft = GetAuctionItemTimeLeft("owner", i)
-				if timeLeft <= TSM.db.global.lowDuration then
-					local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
-					itemsToCancel[itemString] = true
-					tempList[itemString] = true
+		if isSold == 0 and itemString and not processedItems[itemString] then
+			processedItems[itemString] = true
+			if isGroup then
+				if not TSM.db.global.cancelWithBid and bid > 0 then
+					-- we aren't canceling auctions with bids
+					TSM.Log:AddLogRecord(itemString, "cancel", "Skip", "bid", CANCEL_ALL_OPERATION)
+				elseif scanInfo[itemString] then
+					local operations = {}
+					for _, operation in pairs(scanInfo[itemString]) do
+						if operation.cancelUndercut or operation.cancelRepost then
+							tinsert(operations, operation)
+						end
+					end
+					if #operations > 0 then
+						TSM.operationLookup[itemString] = operations
+						local isValid
+						for _, operation in pairs(operations) do
+							if operation.cancelUndercut or operation.cancelRepost then
+								isValid = true
+								if not private:ValidateOperation(itemString, operation) then
+									isValid = nil
+									break
+								end
+							end
+						end
+						if isValid then
+							tinsert(scanList, itemString)
+						end
+					end
+				end
+			else
+				if scanInfo.cancelAll then
+					if not TSM.db.global.cancelWithBid and bid > 0 then
+						-- we aren't canceling auctions with bids
+						TSM.Log:AddLogRecord(itemString, "cancel", "Skip", "bid", CANCEL_ALL_OPERATION)
+					else
+						tinsert(scanList, itemString)
+					end
+				elseif scanInfo.duration then
+					local timeLeft = GetAuctionItemTimeLeft("owner", i)
+					if timeLeft <= scanInfo.duration then
+						if not TSM.db.global.cancelWithBid and bid > 0 then
+							-- we aren't canceling auctions with bids
+							TSM.Log:AddLogRecord(itemString, "cancel", "Skip", "bid", CANCEL_ALL_OPERATION)
+						else
+							tinsert(scanList, itemString)
+						end
+					end
+				elseif scanInfo.filter then
+					if strfind(strlower(name), strlower(scanInfo.filter)) then
+						if not TSM.db.global.cancelWithBid and bid > 0 then
+							-- we aren't canceling auctions with bids
+							TSM.Log:AddLogRecord(itemString, "cancel", "Skip", "bid", CANCEL_ALL_OPERATION)
+						else
+							tinsert(scanList, itemString)
+						end
+					end
 				end
 			end
 		end
-		isCancelAll = TSM.db.global.lowDuration
-	elseif options.cancelFilter then
+	end
+
+	if #scanList == 0 then return false end
+	private.specialScanOptions = not isGroup and scanInfo
+	if isGroup then
+		TSM:AnalyticsEvent("CANCEL_GROUP_START")
+	elseif scanInfo.cancelAll then
+		TSM:AnalyticsEvent("CANCEL_ALL_START")
+	elseif scanInfo.duration then
+		TSM:AnalyticsEvent("CANCEL_DURATION_START", scanInfo.duration)
+	elseif scanInfo.filter then
+		TSM:AnalyticsEvent("CANCEL_FILTER_START")
+	end
+	private.threadId = TSMAPI.Threading:Start(private.CancelScanThread, 0.7, TSM.Manage.StopScan, scanList)
+	return true
+end
+
+function private:ValidateOperation(itemString, operation)
+	local prices = TSM.Util:GetItemPrices(operation, itemString, false, {minPrice=true, normalPrice=true, maxPrice=true, cancelRepostThreshold=true, undercut=true})
+	local errMsg = nil
+
+	-- don't cancel this item if their settings are invalid
+	if not prices.minPrice then
+		errMsg = format(L["Did not cancel %s because your minimum price (%s) is invalid. Check your settings."], TSMAPI.Item:GetLink(itemString), operation.minPrice)
+	elseif not prices.maxPrice then
+		errMsg = format(L["Did not cancel %s because your maximum price (%s) is invalid. Check your settings."], TSMAPI.Item:GetLink(itemString), operation.maxPrice)
+	elseif not prices.normalPrice then
+		errMsg = format(L["Did not cancel %s because your normal price (%s) is invalid. Check your settings."], TSMAPI.Item:GetLink(itemString), operation.normalPrice)
+	elseif operation.cancelRepost and not prices.cancelRepostThreshold then
+		errMsg = format(L["Did not cancel %s because your cancel to repost threshold (%s) is invalid. Check your settings."], TSMAPI.Item:GetLink(itemString), operation.cancelRepostThreshold)
+	elseif not prices.undercut then
+		errMsg = format(L["Did not cancel %s because your undercut (%s) is invalid. Check your settings."], TSMAPI.Item:GetLink(itemString), operation.undercut)
+	elseif prices.maxPrice < prices.minPrice then
+		errMsg = format(L["Did not cancel %s because your maximum price (%s) is lower than your minimum price (%s). Check your settings."], TSMAPI.Item:GetLink(itemString), operation.maxPrice, operation.minPrice)
+	elseif prices.normalPrice < prices.minPrice then
+		errMsg = format(L["Did not cancel %s because your normal price (%s) is lower than your minimum price (%s). Check your settings."], TSMAPI.Item:GetLink(itemString), operation.normalPrice, operation.minPrice)
+	end
+
+	if errMsg then
+		if not TSM.db.global.disableInvalidMsg then
+			TSM:Print(errMsg)
+		end
+		TSM.Log:AddLogRecord(itemString, "cancel", "Skip", "invalid", operation)
+		return false
+	else
+		return true
+	end
+end
+
+function private.CancelScanThread(self, scanList)
+	self:SetThreadName("AUCTIONING_CANCEL_SCAN")
+	local currentItem, doneScanning
+	local numToCancel, numCanceled, numConfirmed = 0, 0, 0
+	local usedItemIndex, itemsCanceled, failedCancels = {}, {}, {}
+	TSM.GUI:SetScanThreadId(self:GetThreadId())
+	self:RegisterEvent("CHAT_MSG_SYSTEM", function(_, msg) if msg == ERR_AUCTION_REMOVED then self:SendMsgToSelf("ACTION_CONFIRMED") end end)
+	self:RegisterEvent("UI_ERROR_MESSAGE", function(_, msg) if msg == ERR_ITEM_NOT_FOUND then self:SendMsgToSelf("ACTION_FAILED") end end)
+
+	if private.specialScanOptions then
+		for _, itemString in ipairs(scanList) do
+			self:SendMsgToSelf("PROCESS_ITEM", itemString)
+		end
+		self:SendMsgToSelf("DONE_SCANNING")
+		TSM.Manage:UpdateStatus("query", 1, 1)
+		TSM.Manage:UpdateStatus("scan", 1, 1)
+	else
+		TSM.Scan:StartItemScan(scanList, self:GetThreadId())
+	end
+
+	while true do
+		local args = self:ReceiveMsg()
+		local event = tremove(args, 1)
+		if event == "PROCESS_ITEM" then
+			-- process a newly scanned item
+			local itemString = unpack(args)
+			numToCancel = numToCancel + private:ProcessItem(self, itemString)
+			TSM.GUI:UpdateSTData()
+		elseif event == "DONE_SCANNING" then
+			-- we are done scanning
+			doneScanning = true
+			sort(private.queue, function(a, b) return (a.index or 0) > (b.index or 0) end)
+			TSMAPI:DoPlaySound(TSM.db.global.scanCompleteSound)
+		elseif event == "ACTION_BUTTON" then
+			-- cancel an auction
+			TSM.GUI:SetButtonsEnabled(false)
+			-- figure out which index the item goes to
+			local index, backupIndex
+			for i=GetNumAuctionItems("owner"), 1, -1 do
+				local _, _, quantity, _, _, _, _, bid, _, buyout, activeBid = GetAuctionItemInfo("owner", i)
+				local itemString
+				if private.specialScanOptions then
+					-- use regular item strings for special scans
+					itemString = TSMAPI.Item:ToItemString(GetAuctionItemLink("owner", i))
+				else
+					itemString = TSMAPI.Item:ToBaseItemString(GetAuctionItemLink("owner", i), true)
+				end
+				bid = bid or 0
+				buyout = buyout or 0
+				if itemString == currentItem.itemString and abs(buyout - (currentItem.buyout or 0)) < quantity and abs(bid - (currentItem.bid or 0)) < quantity and (not TSM.db.global.cancelWithBid and activeBid == 0 or TSM.db.global.cancelWithBid) then
+					if not usedItemIndex[itemString..buyout..bid..i] then
+						usedItemIndex[itemString..buyout..bid..i] = true
+						index = i
+						break
+					else
+						backupIndex = backupIndex or i
+					end
+				end
+			end
+			-- if we found an index then cancel the item
+			if index then
+				CancelAuction(index)
+			elseif backupIndex then
+				CancelAuction(backupIndex)
+			end
+			tinsert(itemsCanceled, tremove(private.queue, 1))
+			numCanceled = numCanceled + 1
+		elseif event == "ACTION_CONFIRMED" then
+			-- a cancel has been confirmed by the server
+			numConfirmed = numConfirmed + 1
+		elseif event == "ACTION_FAILED" then
+			-- a cancel has failed
+			numConfirmed = numConfirmed + 1
+			TSM:LOG_INFO("Failed to cancel auction (%d, %d, %d)", numConfirmed, #failedCancels, #itemsCanceled)
+			tinsert(failedCancels, itemsCanceled[numConfirmed].itemString)
+		elseif event == "SKIP_BUTTON" then
+			-- skip the current item
+			tinsert(itemsCanceled, tremove(private.queue, 1))
+			numConfirmed = numConfirmed + 1
+			numCanceled = numCanceled + 1
+		else
+			error("Unpexected message: "..tostring(event))
+		end
+
+		-- update the current item / button state
+		currentItem = #private.queue > 0 and private.queue[1] or nil
+		TSM.GUI:SetButtonsEnabled(currentItem and true or false)
+		TSM.Manage:SetCurrentItem(currentItem)
+		if numToCancel > 0 then
+			TSM.Manage:UpdateStatus("manage", numCanceled, numToCancel)
+			TSM.Manage:UpdateStatus("confirm", numConfirmed, numToCancel)
+		end
+
+		if doneScanning and numConfirmed == numToCancel then
+			if #failedCancels > 0 then
+				numCanceled = numToCancel
+				for _, itemString in ipairs(failedCancels) do
+					numToCancel = numToCancel + private:ProcessItem(self, itemString, true)
+					self:Yield()
+				end
+				wipe(failedCancels)
+				-- send a message to ourselves in order to refresh the current item / status
+				TSMAPI.Threading:SendMsg(self:GetThreadId(), {"DONE_SCANNING"})
+			else
+				-- we're done canceling
+				TSMAPI:DoPlaySound(TSM.db.global.confirmCompleteSound)
+				TSM.Manage:StopScan() -- will kill this thread
+				return
+			end
+		end
+	end
+end
+
+function private:ProcessItem(self, itemString, noLog)
+	local numAddedToQueue = 0
+	if private.specialScanOptions then
 		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(13, GetAuctionItemInfo("owner", i)) == 0 and (not TSM.db.global.cancelWithBid or select(10, GetAuctionItemInfo("owner", i)) == 0) then
-				local itemName = GetAuctionItemInfo("owner", i)
-				if strfind(strlower(itemName), strlower(options.cancelFilter)) then
-					local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
-					itemsToCancel[itemString] = true
-					tempList[itemString] = true
+			local name, _, quantity, _, _, _, _, bid, _, buyout, activeBid, _, _, _, _, isSold = GetAuctionItemInfo("owner", i)
+			if isSold == 0 and (TSM.db.global.cancelWithBid or activeBid == 0) then
+				if itemString == TSMAPI.Item:ToItemString(GetAuctionItemLink("owner", i)) then
+					local shouldCancel = false
+					if private.specialScanOptions.cancelAll then
+						shouldCancel = true
+					elseif private.specialScanOptions.duration then
+						local timeLeft = GetAuctionItemTimeLeft("owner", i)
+						if timeLeft <= private.specialScanOptions.duration then
+							shouldCancel = true
+						end
+					elseif private.specialScanOptions.filter then
+						if strfind(strlower(name), strlower(private.specialScanOptions.filter)) then
+							shouldCancel = true
+						end
+					end
+					if shouldCancel then
+						numAddedToQueue = numAddedToQueue + 1
+						tinsert(private.queue, {itemString=itemString, stackSize=quantity, buyout=buyout, bid=bid, index=i, numStacks=1, operation=CANCEL_ALL_OPERATION})
+						if not noLog then
+							TSM.Log:AddLogRecord(itemString, "cancel", "Cancel", "cancelAll", CANCEL_ALL_OPERATION)
+						end
+					end
 				end
 			end
 		end
 	else
-		-- Add a scan based on items in the AH that match
-		for i=GetNumAuctionItems("owner"), 1, -1 do
-			if select(13, GetAuctionItemInfo("owner", i)) == 0 then
-				local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
-				local itemID = TSMAPI:GetItemID(itemString)
-				if TSM.itemReverseLookup[itemID] then
-					itemString = itemID
-				end
-				local groupName = TSM.itemReverseLookup[itemString]
-				if groupName and not tempList[itemString] and TSM.Scan:ShouldScan(itemString, "Cancel", options.groups) then
-					local searchTerm = TSM.Config:GetConfigValue(itemString, "searchTerm")
-					if not TSM.db.profile.itemIDGroups[groupName] and searchTerm and searchTerm ~= "" then
-						searchTerm = strlower(searchTerm)
-						groupTemp[searchTerm] = groupTemp[searchTerm] or {group=groupName}
-						tinsert(groupTemp[searchTerm], itemString)
+		if not TSM.operationLookup[itemString] then return 0 end
+		for _, operation in pairs(TSM.operationLookup[itemString]) do
+			local toCancel, reasonToCancel, reasonNotToCancel, lowBuyout
+			local cancelAuctions = {}
+			for i=GetNumAuctionItems("owner"), 1, -1 do
+				local buyout, _, _, _, _, _, isSold = select(10, GetAuctionItemInfo("owner", i))
+				if isSold == 0 and itemString == TSMAPI.Item:ToBaseItemString(GetAuctionItemLink("owner", i), true) then
+					local shouldCancel, reason = private:ShouldCancel(i, itemString, operation)
+					if shouldCancel then
+						shouldCancel.reason = reason
+						tinsert(cancelAuctions, shouldCancel)
+						lowBuyout = lowBuyout and min(lowBuyout, buyout) or buyout
+					else
+						reasonNotToCancel = reasonNotToCancel or reason
+						lowBuyout = lowBuyout and min(lowBuyout, buyout) or buyout
 					end
-					tempList[itemString] = true
+				end
+				self:Yield()
+			end
+
+			local numKept = 0
+			sort(cancelAuctions, function(a, b) return a.buyout < b.buyout end)
+			for i=#cancelAuctions, 1, -1 do
+				local auction = cancelAuctions[i]
+				if (auction.reason == "whitelistUndercut" or auction.reason == "undercut" or auction.reason == "notLowest") and numKept < operation.keepPosted then
+					numKept = numKept + 1
+					reasonNotToCancel = "keepPosted"
+				else
+					toCancel = true
+					reasonToCancel = auction.reason
+					numAddedToQueue = numAddedToQueue + 1
+					tinsert(private.queue, auction)
+				end
+			end
+
+			if not noLog then
+				if toCancel then
+					TSM.Log:AddLogRecord(itemString, "cancel", "Cancel", reasonToCancel, operation, lowBuyout)
+				elseif reasonNotToCancel then
+					TSM.Log:AddLogRecord(itemString, "cancel", "Skip", reasonNotToCancel, operation, lowBuyout)
 				end
 			end
 		end
-		
-		for searchTerm, items in pairs(groupTemp) do
-			tinsert(scanList, {name=searchTerm, items=items, group=items.group})
-			for _, itemString in ipairs(items) do
-				tempList[itemString] = nil
-			end
-		end
 	end
-	
-	for itemString in pairs(tempList) do
-		tinsert(scanList, itemString)
-	end
-	
-	return scanList
+	return numAddedToQueue
 end
 
-function Cancel:ProcessItem(itemString, noLog)
-	local toCancel, reasonToCancel, reasonNotToCancel
-	for i=GetNumAuctionItems("owner"), 1, -1 do
-		local link = GetAuctionItemLink("owner", i)
-		if itemString == TSMAPI:GetItemString(link) or itemString == TSMAPI:GetItemID(link) then
-			local shouldCancel, reason = Cancel:ShouldCancel(i)
-			if shouldCancel then
-				toCancel = true
-				reasonToCancel = reason
-				totalToCancel = totalToCancel + 1
-				tinsert(cancelQueue, shouldCancel)
-			else
-				reasonNotToCancel = reasonNotToCancel or reason
-			end
-		end
-	end
-	
-	if not noLog then
-		if toCancel then
-			TSM.Log:AddLogRecord(itemString, "cancel", "Cancel", reasonToCancel)
-		elseif reasonNotToCancel then
-			TSM.Log:AddLogRecord(itemString, "cancel", "Skip", reasonNotToCancel)
-		end
-	end
-	
-	if #cancelQueue > 0 then
-		TSM.Manage:UpdateGUI()
-	end
-end
-
-function Cancel:ShouldCancel(index)
-	local _, _, quantity, _, _, _, bid, _, buyout, activeBid, _, _, wasSold = GetAuctionItemInfo("owner", index)     
+function private:ShouldCancel(index, itemString, operation)
+	local _, _, quantity, _, _, _, _, bid, _, buyout, activeBid, _, _, _, _, wasSold = GetAuctionItemInfo("owner", index)
 	local buyoutPerItem = floor(buyout / quantity)
 	local bidPerItem = floor(bid / quantity)
-	
-	local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", index))
-	local itemID = TSMAPI:GetItemID(itemString)
-	if TSM.itemReverseLookup[itemID] then
-		itemString = itemID
-	end
-	local cancelData = {itemString=itemString, stackSize=quantity, buyout=buyout, bid=bid, index=index, numStacks=1}
-	
-	if isCancelAll then
-		if type(isCancelAll) ~= "number" or GetAuctionItemTimeLeft("owner", index) <= isCancelAll then
-			return cancelData, "cancelAll"
-		else
-			return false, "cancelAll"
-		end
-	end
-	
-	local item = TSM.Config:GetConfigObject(itemString)
-	local lowestBuyout, lowestBid, lowestOwner, isWhitelist, _, isPlayer, isInvalidSeller = TSM.Scan:GetLowestAuction(item.auctionItem)
-	local secondLowest = TSM.Scan:GetSecondLowest(itemString, lowestBuyout)
-	
-	if wasSold == 1 or not lowestOwner then
-		-- if this auction was sold or we don't have any data on it then this request is invalid
+	if operation.matchStackSize and quantity ~= operation.stackSize then
 		return
-	elseif isInvalidSeller or not lowestBuyout then
-		if isInvalidSeller then
-			TSM:Printf(L["Seller name of lowest auction for item %s was not returned from server. Skipping this item."], GetAuctionItemLink("owner", index))
+	end
+
+	local cancelData = {itemString=itemString, stackSize=quantity, buyout=buyout, bid=bid, index=index, numStacks=1, operation=operation}
+	local lowestAuction = TSM.Scan:GetLowestAuction(itemString, operation)
+	local prices = TSM.Util:GetItemPrices(operation, itemString, false, {minPrice=true, normalPrice=true, maxPrice=true, resetPrice=true, cancelRepostThreshold=true, undercut=true, aboveMax=true})
+
+	if not lowestAuction then
+		-- all auctions which are posted (including ours) have been ignored, so we should cancel to post higher
+		if operation.cancelRepost and prices.normalPrice - buyoutPerItem > prices.cancelRepostThreshold then
+			return cancelData, "repost"
 		else
-			TSM:Printf(L["Invalid scan data for item %s. Skipping this item."], GetAuctionItemLink("owner", index))
+			return false, "notUndercut"
 		end
+	elseif lowestAuction.isInvalidSeller then
+		TSM:Printf(L["The seller name of the lowest auction for %s was not given by the server. Skipping this item."], GetAuctionItemLink("owner", index))
 		return false, "invalidSeller"
 	end
-	
+
 	if not TSM.db.global.cancelWithBid and activeBid > 0 then
 		-- Don't cancel an auction if it has a bid and we're set to not cancel those
 		return false, "bid"
 	end
-	
-	
-	if item.reset ~= "none" and lowestBuyout < item.threshold then
-		-- item is below threshold so it was posted according to reset method
-		local resetBuyout
-		local resolution
-		if item.reset == "custom" then
-			resolution = 0
-			resetBuyout = item.resetPrice
-		else
-			resolution = item.resetResolutionPercent/100
-			resetBuyout = item[item.reset]
-		end
-		if resetBuyout and (abs(resetBuyout - buyoutPerItem) / buyoutPerItem) <= resolution then
-			-- we are at the reset price so don't cancel
-			return false, "atReset"
-		else
-			-- we should cancel to repost this item at the reset price
+
+	local secondLowestBuyout = TSM.Scan:GetNextLowest(itemString, lowestAuction.buyout, operation) or 0
+	if buyoutPerItem < prices.minPrice and not lowestAuction.isBlacklist then
+		-- this auction is below min price
+		if operation.cancelRepost and prices.resetPrice and buyoutPerItem < (prices.resetPrice - prices.cancelRepostThreshold) then
+			-- canceling to post at reset price
 			return cancelData, "reset"
 		end
-	elseif not (TSM.db.global.smartCancel and lowestBuyout <= item.threshold and not item.auctionItem:IsPlayerOnly()) and (buyoutPerItem - item.undercut) > (TSM.Scan:GetPlayerLowestBuyout(item.auctionItem) or math.huge) then
-		-- we should cancel and this isn't the player's lowest auction
-		return cancelData, "notLowest"
-	elseif (item.auctionItem:IsPlayerOnly() or (isPlayer and secondLowest and secondLowest > (item.fallback * item.fallbackCap))) and abs(item.fallback - buyoutPerItem) < quantity then
-		-- we are posted at fallback with no competition under our max price
-		return false, "atFallback"
-	elseif TSM.db.global.repostCancel and isPlayer and ((secondLowest and secondLowest > (lowestBuyout + item.undercut)) or (not secondLowest and abs(item.fallback - buyoutPerItem) > quantity)) then
-		-- Lowest is the player and the percent difference between the players lowest and the second lowest is too large so cancel to repost higher
-		if floor(lowestBuyout) == floor(buyoutPerItem) and item.undercut ~= 0 then
-			-- The item that the difference is too high is actually on the tier that was too high as well
-			-- so cancel it, the reason this check is done here is so it doesn't think it undercut itself.
-			return cancelData, "repost"
-		end
-	elseif TSM.db.global.smartCancel and lowestBuyout <= item.threshold and not item.auctionItem:IsPlayerOnly() then
-		-- we can't repost at all so don't bother canceling
-		return false, "belowThreshold"
-	elseif not (isPlayer or isWhitelist) then
-		-- they aren't us (The player posting) or on our whitelist and they undercut us
-		return cancelData, "undercut"
-	elseif (not isPlayer and isWhitelist) and (buyoutPerItem > lowestBuyout or (buyoutPerItem == lowestBuyout and lowestBid < bidPerItem)) then
-		-- they are on our white list, but they undercut us or their bid is lower
-		return cancelData, "whitelistUndercut"
-	end
-	
-	return false, "notUndercut"
-end
-
--- register events and queue up the first item to cancel
-function Cancel:SetupForAction()
-	Cancel:RegisterEvent("CHAT_MSG_SYSTEM")
-	Cancel:RegisterEvent("UI_ERROR_MESSAGE")
-	Cancel:UpdateItem()
-end
-
--- Check if an auction was canceled and move on if so
-function Cancel:CHAT_MSG_SYSTEM(_, msg)
-	if msg == ERR_AUCTION_REMOVED then
-		count = count + 1
-	end
-end
-
--- "Item Not Found" error
-function Cancel:UI_ERROR_MESSAGE(event, msg)
-	if msg == ERR_ITEM_NOT_FOUND then
-		cancelError = true
-		count = count + 1
-	end
-end
-
-local function CountFrame()
-	if count == totalToCancel then
-		TSMAPI:CancelFrame("cancelCountFrame")
-		Cancel:Stop()
-	end
-end
-
-local function DelayFrame()
-	if not isScanning and #(cancelQueue) == 0 then
-		TSMAPI:CreateFunctionRepeat("cancelCountFrame", CountFrame)
-		TSMAPI:CancelFrame("cancelDelayFrame")
-	elseif #(cancelQueue) > 0 then
-		Cancel:UpdateItem()
-		TSMAPI:CancelFrame("cancelDelayFrame")
-	end
-end
-
--- updates the current item to the first one in the list
-function Cancel:UpdateItem()
-	if #(cancelQueue) == 0 then
-		GUI.buttons:Disable()
-		if isScanning then
-			TSMAPI:CreateFunctionRepeat("cancelDelayFrame", DelayFrame)
-		else
-			TSMAPI:CreateFunctionRepeat("cancelCountFrame", CountFrame)
-		end
-		return
-	end
-	
-	sort(cancelQueue, function(a, b) return (a.index or 0)>(b.index or 0) end)
-
-	totalCanceled = totalCanceled + 1
-	wipe(currentItem)
-	currentItem = cancelQueue[1]
-	TSM.Manage:UpdateGUI()
-	GUI.buttons:Enable()
-end
-
--- cancel the current item (gets called when the button is pressed
-function Cancel:DoAction()
-	local index, backupIndex
-	-- make sure the currentItem is accurate
-	if cancelQueue[1].itemString ~= currentItem.itemString then
-		Cancel:UpdateItem()
-	end
-	
-	-- figure out which index the item goes to
-	for i=GetNumAuctionItems("owner"), 1, -1 do
-		local _, _, quantity, _, _, _, bid, _, buyout, activeBid = GetAuctionItemInfo("owner", i)
-		local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
-		if type(currentItem.itemString) == "number" then
-			itemString = TSMAPI:GetItemID(itemString)
-		end
-		if itemString == currentItem.itemString and abs((buyout or 0) - (currentItem.buyout or 0)) < quantity and abs((bid or 0) - (currentItem.bid or 0)) < quantity and (not TSM.db.global.cancelWithBid and activeBid == 0 or TSM.db.global.cancelWithBid) then
-			if not tempIndexList[itemString..buyout..bid..i] then
-				tempIndexList[itemString..buyout..bid..i] = true
-				index = i
-				break
-			else
-				backupIndex = i
+		return false, "belowMinPrice"
+	elseif lowestAuction.buyout < prices.minPrice and not lowestAuction.isBlacklist then
+		-- lowest buyout is below min price, so do nothing
+		return false, "belowMinPrice"
+	else
+		-- lowest buyout is above the min price
+		if operation.cancelUndercut and (buyoutPerItem - prices.undercut) > (TSM.Scan:GetPlayerLowestBuyout(itemString, operation) or math.huge) then
+			-- this is not our lowest auction
+			return cancelData, "notLowest"
+		elseif TSM.Scan:IsPlayerOnlySeller(itemString, operation) then
+			-- we are posted at the aboveMax price with no competition under our max price
+			-- check if we can repost higher
+			if operation.cancelRepost and prices.normalPrice - buyoutPerItem > prices.cancelRepostThreshold then
+				-- we can repost higher
+				return cancelData, "repost"
 			end
+			return false, "atNormal"
+		elseif lowestAuction.isPlayer and (secondLowestBuyout > prices.maxPrice) then
+			-- we are posted at the aboveMax price with no competition under our max price
+			-- check if we can repost higher
+			if operation.cancelRepost and operation.aboveMax ~= "none" and prices.aboveMax - buyoutPerItem > prices.cancelRepostThreshold then
+				-- we can repost higher
+				return cancelData, "repost"
+			end
+			return false, "atAboveMax"
+		elseif lowestAuction.isPlayer then
+			-- we are the loewst auction
+			-- check if we can repost higher
+			if operation.cancelRepost and ((secondLowestBuyout - prices.undercut) - lowestAuction.buyout) > prices.cancelRepostThreshold then
+				-- we can repost higher
+				return cancelData, "repost"
+			end
+			return false, "notUndercut"
+		elseif not operation.cancelUndercut then
+			return -- we're undercut but not canceling undercut auctions
+		elseif lowestAuction.isWhitelist and buyoutPerItem == lowestAuction.buyout then
+			-- at whitelisted player price
+			return false, "atWhitelist"
+		elseif not lowestAuction.isWhitelist then
+			-- we've been undercut by somebody not on our whitelist
+			return cancelData, "undercut"
+		elseif buyoutPerItem ~= lowestAuction.buyout or bidPerItem ~= lowestAuction.bid then
+			-- somebody on our whitelist undercut us (or their bid is lower)
+			return cancelData, "whitelistUndercut"
 		end
 	end
-	
-	-- if we found an index then cancel the item
-	if index then
-		CancelAuction(index)
-	elseif backupIndex then
-		CancelAuction(backupIndex)
-	end
-	
-	-- disable the button and move onto the next item
-	GUI.buttons:Disable()
-	tremove(cancelQueue, 1)
-	Cancel:UpdateItem()
+
+	error("unexpectedly reached end", buyoutPerItem, lowestAuction.buyout, lowestAuction.isWhitelist, lowestAuction.isPlayer, prices.minPrice)
 end
 
--- gets called when the "Skip Item" button is pressed
-function Cancel:SkipItem()
-	tremove(cancelQueue, 1)
-	count = count + 1
-	Cancel:UpdateItem()
-end
-
--- we are done canceling (maybe)
-function Cancel:Stop(interrupted)
-	wipe(tempIndexList)
-	if not cancelError or interrupted then
-		-- didn't get "item not found" for any cancels or we were interrupted so we are done
-		TSMAPI:CancelFrame("cancelCountFrame")
-		TSMAPI:CancelFrame("cancelDelayFrame")
-		TSMAPI:CancelFrame("updateCancelStatus")
-		GUI:Stopped()
-	
-		Cancel:UnregisterAllEvents()
-		Cancel:UnregisterAllMessages()
-		wipe(currentItem)
-		totalToCancel, totalCanceled = 0, 0
-		isScanning = false
-	else -- got an "item not found" so requeue ones that we missed
-		count = totalToCancel
-		cancelError = nil
-		local tempList = {}
-		for i=GetNumAuctionItems("owner"), 1, -1 do
-			local itemString = TSMAPI:GetItemString(GetAuctionItemLink("owner", i))
-			local itemID = TSMAPI:GetItemID(itemString)
-			if not isCancelAll and TSM.itemReverseLookup[itemID] then
-				itemString = itemID
-			end
-			if not tempList[itemString] then
-				if not isCancelAll or itemsToCancel[itemString] then
-					Cancel:ProcessItem(itemString, true)
-				end
-				tempList[itemString] = true
-			end
-		end
-		isScanning = false
-		Cancel:UpdateItem()
-	end
-end
-
-function Cancel:GetStatus()
-	return count, totalCanceled, totalToCancel
-end
-
-function Cancel:GetCurrentItem()
-	return currentItem
-end
-
-function Cancel:DoneScanning()
-	isScanning = false
+function Cancel:StopCanceling()
+	TSMAPI.Threading:Kill(private.threadId)
+	Cancel:UnregisterAllEvents()
+	wipe(private.queue)
+	private.threadId = nil
+	private.specialScanOptions = nil
 end

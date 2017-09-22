@@ -1,13 +1,10 @@
--- ------------------------------------------------------------------------------------- --
--- 					TradeSkillMaster_Auctioning - AddOn by Sapu94							 	  --
---   http://wow.curse.com/downloads/wow-addons/details/tradeskillmaster_auctioning.aspx  --
---																													  --
---		This addon is licensed under the CC BY-NC-ND 3.0 license as described at the		  --
---				following url: http://creativecommons.org/licenses/by-nc-nd/3.0/			 	  --
--- 	Please contact the author via email at sapu94@gmail.com with any questions or		  --
---		concerns regarding this license.																	  --
--- ------------------------------------------------------------------------------------- --
-
+-- ------------------------------------------------------------------------------ --
+--                           TradeSkillMaster_Auctioning                          --
+--           http://www.curse.com/addons/wow/tradeskillmaster_auctioning          --
+--                                                                                --
+--             A TradeSkillMaster Addon (http://tradeskillmaster.com)             --
+--    All Rights Reserved* - Detailed license information included with addon.    --
+-- ------------------------------------------------------------------------------ --
 
 local TSM = select(2, ...)
 local Log = TSM:NewModule("Log", "AceEvent-3.0")
@@ -22,32 +19,43 @@ local CYAN = "|cff99ffff"
 
 local info = {
 	post = {
-		invalid = {L["Item/Group is invalid."], RED},
-		notEnough = {L["Not enough items in bags."], ORANGE},
-		belowThreshold = {L["Cheapest auction below threshold."], ORANGE},
+		invalid = {L["Item/Group is invalid (see chat)."], RED, true},
+		notEnough = {L["Not enough items in bags."], ORANGE, true},
+		maxExpires = {L["Above max expires."], ORANGE, true},
+		belowMinPrice = {L["Cheapest auction below min price."], ORANGE},
 		tooManyPosted = {L["Maximum amount already posted."], CYAN},
-		posting = {L["Posting this item."], GREEN},
-		postingFallback = {L["Posting at fallback."], GREEN},
-		postingReset = {L["Posting at reset price."], GREEN},
+		postingNormal = {L["Posting at normal price."], GREEN},
+		postingResetMin = {L["Below min price. Posting at min price."], GREEN},
+		postingResetMax = {L["Below min price. Posting at max price."], GREEN},
+		postingResetNormal = {L["Below min price. Posting at normal price."], GREEN},
+		aboveMaxMin = {L["Above max price. Posting at min price."], GREEN},
+		aboveMaxMax = {L["Above max price. Posting at max price."], GREEN},
+		aboveMaxNormal = {L["Above max price. Posting at normal price."], GREEN},
+		aboveMaxNoPost = {L["Above max price. Not posting."], ORANGE},
 		postingPlayer = {L["Posting at your current price."], GREEN},
 		postingWhitelist = {L["Posting at whitelisted player's price."], GREEN},
 		notPostingWhitelist = {L["Lowest auction by whitelisted player."], ORANGE},
 		postingUndercut = {L["Undercutting competition."], GREEN},
 		invalidSeller = {L["Invalid seller data returned by server."], RED},
+		undercuttingBlacklist = {L["Undercutting blacklisted player."], GREEN},
 	},
 	cancel = {
-		bid = {L["Auction has been bid on."], CYAN},
+		invalid = {L["Item/Group is invalid (see chat)."], RED, true},
+		bid = {L["Auction has been bid on."], CYAN, true},
 		atReset = {L["Not canceling auction at reset price."], GREEN},
 		reset = {L["Canceling to repost at reset price."], CYAN},
-		belowThreshold = {L["Not canceling auction below threshold."], ORANGE},
+		belowMinPrice = {L["Not canceling auction below min price."], ORANGE},
 		undercut = {L["You've been undercut."], RED},
 		whitelistUndercut = {L["Undercut by whitelisted player."], RED},
-		atFallback = {L["At fallback price and not undercut."], GREEN},
+		atNormal = {L["At normal price and not undercut."], GREEN},
+		atAboveMax = {L["At above max price and not undercut."], GREEN},
 		repost = {L["Canceling to repost at higher price."], CYAN},
 		notUndercut = {L["Your auction has not been undercut."], GREEN},
-		cancelAll = {L["Canceling all auctions."], CYAN},
+		cancelAll = {L["Canceling all auctions."], CYAN, true},
 		notLowest = {L["Canceling auction which you've undercut."], CYAN},
 		invalidSeller = {L["Invalid seller data returned by server."], RED},
+		atWhitelist = {L["Posted at whitelisted player's price."], GREEN},
+		keepPosted = {L["Keeping undercut auctions posted."], CYAN},
 	},
 }
 
@@ -59,9 +67,10 @@ function Log:GetColor(mode, reason)
 	return mode and reason and info[mode] and info[mode][reason] and info[mode][reason][2]
 end
 
-function Log:AddLogRecord(itemString, mode, action, reason, data, activeAuctions)
+function Log:AddLogRecord(itemString, mode, action, reason, operation, buyout)
 	local info = Log:GetInfo(mode, reason)
-	local record = {itemString=itemString, info=info, action=action, data=data, mode=mode, reason=reason, activeAuctions=activeAuctions}
+	TSMAPI:Assert(itemString and operation, "Assertion Failed: "..tostring(itemString))
+	local record = {itemString=itemString, info=info, action=action, mode=mode, reason=reason, operation=operation, buyout=buyout}
 	tinsert(records, record)
 end
 
@@ -79,4 +88,8 @@ end
 
 function Log:Clear()
 	wipe(records)
+end
+
+function Log:IsNoScanReason(mode, reason)
+	return mode and reason and info[mode] and info[mode][reason] and info[mode][reason][3]
 end
