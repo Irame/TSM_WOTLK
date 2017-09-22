@@ -256,39 +256,39 @@ function Gather:GetFrameInfo()
 		},
 		handlers = {
 			OnShow = function(self)
-				if not self.helpBtn then
-					local helpPlateInfo = {
-						FramePos = { x = 0, y = 0 },
-						FrameSize = { width = private.selectionFrame.gather:GetWidth(), height = private.selectionFrame.gather:GetHeight() },
-						{
-							ButtonPos = { x = 100, y = -50 },
-							HighLightBox = { x = 0, y = -50, width = private.selectionFrame.gather:GetWidth(), height = 50 },
-							ToolTipDir = "RIGHT",
-							ToolTipText = L["You can use this dropdown to switch between crafters."]
-						},
-						{
-							ButtonPos = { x = 100, y = -100 },
-							HighLightBox = { x = 0, y = -100, width = private.selectionFrame.gather:GetWidth(), height = 50 },
-							ToolTipDir = "RIGHT",
-							ToolTipText = L["Once a crafter is selected, you can use this dropdown to select the profession(s) you want to gather for."]
-						},
-						{
-							ButtonPos = { x = 100, y = -150 },
-							HighLightBox = { x = 0, y = -150, width = private.selectionFrame.gather:GetWidth(), height = 50 },
-							ToolTipDir = "RIGHT",
-							ToolTipText = L["Once a crafter and profession(s) are selected, Click this button to start gathering."]
-						},
-					}
-
-					self.helpBtn = CreateFrame("Button", nil, private.selectionFrame.gather, "MainHelpPlateButton")
-					self.helpBtn:SetPoint("CENTER", private.selectionFrame.gather, "TOPRIGHT", 0, 0)
-					self.helpBtn:SetScript("OnClick", function() TradeSkill:ToggleHelpPlate(private.selectionFrame.gather, helpPlateInfo, self.helpBtn, true) end)
-					self.helpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then TradeSkill:ToggleHelpPlate(private.selectionFrame.gather, helpPlateInfo, self.helpBtn, false) end end)
-					if not TSM.db.global.helpPlatesShown.gatherSelection then
-						TSM.db.global.helpPlatesShown.gatherSelection = true
-						TradeSkill:ToggleHelpPlate(private.selectionFrame.gather, helpPlateInfo, self.helpBtn, false)
-					end
-				end
+--				if not self.helpBtn then
+--					local helpPlateInfo = {
+--						FramePos = { x = 0, y = 0 },
+--						FrameSize = { width = private.selectionFrame.gather:GetWidth(), height = private.selectionFrame.gather:GetHeight() },
+--						{
+--							ButtonPos = { x = 100, y = -50 },
+--							HighLightBox = { x = 0, y = -50, width = private.selectionFrame.gather:GetWidth(), height = 50 },
+--							ToolTipDir = "RIGHT",
+--							ToolTipText = L["You can use this dropdown to switch between crafters."]
+--						},
+--						{
+--							ButtonPos = { x = 100, y = -100 },
+--							HighLightBox = { x = 0, y = -100, width = private.selectionFrame.gather:GetWidth(), height = 50 },
+--							ToolTipDir = "RIGHT",
+--							ToolTipText = L["Once a crafter is selected, you can use this dropdown to select the profession(s) you want to gather for."]
+--						},
+--						{
+--							ButtonPos = { x = 100, y = -150 },
+--							HighLightBox = { x = 0, y = -150, width = private.selectionFrame.gather:GetWidth(), height = 50 },
+--							ToolTipDir = "RIGHT",
+--							ToolTipText = L["Once a crafter and profession(s) are selected, Click this button to start gathering."]
+--						},
+--					}
+--
+--					self.helpBtn = CreateFrame("Button", nil, private.selectionFrame.gather, "MainHelpPlateButton")
+--					self.helpBtn:SetPoint("CENTER", private.selectionFrame.gather, "TOPRIGHT", 0, 0)
+--					self.helpBtn:SetScript("OnClick", function() TradeSkill:ToggleHelpPlate(private.selectionFrame.gather, helpPlateInfo, self.helpBtn, true) end)
+--					self.helpBtn:SetScript("OnHide", function() if HelpPlate_IsShowing(helpPlateInfo) then TradeSkill:ToggleHelpPlate(private.selectionFrame.gather, helpPlateInfo, self.helpBtn, false) end end)
+--					if not TSM.db.global.helpPlatesShown.gatherSelection then
+--						TSM.db.global.helpPlatesShown.gatherSelection = true
+--						TradeSkill:ToggleHelpPlate(private.selectionFrame.gather, helpPlateInfo, self.helpBtn, false)
+--					end
+--				end
 				private:UpdateGatherSelectionWindow()
 			end,
 			OnMouseDown = function(self)
