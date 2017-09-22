@@ -225,7 +225,7 @@ local function GetSearchFilterOptions(searchTerm)
 		minILevel = oldMaxILevel
 	end
 
-	return true, queryString or "", class or nil, subClass or nil, invType or nil, minLevel or 0, maxLevel or 0, minILevel or 0, maxILevel or 0, rarity or 0, usableOnly or nil, exactOnly or nil, evenOnly or nil, maxQuantity or math.huge, maxPrice
+	return true, queryString or "", class or nil, subClass or nil, invType or nil, minLevel or nil, maxLevel or nil, minILevel or nil, maxILevel or nil, rarity or nil, usableOnly or nil, exactOnly or nil, evenOnly or nil, maxQuantity or math.huge, maxPrice
 end
 
 -- gets all the filters for a given search term (possibly semicolon-deliminated list of search terms)
