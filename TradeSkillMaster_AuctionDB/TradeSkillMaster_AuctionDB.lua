@@ -26,7 +26,7 @@ StaticPopupDialogs["TSM_AUCTIONDB_NO_DATA_POPUP"] = {
 local settingsInfo = {
 	version = 2,
 	realm = {
-		hasAppData = { type = "boolean", default = true, lastModifiedVersion = 1},
+		hasAppData = { type = "boolean", default = false, lastModifiedVersion = 1},
 		lastSaveTime = { type = "number", default = 0, lastModifiedVersion = 1},
 		lastCompleteScan = { type = "number", default = 0, lastModifiedVersion = 1},
 		lastPartialScan = { type = "number", default = 0, lastModifiedVersion = 1},
@@ -220,9 +220,9 @@ function TSM:OnEnable()
 	for itemString in pairs(TSM.realmData) do
 		TSMAPI.Item:FetchInfo(itemString)
 	end
-	if not next(TSM.realmData) then
-		TSMAPI.Util:ShowStaticPopupDialog("TSM_AUCTIONDB_NO_DATA_POPUP")
-	end
+--	if not next(TSM.realmData) then
+--		TSMAPI.Util:ShowStaticPopupDialog("TSM_AUCTIONDB_NO_DATA_POPUP")
+--	end
 end
 
 function TSM:ProcessAppData(rawData)
