@@ -135,6 +135,11 @@ local function ScanDriver()
 end
 
 function Scan:StartProfessionScan()
+	if (select(2, GetTradeSkillInfo(1)) ~= "header") then
+		TSM:Print("Tradeskill is not fully loaded, try to scan it later.")
+		ScanDone()
+		return
+	end
 	scanCoroutine = coroutine.create(Scan.ScanCrafts)
 	TSMAPI:CreateTimeDelay("craftingProfessionScan", 0.1, ScanDriver, 0)
 	TSMAPI:CreateTimeDelay("craftingProfessionScanTimeout", 10, ScanDone)
@@ -144,7 +149,17 @@ function Scan:ScanCrafts()
 	local matsTemp = {}
 	local enchantsTemp = {}
 	local validMatItemIDs, validCraftItemIDs = {}, {}
-	
+
+	for index=2, GetNumTradeSkills() do
+		for i=1, GetTradeSkillNumReagents(index) do
+			if not TSMAPI:GetItemID(GetTradeSkillReagentItemLink(index, i)) or not GetTradeSkillReagentInfo(index, i) then
+				TradeSkillFrame_SetSelection(index)
+				break
+			end
+		end
+	end
+	TradeSkillFrame_Update()
+
 	for index=2, GetNumTradeSkills() do
 		local dataTemp = {mats={}, itemID=nil, spellID=nil, queued=0, group=nil, name=nil}
 		local tsLink = GetTradeSkillItemLink(index)
