@@ -745,11 +745,16 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 				if profit then
 					if profit <= 0 then color = RED end
 				end
+				local itemLvl = select(4, GetItemInfo(itemID))
 				
 				tinsert(stData, {
 					cols = {
 						{
 							value = data.enabled and "|TInterface\\Buttons\\UI-CheckBox-Check:24|t" or "",
+						},
+						{
+							value = itemLvl or "?",
+							args = {itemLvl or 0}
 						},
 						{
 							value = select(2, GetItemInfo(itemID)) or data.name,
@@ -809,6 +814,12 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 			comparesort = ColSortMethod,
 		},
 		{
+			name = L["iLvL"],
+			width = 0.07,
+			defaultsort = "dsc",
+			comparesort = ColSortMethod,
+		},
+		{
 			name = L["Name"],
 			width = 0.45,
 			defaultsort = "asc",
@@ -816,19 +827,19 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 		},
 		{
 			name = L["Crafting Cost"],
-			width = 0.15,
+			width = 0.12,
 			defaultsort = "dsc",
 			comparesort = ColSortMethod,
 		},
 		{
 			name = L["Profit"],
-			width = 0.15,
+			width = 0.12,
 			defaultsort = "dsc",
 			comparesort = ColSortMethod,
 		},
 		{
 			name = L["Times Crafted"],
-			width = 0.15,
+			width = 0.14,
 			defaultsort = "dsc",
 			comparesort = ColSortMethod,
 		},

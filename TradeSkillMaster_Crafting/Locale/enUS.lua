@@ -36,6 +36,7 @@ L["Mark as Unknown (\"----\")"] = true
 L["Set Crafted Item Cost to Auctioning Fallback"] = true
 L["Show Crafting Cost in Tooltip"] = true
 L["If checked, the crafting cost of items will be shown in the tooltip for the item."] = true
+L["iLvL"] = true
 L["Name"] = true
 L["Cost to Craft"] = true
 L["Profit"] = true
