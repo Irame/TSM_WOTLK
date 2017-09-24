@@ -142,7 +142,7 @@ function Crafting:CreateButton(parent, text, fontObject, fontSize, buttonName, i
 end
 
 function Crafting:CreateWhiteButton(parent, height, text, fontSize, buttonName, inheritsFrame) -- updated
-	local btn = Crafting:CreateButton(parent, text, ZoneTextFont, fontSize, buttonName, inheritsFrame)
+	local btn = Crafting:CreateButton(parent, text, SubZoneTextFont, fontSize + 6, buttonName, inheritsFrame)
 	btn:GetFontString():SetTextColor(1, 1, 1, 1)
 	btn:SetPushedTextOffset(0, 0)
 	btn:SetBackdrop({
