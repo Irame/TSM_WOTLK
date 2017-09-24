@@ -86,6 +86,7 @@ function Crafting:PrepareFrame(hide)
 	-- register events and collect some data
 	Crafting.isCrafting = 0
 	Crafting:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	Crafting:RegisterEvent("UNIT_SPELLCAST_FAILED")
 	Crafting:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 	Crafting:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	Crafting:RegisterEvent("BAG_UPDATE")
@@ -495,6 +496,7 @@ function Crafting:CreateCraftingDisabledMessage() -- updated
 					CastSpellByName(name)
 					Crafting.isCrafting = 0
 					Crafting:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+					Crafting:RegisterEvent("UNIT_SPELLCAST_FAILED")
 					Crafting:RegisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 					Crafting:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 					Crafting:RegisterEvent("BAG_UPDATE")
@@ -1458,6 +1460,7 @@ function Crafting:TRADE_SKILL_CLOSE()
 	
 	Crafting:UnregisterEvent("TRADE_SKILL_UPDATE")
 	Crafting:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	Crafting:UnregisterEvent("UNIT_SPELLCAST_FAILED")
 	Crafting:UnregisterEvent("UNIT_SPELLCAST_FAILED_QUIET")
 	Crafting:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 end
@@ -1493,6 +1496,10 @@ function Crafting:UNIT_SPELLCAST_SUCCEEDED(_, unit, spellName)
 end
 
 function Crafting:UNIT_SPELLCAST_INTERRUPTED(...)
+	Crafting:UNIT_SPELLCAST_FAILED_QUIET(...)
+end
+
+function Crafting:UNIT_SPELLCAST_FAILED(...)
 	Crafting:UNIT_SPELLCAST_FAILED_QUIET(...)
 end
 
