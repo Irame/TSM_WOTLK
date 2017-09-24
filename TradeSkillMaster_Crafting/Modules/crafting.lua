@@ -1473,19 +1473,19 @@ function Crafting:BAG_UPDATE()
 end
 
 -- detects when crafts are successfully cast and removes that item from the queue
-function Crafting:UNIT_SPELLCAST_SUCCEEDED(_, unit, _, _, _, spellID)
+function Crafting:UNIT_SPELLCAST_SUCCEEDED(_, unit, spellName)
 	-- verifies that we are interested in this spellcast
 	if unit ~= "player" or not TSM.Data[Crafting.mode] then
 		return
 	end
 	
 	for _, data in pairs(TSM.Data[Crafting.mode].crafts) do
-		if spellID == data.spellID then
+		if spellName == GetSpellInfo(data.spellID) then
 			-- decrements the number of this craft that are queued to be crafted
 			data.queued = data.queued - 1
-			TSM.db.profile.craftHistory[spellID] = (TSM.db.profile.craftHistory[spellID] or 0) + 1
+			TSM.db.profile.craftHistory[data.spellID] = (TSM.db.profile.craftHistory[data.spellID] or 0) + 1
 			Crafting.isCrafting = Crafting.isCrafting - 1
-			TSM.Queue.lastCraft = spellID
+			TSM.Queue.lastCraft = data.spellID
 			TSMAPI:CreateTimeDelay("craftingSpellcastSucceededBucket", 0.2, function() Crafting:UpdateAllScrollFrames() end)
 			break
 		end
@@ -1496,13 +1496,13 @@ function Crafting:UNIT_SPELLCAST_INTERRUPTED(...)
 	Crafting:UNIT_SPELLCAST_FAILED_QUIET(...)
 end
 
-function Crafting:UNIT_SPELLCAST_FAILED_QUIET(_, unit, _, _, _, spellID)
+function Crafting:UNIT_SPELLCAST_FAILED_QUIET(_, unit, spellName)
 	-- verifies that we are interested in this spellcast
 	if unit ~= "player" then
 		return
 	end
-	
-	if spellID == Crafting.craftNextButton.spellID then
+
+	if Crafting.craftNextButton.spellID and spellName == GetSpellInfo(Crafting.craftNextButton.spellID) then
 		Crafting.isCrafting = 0
 		TSMAPI:CreateTimeDelay("craftingSpellcastFailedBucket", 0.2, function() Crafting:UpdateAllScrollFrames() end)
 	end
