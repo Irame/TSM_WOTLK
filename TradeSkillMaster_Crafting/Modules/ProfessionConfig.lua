@@ -754,7 +754,7 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 						},
 						{
 							value = itemLvl or "?",
-							args = {itemLvl or 0}
+							args = {-itemLvl or 0, data.name}
 						},
 						{
 							value = select(2, GetItemInfo(itemID)) or data.name,
@@ -798,12 +798,20 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 		local a, b = st:GetCell(aRow, col), st:GetCell(bRow, col)
 		local column = st.cols[col]
 		local direction = column.sort or column.defaultsort or "dsc"
-		local aValue, bValue = ((a.args or {})[1] or a.value), ((b.args or {})[1] or b.value)
-		if direction == "asc" then
-			return aValue < bValue
-		else
-			return aValue > bValue
+		local a_args, b_args = a.args or {a.value}, b.args or {b.value}
+		local idx = 1
+		while a_args[idx] and b_args[idx] do
+			local aValue, bValue = a_args[idx], b_args[idx]
+			if aValue ~= bValue then
+				if direction == "asc" then
+					return aValue < bValue
+				else
+					return aValue > bValue
+				end
+			end
+			idx = idx + 1
 		end
+		return true
 	end
 	
 	local colInfo = {
@@ -816,7 +824,7 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 		{
 			name = L["iLvL"],
 			width = 0.07,
-			defaultsort = "dsc",
+			defaultsort = "asc",
 			comparesort = ColSortMethod,
 		},
 		{
