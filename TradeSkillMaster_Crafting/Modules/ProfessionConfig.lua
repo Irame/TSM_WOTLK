@@ -908,11 +908,12 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 		end,
 		["OnEnter"] = function(_, self, data, _, _, rowNum, col)
 			if not rowNum then return end
-			
-			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-			if col == 2 then
+
+			if col == 3 then
+				GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 				GameTooltip:SetHyperlink("item:"..data[rowNum].itemID)
 			else
+				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
 				GameTooltip:SetText(TSMAPI.Design:GetInlineColor("link2")..L["Left-Click"]..": |r"..L["Enable / Disable showing this craft in the craft management window."].."\n"..TSMAPI.Design:GetInlineColor("link2")..L["Right-Click"]..": |r"..L["Additional Item Settings"], 1, 1, 1, 1, false)
 			end
 			GameTooltip:Show()
