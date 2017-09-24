@@ -463,7 +463,7 @@ function ProfessionConfig:LoadSubCraftsPage(container, slot)
 				disabled = TSM.db.profile.minRestockQuantity[itemID] == nil,
 				callback = function(self)
 						local value = TSM.db.profile.minRestockQuantity[itemID] - 1
-						if value < 1 then value = 1 end
+						if value < 1 then value = 0 end
 						TSM.db.profile.minRestockQuantity[itemID] = value
 
 						local i = getIndex(self.parent.children, self)
