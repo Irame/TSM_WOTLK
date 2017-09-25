@@ -191,10 +191,10 @@ function private:CreateGroupSelectionScreen(parent)
 	sg.frame:Show()
 	frame.sg = sg
 	
-	TSMAPI.GUI:CreateVerticalLine(frame, sg.frame:GetWidth() + 6, nil, true)
+	TSMAPI.GUI:CreateVerticalLine(frame, frame:GetWidth() - 220, nil, true)
 	
 	local controlFrame = CreateFrame("Frame", nil, frame)
-	controlFrame:SetPoint("TOPLEFT", sg.frame:GetWidth() + 6, 0)
+	controlFrame:SetPoint("TOPLEFT", frame:GetWidth() - 220, 0)
 	controlFrame:SetPoint("BOTTOMRIGHT")
 	frame.controlFrame = controlFrame
 	
