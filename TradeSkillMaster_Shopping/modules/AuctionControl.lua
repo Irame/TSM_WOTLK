@@ -175,6 +175,7 @@ function private:FindCurrentAuctionForBuyout()
 		debug("waiting")
 		return TSMAPI:CreateTimeDelay("diffDelay", 0.2, private.FindCurrentAuctionForBuyout)
 	end
+	if not currentAuction then return end
 	
 	AuctionControl:UpdateMatchList(true)
 	if #AuctionControl.matchList > 0 then
